@@ -6,8 +6,10 @@ const PUBLICAS = ['/login', '/redefinir-senha'];
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
+  const sbUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  if (sbUrl.startsWith('/') && request.nextUrl.pathname.startsWith(sbUrl)) return NextResponse.next();
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    sbUrl.startsWith('/') ? (process.env.SUPABASE_PROXY_TARGET || request.nextUrl.origin + sbUrl) : sbUrl,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
