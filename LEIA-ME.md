@@ -24,3 +24,4 @@ Login e recuperação de senha · menu por setores · funcionários (cadastro, i
 
 ## Próximas fases
 SESMT · Logística · Engenharia · Financeiro · Suprimentos.
+.
