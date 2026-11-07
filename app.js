@@ -49,7 +49,8 @@ function makeSupabaseApi(cfg){
   async upsert(t,rows,onConflict){return chk(await sb.from(t).upsert(rows,{onConflict}).select())},
   async remove(t,f){return chk(await filt(sb.from(t).delete(),f))},
   async rpc(n,a){return chk(await sb.rpc(n,a||{}))},
-  async fn(n,body){const r=await sb.functions.invoke(n,{body});if(r.error){let msg=r.error.message,cod;try{const j=await r.error.context.json();msg=j.error||msg;cod=j.codigo}catch(e){}
+  async fn(n,body){const r=await sb.functions.invoke(n,{body});if(r.error){let msg=r.error.message,cod;let st=0;try{st=r.error.context.status||0;const tx=await r.error.context.text();let j={};try{j=JSON.parse(tx)}catch(_){j={error:tx}};msg=j.error||j.message||j.msg||msg;cod=j.codigo}catch(e){}
+    if(st===401&&/jwt|token|unauthori/i.test(msg))msg='O Supabase recusou a chamada (401: '+msg+'). Em Edge Functions › criar-usuario › Settings, desligue "Verify JWT with legacy secret" e clique em Save changes. Depois saia e entre de novo no portal.';else if(st)msg+=' (código '+st+')';
     if(/Failed to send a request|not found|404/i.test(msg))msg='A função "'+n+'" ainda não foi publicada no Supabase (Edge Functions). Veja o passo a passo.';const e=new Error(msg);e.codigo=cod;throw e}return r.data},
   async signIn(email,password){return chk(await sb.auth.signInWithPassword({email,password}))},
   async signOut(){await sb.auth.signOut()},
