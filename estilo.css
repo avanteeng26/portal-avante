@@ -372,3 +372,15 @@ table.imp-nf input[data-ret]:disabled{background:#f3f5f8;color:#9aa3ad}
 .gtoday{position:absolute;top:0;bottom:0;width:2px;background:#e8590c;z-index:1;opacity:.7;pointer-events:none}
 .cr-ck{display:inline-flex;gap:6px;align-items:center;font-size:13px;white-space:nowrap;padding-bottom:8px}.cr-ck input{width:auto;margin:0}
 .glb{color:#33475b}
+/* ---------- pagamentos / recebimentos em aberto ---------- */
+.fa-wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:14px;margin:14px 0}
+.fa-card{padding:0;overflow:hidden}.fa-h{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);font-size:15px}
+.fa-ct{display:flex;align-items:center;gap:6px;margin:0;white-space:nowrap}.fa-ct select{margin:0;padding:3px 6px;width:auto;max-width:200px;font-size:12px;border-color:transparent;color:var(--accent,#1771b6);background:transparent;cursor:pointer}.fa-ct select:hover{border-color:var(--line)}
+.fa-b{display:flex;align-items:stretch}.fa-g{padding:10px 14px;border-right:1px solid var(--line);display:flex;align-items:center}
+.fa-seg{cursor:pointer;transition:opacity .15s}.fa-seg:hover{opacity:.8}.fa-n{font-size:22px;fill:var(--text,#1f2d3d)}.fa-t{font-size:9px;fill:var(--muted,#64748b)}
+.fa-ls{flex:1;display:flex;flex-direction:column}.fa-l{flex:1;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 16px;border-bottom:1px solid #eef1f4;font-size:13px;cursor:pointer}.fa-l:last-child{border-bottom:0}.fa-l:hover{background:var(--surface2,#f6f8fa)}.fa-l.fa-zero{opacity:.45}
+.fa-old{padding:6px 16px;border-top:1px solid #eef1f4;color:var(--bad,#c0392b);cursor:pointer}
+.fa-f{padding:10px 16px;border-top:1px solid var(--line);font-size:13px}.fa-f a{cursor:pointer;color:var(--text);font-weight:600}
+.fa-lista{max-height:320px;overflow:auto;border-top:1px solid var(--line);padding:0 8px}
+#faTip{position:fixed;z-index:9999;background:#1f2d3d;color:#fff;font-size:12px;padding:7px 10px;border-radius:7px;pointer-events:none;box-shadow:0 4px 14px rgba(0,0,0,.2);line-height:1.45}
+@media(max-width:600px){.fa-wrap{grid-template-columns:1fr}.fa-b{flex-direction:column}.fa-g{border-right:0;justify-content:center;border-bottom:1px solid var(--line)}}

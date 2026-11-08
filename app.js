@@ -4673,4 +4673,46 @@ PAGES.obraresumo={async load(){const obra=S.params.obra;const ob=obraObj(obra);i
 Object.assign(ACT,{resSem:t=>{S.params.sem=t.dataset.s;reload()},resPrint:()=>{const {ob,sem,fimS}=D();docPrint(`<h1>Resumo semanal · ${esc(ob.nome)}</h1><p style="text-align:center">${fD(sem)} a ${fD(fimS)}</p>`+$('#resDoc').innerHTML)},
  resWpp:()=>{const {ob,sem,fimS,rd}=D();const x=S._resTxt;let t=`*Resumo semanal · ${ob.nome}*\n${fD(sem)} a ${fD(fimS)}\n\n• RDOs: ${rd.length} (${rd.filter(r=>r.status==='Aprovado').length} aprovados)`;
   if(x)t+=`\n• Avanço previsto: ${N(x.P1,1)}%\n• Avanço realizado: ${N(x.A1,1)}% (+${N(x.A1-x.A0,1)} p.p. na semana)`+(x.atr.length?`\n\n⚠ Fora do prazo:\n${x.atr.slice(0,8).map(a=>'- '+a.f.wbs+' '+a.f.nome).join('\n')}`:'\n\nNenhuma tarefa fora do prazo.');window.open('https://wa.me/?text='+encodeURIComponent(t),'_blank')}});
+// ---------------------------------------------------------------- PAGAMENTOS / RECEBIMENTOS EM ABERTO (rosca + faixas de vencimento)
+// usado no painel financeiro e no painel da diretoria
+function faFaixas(d,tp,conta){const h=dk(T0),v90=dk(addD(T0,-90)),d7=dk(addD(T0,7)),d30=dk(addD(T0,30));
+ const ab=(d.L||[]).filter(l=>l.tipo===tp&&!l.data_pagamento&&!l._v&&!isTransf(l)&&(!conta||l.conta_id===conta));const vk=l=>String(l.vencimento).slice(0,10);
+ const g=f=>{const L=ab.filter(f);return {L,n:L.length,v:L.reduce((s,l)=>s+(+l.valor||0),0)}};
+ return {venc:g(l=>vk(l)<h&&vk(l)>=v90),hoje:g(l=>vk(l)===h),em7:g(l=>vk(l)>h&&vk(l)<=d7),em30:g(l=>vk(l)>d7&&vk(l)<=d30),antigos:g(l=>vk(l)<v90)}}
+function faCardHTML(d,tp){const st=S._fa||(S._fa={P:'',R:'',ex:{}});const conta=st[tp];const F=faFaixas(d,tp,conta);const P=tp==='P';const W=P?'pagar':'receber';
+ const ate7={n:F.hoje.n+F.em7.n,v:F.hoje.v+F.em7.v},ate30={n:F.hoje.n+F.em7.n+F.em30.n,v:F.hoje.v+F.em7.v+F.em30.v};const tot=F.venc.n+ate30.n;
+ const cor={venc:'#e57373',hoje:'#f39c12',em7:'#2176bd',em30:'#9ea7b8'};
+ const seg=[['venc','Vencidos nos últimos 90 dias',F.venc],['hoje',`A ${W} hoje`,F.hoje],['em7',`A ${W} de amanhã a 7 dias`,F.em7],['em30',`A ${W} de 8 a 30 dias`,F.em30]];
+ const vt=seg.reduce((s,x)=>s+x[2].v,0);let a0=-Math.PI/2;const R=60,r=38,cx=70,cy=70;
+ const arc=(a,b)=>{if(b-a>=2*Math.PI-1e-6)b=a+2*Math.PI-1e-4;const p=(rr,t)=>`${(cx+rr*Math.cos(t)).toFixed(2)} ${(cy+rr*Math.sin(t)).toFixed(2)}`;const lg=b-a>Math.PI?1:0;return `M${p(R,a)} A${R} ${R} 0 ${lg} 1 ${p(R,b)} L${p(r,b)} A${r} ${r} 0 ${lg} 0 ${p(r,a)}Z`};
+ const paths=vt>0?seg.filter(x=>x[2].v>0).map(([k,l,x])=>{const a=a0,b=a0+x.v/vt*2*Math.PI;a0=b;return `<path d="${arc(a,b)}" fill="${cor[k]}" class="fa-seg" data-fatip="${esc(l)}|${x.n} lançamento(s)|${BRL2(x.v)}|${N(x.v/vt*100,1)}%" data-act="faIr" data-tp="${tp}" data-f="${k}"></path>`}).join(''):`<circle cx="${cx}" cy="${cy}" r="${(R+r)/2}" fill="none" stroke="#e5e8ec" stroke-width="${R-r}"></circle>`;
+ const linha=(k,l,x,c)=>`<div class="fa-l${x.n?'':' fa-zero'}" data-act="faIr" data-tp="${tp}" data-f="${k}"><span style="color:${c}"><b>${l}</b> <span class="muted">(${x.n})</span></span><b>${BRL2(x.v)}</b></div>`;
+ const contas=(d.ct||[]).filter(c=>c.ativa!==false&&!c.virtual);const ex=st.ex[tp];
+ const lst=[...F.venc.L,...F.hoje.L,...F.em7.L,...F.em30.L].sort((a,b)=>String(a.vencimento).localeCompare(String(b.vencimento)));
+ return `<div class="card fa-card"><div class="fa-h"><span>${P?'Pagamentos':'Recebimentos'} em aberto</span><label class="small muted fa-ct">Conta: <select data-faconta="${tp}"><option value="">Todas as contas</option>${contas.map(c=>`<option value="${c.id}" ${c.id===conta?'selected':''}>${esc(c.nome)}</option>`).join('')}</select></label></div>
+  <div class="fa-b"><div class="fa-g"><svg viewBox="0 0 140 140" width="140" height="140">${paths}<text x="70" y="70" text-anchor="middle" class="fa-n">${tot}</text><text x="70" y="86" text-anchor="middle" class="fa-t">${P?'Pagamentos':'Recebimentos'}</text></svg></div>
+   <div class="fa-ls">${linha('venc','Vencidos nos últimos 90 dias',F.venc,cor.venc)}${linha('hoje',`A ${W} hoje`,F.hoje,cor.hoje)}${linha('em7',`A ${W} em 7 dias`,ate7,cor.em7)}${linha('em30',`A ${W} em 30 dias`,ate30,'#7d879a')}</div></div>
+  ${F.antigos.n?`<div class="small fa-old" data-act="faIr" data-tp="${tp}" data-f="antigos">+ ${F.antigos.n} vencido(s) há mais de 90 dias · ${BRL2(F.antigos.v)}</div>`:''}
+  <div class="fa-f"><a data-act="faEx" data-tp="${tp}">${ex?'Ocultar':'Exibir'} ${P?'pagamentos':'recebimentos'} ${ex?'⌃':'⌄'}</a></div>
+  ${ex?`<div class="tablewrap fa-lista"><table class="small"><tbody>${lst.slice(0,60).map(l=>{const vk=String(l.vencimento).slice(0,10);return `<tr><td>${fD(vk)}</td><td>${esc(fnFav(l.favorecido_id)||'—')}<div class="muted">${esc(l.descricao||'')}</div></td><td class="num"><b>${BRL2(+l.valor)}</b></td><td>${vk<dk(T0)?pill('vencido','bad'):vk===dk(T0)?pill('hoje','warn'):''}</td></tr>`}).join('')||'<tr><td class="muted">Nada em aberto.</td></tr>'}</tbody></table>${lst.length>60?`<p class="small muted">Mostrando 60 de ${lst.length}. <a class="lp-link" data-act="faIr" data-tp="${tp}" data-f="tudo">ver todos</a></p>`:''}</div>`:''}</div>`}
+const faPainel=d=>`<div class="fa-wrap">${perm('financeiro','ver')?faCardHTML(d,'P')+faCardHTML(d,'R'):''}</div>`;
+Object.assign(ACT,{
+ faIr:t=>{const f=t.dataset.f,h=dk(T0);let per,fst='abertos';
+  if(f==='venc'){per={modo:'per',ini:dk(addD(T0,-90)),fim:dk(addD(T0,-1))};fst='vencidos'}
+  else if(f==='antigos'){per={modo:'per',ini:'2000-01-01',fim:dk(addD(T0,-91))};fst='vencidos'}
+  else if(f==='hoje')per={modo:'dia',ref:h};else if(f==='em7')per={modo:'per',ini:h,fim:dk(addD(T0,7))};else if(f==='em30')per={modo:'per',ini:h,fim:dk(addD(T0,30))};
+  else per={modo:'per',ini:dk(addD(T0,-90)),fim:dk(addD(T0,30))};
+  faTipHide();S.fper=per;go(t.dataset.tp==='P'?'pagar':'receber',{fst})},
+ faEx:t=>{const st=S._fa||(S._fa={P:'',R:'',ex:{}});st.ex[t.dataset.tp]=!st.ex[t.dataset.tp];const y=window.scrollY;render();window.scrollTo(0,y)}});
+FIELD.push(ev=>{const t=ev.target;if(!t||!t.dataset||!t.dataset.faconta)return false;if(ev.type==='change'){const st=S._fa||(S._fa={P:'',R:'',ex:{}});st[t.dataset.faconta]=t.value;const y=window.scrollY;render();window.scrollTo(0,y)}return true});
+// legenda ao passar o mouse nas cores da rosca
+function faTipHide(){const b=document.getElementById('faTip');if(b)b.hidden=true}
+document.addEventListener('mousemove',e=>{const s=e.target.closest&&e.target.closest('[data-fatip]');let b=document.getElementById('faTip');if(!s){if(b)b.hidden=true;return}
+ if(!b){b=document.createElement('div');b.id='faTip';document.body.appendChild(b)}const[l,n,v,p]=s.dataset.fatip.split('|');b.innerHTML=`<b>${esc(l)}</b><div>${esc(n)}</div><div><b>${esc(v)}</b> · ${esc(p)} do total</div>`;b.hidden=false;
+ b.style.left=Math.min(window.innerWidth-b.offsetWidth-8,e.clientX+14)+'px';b.style.top=(e.clientY+14)+'px'});
+
+// no painel financeiro, logo abaixo dos indicadores
+(function(){const H0=PAGES.finpainel.html;PAGES.finpainel.html=function(){const h=H0.call(this);const d=D();if(!(d.L||[]).length)return h;const i=h.indexOf('<div class="grid rel-g mt">');return i<0?h+faPainel(d):h.slice(0,i)+faPainel(d)+h.slice(i)}})();
+// no painel da diretoria, abaixo dos cards dos setores
+(function(){const H0=PAGES.paineldir.html;PAGES.paineldir.html=function(){const h=H0.call(this);const d=D();if(!d.fin||!(d.fin.L||[]).length)return h;const i=h.indexOf('<div class="dir-g mt">');return i<0?h+faPainel(d.fin):h.slice(0,i)+faPainel(d.fin)+h.slice(i)}})();
 iniciar();
