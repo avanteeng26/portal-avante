@@ -3011,4 +3011,76 @@ crud({id:'fintarifas',tabela:'fin_tarifas',mod:'financeiro',titulo:'Tarifas banc
  def:()=>({automatica:true,ativa:true,categoria_id:catNome('Tarifas bancárias','Despesa')}),
  cols:[['Regra',r=>`<b>${esc(r.nome)}</b>`],['Texto no extrato',r=>String(r.padrao||'').split(';').filter(x=>x.trim()).map(x=>`<span class="tag">${esc(x.trim())}</span>`).join(' ')],['Conta',r=>esc(r.conta_id?fnConta(r.conta_id):'Todas')],['Categoria',r=>esc(fnCat(r.categoria_id).nome||'—')],['Valor',r=>r.valor!=null?BRL2(+r.valor):'<span class="muted">qualquer</span>',1],['Modo',r=>r.ativa===false?pill('Inativa',''):r.automatica?pill('Automática','ok'):pill('Sugere na conciliação','info')]],
  nota:'Dica: abra a Conciliação, veja como a tarifa aparece no histórico do banco (ex.: "TARIFA PIX ENVIADO") e copie um trecho para a regra. Use o valor fixo para separar tarifas com o mesmo texto e valores diferentes.'});
+// ================================================================ INÍCIO · indicadores do setor e pendências do usuário
+// substitui a página inicial antiga (atalhos de setor repetiam o menu lateral)
+const INI_SET=[['rh','Recursos Humanos','colab','rh'],['sst','Saúde e Segurança','sst','sst'],['log','Logística','logistica','logpainel'],['fin','Financeiro','financeiro','finpainel'],['com','Comercial','comercial','comdash']];
+function iniOrdem(){const n=semAc((S.perfil||{}).nome||'');const pri=/RH|RECURSOS|PESSOAL|DP/.test(n)?'rh':/FINANC/.test(n)?'fin':/LOGIST|FROTA/.test(n)?'log':/COMERC|VENDA/.test(n)?'com':/SESMT|SEGURAN|SST/.test(n)?'sst':null;
+ const L=INI_SET.filter(s=>perm(s[2],'ver')||(s[0]==='rh'&&(perm('ponto','ver')||perm('admissao','ver')||perm('rateio','ver'))));return pri?L.sort((a,b)=>(b[0]===pri)-(a[0]===pri)):L}
+PAGES.inicio={async load(){const o={};const ont=(()=>{let d=addD(T0,-1);while(carga(d)===0)d=addD(d,-1);return d})();o.ont=ont;const t=[];const P=(c,f)=>{if(c)t.push(Promise.resolve().then(f).catch(()=>{}))};
+ P(perm('colab','ver')||perm('ponto','ver'),async()=>{o.fs=await S.api.select('funcionarios',{cols:'*'})});
+ P(perm('ponto','ver'),async()=>{[o.pt,o.st,o.esp]=await Promise.all([S.api.select('ponto',{cols:'funcionario_id',eq:{data:dk(ont)}}),S.api.select('ponto_dia_status',{gte:{data:dk(addD(T0,-40))}}),S.api.select('espelho_assinaturas',{cols:'id,funcionario_id,status,competencia',eq:{competencia:LAST}}).catch(()=>null)])});
+ P(perm('admissao','ver'),async()=>{o.adm=await S.api.select('admissoes',{cols:'id,numero,etapa,obra_id,funcao_id,aberto_por,salario,candidato'})});
+ P(perm('rateio','ver'),async()=>{o.cp=(await S.api.select('competencias',{eq:{id:LAST}}))[0]||null});
+ P(perm('movim','ver'),async()=>{o.dl=await S.api.select('desligamentos',{cols:'id,funcionario_id,etapa,prazo_pagamento,data_pagamento,ultimo_dia'})});
+ P(perm('ferias','ver'),async()=>{o.fe=await S.api.select('ferias')});
+ P(perm('atestados','ver'),async()=>{o.at=await S.api.select('atestados',{gte:{data_inicio:dk(addD(T0,-75))}})});
+ P(perm('sst','ver'),async()=>{o.epi=await epiBase()});
+ P(perm('logistica','ver'),async()=>{o.lg=await PAGES.logpainel.load()});
+ P(perm('financeiro','ver'),async()=>{const[b,ex,cc]=await Promise.all([finBase(),S.api.select('fin_extrato',{cols:'id,conta_id,ignorado'}).catch(()=>[]),S.api.select('fin_conciliacao',{cols:'extrato_id'}).catch(()=>[])]);o.fin=b;const lk=new Set(cc.map(x=>x.extrato_id));o.exPend=ex.filter(e=>!e.ignorado&&!lk.has(e.id)).length});
+ P(perm('comercial','ver'),async()=>{o.ng=await S.api.select('negocios',{cols:'id,numero,segmento,titulo,etapa,etapa_desde,situacao,valor,validade_proposta,previsao_fechamento,responsavel_id,cliente_id'})});
+ await Promise.allSettled(t);return o},
+ html(){const o=D();const h=new Date().getHours();const pend=[];const blocos={};const ab=(r,id)=>`data-act="go" data-r="${r}"${id?` data-id="${id}"`:''}`;
+  const add=(set,sev,txt,r,id)=>pend.push({set,sev,txt,r,id});const fs=o.fs||[];const fN=id=>(fs.find(f=>f.id===id)||{nome:'?'}).nome;const at=fs.filter(f=>f.status!=='Desligado');
+  // ---------- RH
+  {const K=[];if(fs.length&&perm('colab','ver')){const asoV=at.filter(f=>f.aso_vencimento&&pdk(f.aso_vencimento)<T0).length;K.push(kc('Funcionários ativos',at.length,asoV?asoV+' com ASO vencido':'no cadastro',asoV?'warn':'','colab'))}
+   if(o.pt){const a=fs.filter(f=>ativoNoDia(f,o.ont)&&!semPonto(f)).length;const s=(o.st||[]).find(x=>String(x.data).slice(0,10)===dk(o.ont));K.push(kc('Ponto de '+fD(o.ont),o.pt.length+' de '+a,s?s.status:'não lançado',o.pt.length<a?'warn':'ok','ponto'));
+    if(o.pt.length<a&&perm('ponto','editar'))add('rh','bad',`Ponto de ${fD(o.ont)}: ${a-o.pt.length} funcionário(s) sem lançamento`,'ponto');
+    const env=(o.st||[]).filter(x=>x.status==='Enviado');if(env.length&&perm('ponto','aprovar'))add('rh','warn',env.length+' dia(s) de ponto aguardando sua aprovação','ponto')}
+   if(o.esp){const n=o.esp.length,as=o.esp.filter(x=>x.status==='Assinado').length,ct=o.esp.filter(x=>x.status==='Contestado');if(n)K.push(kc('Espelhos de '+compLabel(LAST),as+' de '+n+' assinados',ct.length?ct.length+' contestado(s)':'assinatura pelo celular',ct.length?'bad':as===n?'ok':'','ponto'));
+    if(ct.length&&perm('ponto','editar'))ct.forEach(x=>add('rh','bad',`${fN(x.funcionario_id)} contestou o espelho de ${compLabel(LAST)}`,'ponto'))}
+   if(o.adm){const minhas=o.adm.filter(podeAgir);const and=o.adm.filter(r=>!['concluida','reprovada','cancelada'].includes(r.etapa));K.push(kc('Admissões em andamento',and.length,minhas.length+' aguardando sua ação',minhas.length?'warn':'','admissao'));if(minhas.length)add('rh','warn',minhas.length+' processo(s) de admissão aguardando sua ação','admissao')}
+   if(perm('rateio','ver')&&o.cp!==undefined){const fech=o.cp&&o.cp.status==='Fechada';K.push(kc('Rateio de '+compLabel(LAST),fech?'Fechado':'Aberto',perLabel(LAST),fech?'ok':'warn','rateio'));if(!fech&&perm('rateio','aprovar')&&periodo(LAST).fim<T0)add('rh','warn',`Rateio de ${compLabel(LAST)} (${perLabel(LAST)}) ainda não foi fechado`,'rateio')}
+   if(o.dl){const and=o.dl.filter(deslAtivo);if(perm('movim','ver'))K.push(kc('Desligamentos em andamento',and.length,'aviso, checklist e pagamento',and.length?'':'','deslig'));
+    and.forEach(x=>{if(x.prazo_pagamento&&!x.data_pagamento){const n=diasEntre(dk(T0),x.prazo_pagamento);if(n<0)add('rh','bad',`Rescisão de ${fN(x.funcionario_id)}: pagamento atrasado desde ${fD(x.prazo_pagamento)}`,'desligdet',x.id);else if(n<=3)add('rh','warn',`Rescisão de ${fN(x.funcionario_id)}: pagar até ${fD(x.prazo_pagamento)}`,'desligdet',x.id)}})}
+   if(fs.length&&fs[0].tipo_contrato!==undefined&&perm('colab','editar'))expVencendo(fs,10).forEach(x=>add('rh','warn',`${x.f.nome}: ${x.fase.toLowerCase()} em ${fD(x.alvo)}`,'ficha',x.f.id));
+   if(o.fe&&fs.length){let venc=0;at.forEach(f=>periodosFerias(f,o.fe).forEach(p=>{if(p.completo&&p.saldo>0&&p.conc<=addD(T0,45)){if(p.conc<T0)venc++;add('rh',p.conc<T0?'bad':'warn',`Férias de ${f.nome}: ${p.conc<T0?'vencidas desde '+fD(p.conc):'gozar até '+fD(addD(p.conc,-1))}`,'ferias')}}));K.push(kc('Férias vencidas',venc,'período concessivo encerrado',venc?'bad':'ok','ferias'))}
+   if(o.at)o.at.filter(a=>a.situacao!=='Recusado'&&!atHoras(a)&&!a.encaminhado_inss&&atInss(a,o.at)>15&&atFim(a)>=addD(T0,-15)).forEach(a=>add('rh','warn',`Atestados de ${fN(a.funcionario_id)} somam mais de 15 dias: encaminhar ao INSS`,'atestados'));
+   blocos.rh=K}
+  // ---------- SESMT
+  if(o.epi||(perm('sst','ver')&&fs.length)){const K=[];const asoV=at.filter(f=>f.aso_vencimento&&pdk(f.aso_vencimento)<T0),aso30=at.filter(f=>f.aso_vencimento&&pdk(f.aso_vencimento)>=T0&&pdk(f.aso_vencimento)<=addD(T0,30));
+   if(fs.length){K.push(kc('ASO vencido',asoV.length,'funcionários ativos',asoV.length?'bad':'ok','colab'));K.push(kc('ASO vence em 30 dias',aso30.length,'agendar exame periódico',aso30.length?'warn':'','colab'));asoV.forEach(f=>add('sst','bad',`${f.nome}: ASO vencido desde ${fD(f.aso_vencimento)}`,'ficha',f.id))}
+   if(o.epi){const fal=o.epi.fs.filter(f=>f.status!=='Desligado'&&epiSit(f,o.epi).falta.length),tr=o.epi.fs.filter(f=>f.status!=='Desligado'&&epiSit(f,o.epi).troca.length);K.push(kc('Aguardando kit de EPI',fal.length,'entrega pendente',fal.length?'warn':'ok','epi'));K.push(kc('Troca de EPI vencida',tr.length,'pela vida útil do EPI',tr.length?'warn':'ok','epi'));
+    if(fal.length)add('sst','warn',`${fal.length} funcionário(s) aguardando entrega do kit de EPI${fal.length<=3?': '+fal.map(f=>f.nome).join(', '):''}`,'epi');if(tr.length)add('sst','warn',`${tr.length} funcionário(s) com troca de EPI vencida`,'epi')}
+   blocos.sst=K}
+  // ---------- Logística
+  if(o.lg){const d=o.lg;const K=[];const ativos=(d.vs||[]).filter(v=>!['Devolvido','Vendido'].includes(v.situacao));let A=[];try{A=alertasFrota(d)}catch(e){}
+   const cnh=(d.ms||[]).filter(m=>m.cnh_validade&&pdk(m.cnh_validade)<=addD(T0,30));const mes=dk(T0).slice(0,7);const abM=(d.ab||[]).filter(a=>String(a.data).slice(0,7)===mes);
+   K.push(kc('Veículos ativos',ativos.length,ativos.filter(v=>v.propriedade==='Alugado').length+' alugado(s)','','veiculos'));K.push(kc('Alertas da frota',A.length,A.filter(a=>a[0]==='bad').length+' urgente(s)',A.some(a=>a[0]==='bad')?'bad':A.length?'warn':'ok','logpainel'));
+   K.push(kc('Abastecimento no mês',BRL2(abM.reduce((s,a)=>s+(+a.valor||0),0)),abM.length+' abastecimento(s)','','abast'));K.push(kc('CNH vencendo',cnh.length,'vencida ou nos próximos 30 dias',cnh.length?'warn':'ok','condutores'));
+   if(perm('logistica','editar')){A.forEach(a=>add('log',a[0]==='bad'?'bad':'warn',a[1],a[2]?'veiculo':'logpainel',a[2]));cnh.forEach(m=>add('log',pdk(m.cnh_validade)<T0?'bad':'warn',`CNH de ${(LG.fs||[]).find(f=>f.id===m.funcionario_id)?.nome||'condutor'} ${pdk(m.cnh_validade)<T0?'vencida':'vence'} em ${fD(m.cnh_validade)}`,'condutores'))}
+   blocos.log=K}
+  // ---------- Financeiro
+  if(o.fin){const X=finResumo(o.fin);const K=[];
+   K.push(kc('Saldo em contas',BRL2(X.saldo),'previsto em 30 dias: '+BRL2(X.prev30),X.saldo<0?'bad':'','finpainel'));K.push(kc('A pagar vencido',BRL2(X.sum(X.pV)),X.pV.length+' título(s)',X.pV.length?'bad':'ok','pagar'));
+   K.push(kc('A pagar em 7 dias',BRL2(X.sum(X.p7)),X.p7.length+' título(s)',X.p7.length?'warn':'','pagar'));K.push(kc('A receber vencido',BRL2(X.sum(X.rV)),X.rV.length+' título(s)',X.rV.length?'warn':'ok','receber'));
+   if(o.exPend!=null)K.push(kc('Extrato a conciliar',o.exPend,'movimentos do banco pendentes',o.exPend?'warn':'ok','concilia'));
+   if(perm('financeiro','editar')){if(X.pV.length)add('fin','bad',`${X.pV.length} conta(s) a pagar vencida(s): ${BRL2(X.sum(X.pV))}`,'pagar');const hj=X.p7.filter(l=>dk(pdk(l.vencimento))===dk(T0));if(hj.length)add('fin','warn',`${hj.length} conta(s) a pagar vencem hoje: ${BRL2(X.sum(hj))}`,'pagar');
+    if(X.rV.length)add('fin','warn',`${X.rV.length} conta(s) a receber vencida(s): ${BRL2(X.sum(X.rV))}`,'receber');if(o.exPend)add('fin','warn',`${o.exPend} movimento(s) do extrato aguardando conciliação`,'concilia')}
+   blocos.fin=K}
+  // ---------- Comercial
+  if(o.ng){const K=[];const and=o.ng.filter(n=>n.situacao==='Em andamento');const meus=and.filter(n=>n.responsavel_id===S.user.id);const mes=dk(T0).slice(0,7);
+   const parados=and.filter(n=>n.etapa_desde&&diasEntre(String(n.etapa_desde).slice(0,10),dk(T0))>30);const pv=and.filter(n=>n.validade_proposta&&pdk(n.validade_proposta)<=addD(T0,7));
+   K.push(kc('Negócios em andamento',and.length,and.filter(n=>n.segmento==='B2C').length+' B2C · '+and.filter(n=>n.segmento==='B2B').length+' B2B','','comdash'));K.push(kc('Valor em negociação',BRL2(and.reduce((s,n)=>s+(+n.valor||0),0)),'soma dos negócios abertos','','comdash'));
+   K.push(kc('Fechados no mês',o.ng.filter(n=>n.situacao==='Ganho'&&String(n.etapa_desde||'').slice(0,7)===mes).length,'contratos ganhos','ok','comdash'));K.push(kc('Parados há mais de 30 dias',parados.length,'na mesma etapa',parados.length?'warn':'ok','comdash'));
+   if(perm('comercial','editar')){(meus.length?parados.filter(n=>meus.includes(n)):parados).slice(0,8).forEach(n=>add('com','warn',`Negócio ${n.numero||''} ${n.titulo||''}: ${diasEntre(String(n.etapa_desde).slice(0,10),dk(T0))} dias na mesma etapa`,'negocio',n.id));pv.forEach(n=>add('com',pdk(n.validade_proposta)<T0?'bad':'warn',`Proposta do negócio ${n.numero||''} ${n.titulo||''} ${pdk(n.validade_proposta)<T0?'venceu':'vence'} em ${fD(n.validade_proposta)}`,'negocio',n.id))}
+   blocos.com=K}
+  const ord=iniOrdem().filter(s=>blocos[s[0]]&&blocos[s[0]].length);const nome=Object.fromEntries(INI_SET.map(s=>[s[0],s[1]]));
+  pend.sort((a,b)=>(a.sev==='bad'?0:1)-(b.sev==='bad'?0:1)||ord.findIndex(s=>s[0]===a.set)-ord.findIndex(s=>s[0]===b.set));const urg=pend.filter(p=>p.sev==='bad').length;const lim=S._iniTodas?pend.length:12;
+  return `<h1>${h<12?'Bom dia':h<18?'Boa tarde':'Boa noite'}, ${esc(S.user.nome.split(' ')[0])}</h1><p class="sub">${DOW[T0.getDay()]}, ${T0.getDate()} de ${MESESL[T0.getMonth()]} de ${T0.getFullYear()} · ${esc(S.perfil.nome||'')}</p>
+  <div class="card ini-pend"><h3>O que depende de você ${pend.length?`<span class="small muted" style="font-weight:400">· ${pend.length} pendência(s)${urg?', '+urg+' urgente(s)':''}</span>`:''}</h3>
+  ${pend.slice(0,lim).map(p=>`<div class="alert-item"><span>${pill(p.sev==='bad'?'Urgente':'Atenção',p.sev)} ${ord.length>1?`<span class="tag">${esc(nome[p.set])}</span> `:''}${esc(p.txt)}</span><button class="btn sm" ${ab(p.r,p.id)}>Abrir</button></div>`).join('')||'<p class="muted" style="margin:6px 0 0">Nada pendente com você. Tudo em dia por aqui.</p>'}
+  ${pend.length>lim?`<div style="text-align:center;margin-top:8px"><button class="btn sm" data-act="iniTodas">Ver todas as ${pend.length} pendências</button></div>`:''}</div>
+  ${ord.map(s=>`<div class="ini-set mt"><div class="ini-h"><h2>${esc(s[1])}</h2><button class="btn sm" data-act="sec" data-s="${s[0]==='rh'?'rh':s[0]}">Abrir o setor</button></div><div class="grid kpis" style="grid-template-columns:repeat(auto-fill,minmax(210px,1fr))">${blocos[s[0]].join('')}</div></div>`).join('')}
+  ${S.perfil.master&&(!S.ref.empresa.razao_social||S.ref.funcoes.some(f=>!f.salario_base))?`<div class="note mt"><b>Primeiros passos:</b> complete os <a class="lp-link" data-act="go" data-r="cadastros">dados da empresa e os salários-base das funções</a>, cadastre a equipe atual em <a class="lp-link" data-act="go" data-r="colab">Funcionários</a> (há importação por planilha) e libere os usuários em <a class="lp-link" data-act="go" data-r="usuarios">Usuários</a>.</div>`:''}`}};
+ACT.iniTodas=()=>{S._iniTodas=1;render()};
 iniciar();
