@@ -302,3 +302,7 @@ dl.ficha{display:grid;grid-template-columns:160px 1fr;gap:6px 12px;margin:0}dl.f
 .dre .neg{color:var(--bad)}.dre-l td{font-weight:500}.dre-c td{font-size:12.5px;color:var(--muted)}.dre-c td:first-child{padding-left:34px}
 .dre-t td{font-weight:700;background:var(--surface2);border-top:1px solid var(--border)}.dre-t.fim td{background:var(--accent-soft);font-size:14.5px}
 .dre-tg{display:inline-block;width:16px;cursor:pointer;color:var(--muted);text-decoration:none}
+.drw-g .s2{grid-column:span 2}
+table.imp td,table.imp th{white-space:nowrap}
+table.imp .rt{display:inline-block;margin-left:4px;font-size:10px;padding:0 4px;border-radius:4px;background:#fdecc8;color:#8a5a00;vertical-align:1px}
+table.imp tr.imp-tot td{font-weight:600;border-top:2px solid #cfd6df;background:#f6f8fb}
