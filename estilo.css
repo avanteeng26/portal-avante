@@ -342,3 +342,7 @@ table.imp-nf input[data-ret]:disabled{background:#f3f5f8;color:#9aa3ad}
 .sig-pad{width:100%;height:150px;border:2px dashed #9fb3c8;border-radius:10px;background:#fff;touch-action:none;display:block}
 .rdo-ap{border:1px solid var(--line);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:4px}.rdo-ap img{max-height:60px;max-width:220px;object-fit:contain;align-self:flex-start;background:#fff}
 .rdo-tag{background:#e0ecf8;color:#0f5a93;cursor:pointer;font-size:10.5px}
+.rdo-stbar{display:flex;flex-direction:column;gap:8px;padding:12px 14px;margin-bottom:12px}
+.rdo-seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;align-self:flex-start}.rdo-seg button{border:0;border-right:1px solid var(--line);background:#fff;padding:7px 14px;font:inherit;font-size:13px;cursor:pointer}.rdo-seg button:last-child{border-right:0}
+.rdo-seg button.on{background:#64748b;color:#fff}.rdo-seg button.on.ok{background:#2e8b3a}.rdo-seg button.on.bad{background:#c0392b}.rdo-seg button.on.info{background:#1771b6}.rdo-seg button:disabled{cursor:not-allowed;opacity:.75}.rdo-seg button.on:disabled{opacity:1}
+.rdo-lock{background:#fff8e6;border:1px solid #f3d48a;border-radius:8px;padding:8px 10px;font-size:13px}
