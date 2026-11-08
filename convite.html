@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portal Avante · Crie sua senha</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="logo-marca.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<style>
+:root{--brand:#0c2d5e;--brand2:#0b739b;--acc:#e07b39;--bg:#eef4fb;--text:#1b1f24;--muted:#5f6b7a;--line:#dbe3ec;--bad:#bf3329;--ok:#1d7f46}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%}
+body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text);background:linear-gradient(160deg,#dce8f7 0%,#f6f9fd 55%,#fff 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 16px}
+.box{width:100%;max-width:440px;background:#fff;border-radius:18px;box-shadow:0 18px 50px rgba(12,45,94,.14);overflow:hidden}
+.top{background:var(--brand);padding:26px 28px 22px;text-align:center}
+.top img{height:46px;filter:brightness(0) invert(1)}
+.faixa{height:5px;background:linear-gradient(90deg,var(--acc),#f3a86b)}
+.in{padding:26px 28px 28px}
+h1{font-family:Montserrat,Inter,sans-serif;font-weight:800;font-size:22px;margin:0 0 6px;color:var(--brand)}
+.lead{margin:0 0 18px;color:var(--muted);font-size:14.5px;line-height:1.55}
+.lema{display:flex;gap:10px;align-items:flex-start;background:#fff6ef;border-left:4px solid var(--acc);border-radius:8px;padding:11px 13px;margin:0 0 20px;font-size:13.5px;line-height:1.5}
+.lema b{font-family:Montserrat,Inter,sans-serif;color:var(--brand);letter-spacing:.2px}
+label{display:block;font-size:13px;font-weight:600;margin:12px 0 5px}
+.pw{position:relative}input{width:100%;font:inherit;font-size:15px;padding:11px 44px 11px 12px;border:1px solid var(--line);border-radius:10px;outline:none}input:focus{border-color:var(--brand2);box-shadow:0 0 0 3px rgba(11,115,155,.15)}
+.eye{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:0;background:none;cursor:pointer;color:var(--muted);font-size:12px;padding:6px}
+.req{list-style:none;padding:0;margin:10px 0 0;font-size:12.5px;color:var(--muted)}.req li{margin:3px 0}.req li.ok{color:var(--ok)}.req li::before{content:"○ ";}.req li.ok::before{content:"✓ "}
+button.go{width:100%;margin-top:20px;background:var(--brand);color:#fff;border:0;border-radius:10px;padding:13px;font:600 15px Inter,sans-serif;cursor:pointer;transition:background .15s}button.go:hover{background:#0a2550}button.go:disabled{opacity:.6;cursor:default}
+.err{color:var(--bad);font-size:13px;margin-top:10px;min-height:18px}
+.msg{text-align:center}.msg .ic{font-size:40px;margin-bottom:6px}
+.rod{text-align:center;font-size:12px;color:var(--muted);padding:0 20px 20px}
+</style>
+</head>
+<body>
+<div class="box"><div class="top"><img src="logo.png" alt="Avante Engenharia"></div><div class="faixa"></div>
+<div class="in" id="c"><p class="lead">Carregando seu convite…</p></div>
+<div class="rod">Avante Engenharia · Portal interno</div></div>
+<script>
+(function(){
+var cfg=window.PORTAL_CONFIG||{};var c=document.getElementById('c');
+var tipo=/tipo=recuperar/.test(location.search)||/type=recovery/.test(location.hash)?'recuperar':'convite';
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(x){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[x]})}
+function msg(ic,t,p,btn){c.innerHTML='<div class="msg"><div class="ic">'+ic+'</div><h1>'+t+'</h1><p class="lead">'+p+'</p>'+(btn?'<button class="go" onclick="location.href=\'index.html\'">'+btn+'</button>':'')+'</div>'}
+var h=new URLSearchParams(location.hash.replace(/^#/,''));
+if(h.get('error')){var exp=/expired|invalid/i.test((h.get('error_code')||'')+(h.get('error_description')||''));
+ msg('⏳',exp?'Este link expirou':'Não foi possível abrir o link',(exp?'Por segurança, o link vale por pouco tempo e só pode ser usado uma vez. ':'')+'Peça ao administrador do portal para <b>reenviar o convite</b>, ou use <b>Esqueci a senha</b> na tela de entrada.','Ir para a entrada');return}
+if(!window.supabase||!cfg.SUPABASE_URL){msg('⚠️','Sem conexão','Não foi possível carregar o portal. Verifique a internet e recarregue a página.');return}
+var sb=window.supabase.createClient(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY);
+var feito=false;
+function form(u){if(feito)return;feito=true;var nome=((u.user_metadata||{}).nome||'').split(' ')[0];
+ c.innerHTML=(tipo==='convite'
+  ?'<h1>'+(nome?'Bem-vindo(a), '+esc(nome)+'!':'Bem-vindo(a) à Avante!')+'</h1><p class="lead">Seu acesso ao <b>Portal Avante</b> está pronto. Falta só um passo: crie sua senha pessoal.</p><div class="lema"><span>🚀</span><span><b>Aqui a gente faz acontecer.</b> O portal reúne obras, pessoas e números num só lugar para você decidir rápido e entregar com qualidade.</span></div>'
+  :'<h1>Crie uma nova senha</h1><p class="lead">Defina a nova senha de acesso de <b>'+esc(u.email)+'</b>.</p>')
+  +'<label for="p1">Nova senha</label><div class="pw"><input id="p1" type="password" autocomplete="new-password"><button class="eye" type="button" data-t="p1">mostrar</button></div>'
+  +'<label for="p2">Repita a senha</label><div class="pw"><input id="p2" type="password" autocomplete="new-password"><button class="eye" type="button" data-t="p2">mostrar</button></div>'
+  +'<ul class="req"><li id="r1">Pelo menos 8 caracteres</li><li id="r2">Letras e números</li><li id="r3">As duas senhas iguais</li></ul>'
+  +'<div class="err" id="e"></div><button class="go" id="b">'+(tipo==='convite'?'Criar senha e entrar no portal':'Salvar nova senha')+'</button>';
+ var p1=document.getElementById('p1'),p2=document.getElementById('p2'),b=document.getElementById('b'),e=document.getElementById('e');
+ function chk(){var a=p1.value,ok1=a.length>=8,ok2=/[a-zA-Z]/.test(a)&&/\d/.test(a),ok3=a&&a===p2.value;document.getElementById('r1').className=ok1?'ok':'';document.getElementById('r2').className=ok2?'ok':'';document.getElementById('r3').className=ok3?'ok':'';return ok1&&ok2&&ok3}
+ p1.oninput=chk;p2.oninput=chk;c.querySelectorAll('.eye').forEach(function(x){x.onclick=function(){var i=document.getElementById(x.dataset.t);i.type=i.type==='password'?'text':'password';x.textContent=i.type==='password'?'mostrar':'ocultar'}});
+ p2.onkeydown=function(ev){if(ev.key==='Enter')b.click()};p1.focus();
+ b.onclick=async function(){e.textContent='';if(!chk()){e.textContent='A senha precisa ter 8 caracteres ou mais, com letras e números, e as duas iguais.';return}
+  b.disabled=true;b.textContent='Salvando…';var r=await sb.auth.updateUser({password:p1.value});
+  if(r.error){b.disabled=false;b.textContent='Tentar de novo';e.textContent=/same|different/i.test(r.error.message)?'A nova senha precisa ser diferente da anterior.':/weak|short/i.test(r.error.message)?'Senha fraca: use mais caracteres, misturando letras e números.':'Não foi possível salvar: '+r.error.message;return}
+  try{await sb.rpc('senha_trocada')}catch(x){}
+  msg('✅',tipo==='convite'?'Tudo pronto!':'Senha alterada!',tipo==='convite'?'Sua senha foi criada. Bora fazer acontecer! Você será levado ao portal.':'Você será levado ao portal.','Entrar no portal');setTimeout(function(){location.href='index.html'},2200)}}
+sb.auth.onAuthStateChange(function(ev,s){if(s&&s.user)form(s.user)});
+setTimeout(async function(){var s=(await sb.auth.getSession()).data.session;if(s&&s.user)form(s.user);else if(!feito)msg('🔒','Link inválido ou já usado','Abra o link mais recente que chegou no seu e-mail. Se já criou a senha, é só entrar no portal com seu e-mail.','Ir para a entrada')},1800);
+})();
+</script>
+</body>
+</html>

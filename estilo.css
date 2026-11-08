@@ -384,3 +384,4 @@ table.imp-nf input[data-ret]:disabled{background:#f3f5f8;color:#9aa3ad}
 .fa-lista{max-height:320px;overflow:auto;border-top:1px solid var(--line);padding:0 8px}
 #faTip{position:fixed;z-index:9999;background:#1f2d3d;color:#fff;font-size:12px;padding:7px 10px;border-radius:7px;pointer-events:none;box-shadow:0 4px 14px rgba(0,0,0,.2);line-height:1.45}
 @media(max-width:600px){.fa-wrap{grid-template-columns:1fr}.fa-b{flex-direction:column}.fa-g{border-right:0;justify-content:center;border-bottom:1px solid var(--line)}}
+.guia{padding-left:20px;font-size:13.5px;line-height:1.55}.guia li{margin:0 0 10px}.guia code{background:var(--surface2);padding:1px 5px;border-radius:4px;font-size:12.5px}
