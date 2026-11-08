@@ -3157,4 +3157,75 @@ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target&&e.target.i
 (function(){const L0=PAGES.inicio.load,H0=PAGES.inicio.html;
  PAGES.inicio.load=async function(){const o=await L0.apply(this,arguments);try{const[L]=await Promise.all([S.api.select('tarefas',{in:{status:['Aberta','Em andamento']}}).catch(()=>S.api.select('tarefas')),tfEquipe()]);o.tf=(L||[]).filter(tfAtiva)}catch(e){o.tf=null}return o};
  PAGES.inicio.html=function(){const o=D();S._iniTf=o.tf;return H0.apply(this,arguments)}})();
+// ================================================================ IMPORTAÇÃO DE FUNCIONÁRIOS EM LOTE (CSV/planilha)
+// aceita o CSV exportado do Excel: separador ; , ou tab, acentos em UTF-8 ou Windows-1252, quebras de linha CR, LF ou CRLF
+const impN=s=>semAc(s).replace(/[^A-Z0-9]+/g,' ').trim();
+const IMP_COLS={matricula:/^(MATRICULA|MAT|CODIGO|COD)$/,nome:/^(NOME|NOME COMPLETO|FUNCIONARIO|COLABORADOR)$/,cpf:/^CPF$/,funcao:/^(FUNCAO|CARGO)$/,admissao:/^(DATA ADMISSAO|ADMISSAO|DT ADMISSAO|DATA DE ADMISSAO)$/,salario:/^(SALARIO|SALARIO BASE|REMUNERACAO)$/,telefone:/^(TELEFONE|CELULAR|FONE|WHATSAPP|TELEFONE1)$/,nascimento:/^(NASCIMENTO|DATA NASCIMENTO|DATA DE NASCIMENTO|DT NASCIMENTO)$/,email:/^(EMAIL|E MAIL)$/,situacao:/^(SITUACAO|STATUS)$/,desligamento:/^(DATA DESLIGAMENTO|DESLIGAMENTO|DATA DE DESLIGAMENTO|DEMISSAO|DATA DEMISSAO)$/,pis:/^(PIS|PIS NIS|NIS)$/,rg:/^RG$/};
+function impTexto(buf){let t=new TextDecoder('utf-8').decode(buf);if(t.includes('�')){
+ // Excel antigo do Mac salva em Mac Roman (linhas com CR); o do Windows em Windows-1252: fica a decodificação com mais acentos do português
+ const nota=x=>(x.match(/[ÁÀÂÃÉÊÍÓÔÕÚÇáàâãéêíóôõúç]/g)||[]).length*2-(x.match(/[^\x00-\x7FÁÀÂÃÉÊÍÓÔÕÚÇáàâãéêíóôõúçºª°]/g)||[]).length*3;
+ t=['windows-1252','macintosh','ibm850'].map(e=>{try{return new TextDecoder(e).decode(buf)}catch(x){return null}}).filter(Boolean).sort((a,b)=>nota(b)-nota(a))[0]}return t.replace(/^﻿/,'')}
+function impLinhas(t){const L=t.split(/\r\n|\r|\n/).filter(l=>l.trim());if(!L.length)return {cab:[],rows:[]};const sep=[';','\t',','].map(s=>[s,L[0].split(s).length]).sort((a,b)=>b[1]-a[1])[0][0];
+ const split=l=>{const o=[];let cur='',q=false;for(const ch of l){if(ch==='"'){q=!q;continue}if(ch===sep&&!q){o.push(cur);cur='';continue}cur+=ch}o.push(cur);return o.map(x=>x.trim())};
+ const cab=split(L[0]);const temCab=cab.some(c=>Object.values(IMP_COLS).some(r=>r.test(impN(c))));
+ const idx={};if(temCab)cab.forEach((c,i)=>{const k=Object.keys(IMP_COLS).find(k=>IMP_COLS[k].test(impN(c)));if(k&&idx[k]==null)idx[k]=i});else ['matricula','nome','cpf','funcao','admissao','salario','telefone'].forEach((k,i)=>idx[k]=i);
+ return {idx,rows:(temCab?L.slice(1):L).map((l,i)=>({n:i+(temCab?2:1),c:split(l)}))}}
+const impData=s=>{s=String(s||'').trim();let m=s.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})$/);if(m){let y=+m[3];if(y<100)y+=y>50?1900:2000;const d=new Date(y,+m[2]-1,+m[1]);return d.getMonth()===+m[2]-1?dk(d):null}m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);return m?s.slice(0,10):null};
+function impSal(s){s=String(s||'').trim();if(!s)return {v:null};const hora=/HORA|\/H\b/i.test(s);const m=s.replace(/[^\d,.]/g,'');if(!m)return {v:null,aviso:'salário "'+s+'" não reconhecido'};let v=/,\d{1,2}$/.test(m)?+m.replace(/\./g,'').replace(',','.'):+m.replace(/,/g,'');if(!isFinite(v))return {v:null,aviso:'salário "'+s+'" não reconhecido'};
+ if(hora)return {v:Math.round(v*220*100)/100,aviso:`valor por hora (${s}) convertido para mês de 220 h`};return {v,aviso:/BOLSA/i.test(s)?'bolsa de estágio':null}}
+function impFone(s){const raw=String(s||'').trim();if(!raw||/^-+$/.test(raw))return {};if(raw.startsWith('+')&&!raw.startsWith('+55'))return {telefone:raw};let d=raw.replace(/\D/g,'');if(d.startsWith('55')&&d.length>=12)d=d.slice(2);if(d.startsWith('0')&&d.length>11)d=d.slice(1);
+ if(d.length===10&&/[6-9]/.test(d[2]))d=d.slice(0,2)+'9'+d.slice(2);if(d.length===11&&d[2]==='9')return {telefone:celFmt(d),celular:celFmt(d)};if(d.length===10)return {telefone:`(${d.slice(0,2)}) ${d.slice(2,6)}-${d.slice(6)}`};return {telefone:raw}}
+function impCpf(s){const d=String(s||'').replace(/\D/g,'');if(!d)return {cpf:null};const c=d.padStart(11,'0');if(c.length!==11)return {cpf:null,aviso:'CPF "'+s+'" inválido'};
+ const dv=(n)=>{let s2=0;for(let i=0;i<n;i++)s2+=+c[i]*(n+1-i);const r=s2*10%11;return r===10?0:r};const ok=!/^(\d)\1+$/.test(c)&&dv(9)===+c[9]&&dv(10)===+c[10];
+ return {cpf:c.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/,'$1.$2.$3-$4'),aviso:ok?null:'CPF com dígito verificador inválido (confira)'}}
+function impAnalisa(buf){const {idx,rows}=impLinhas(impTexto(buf));const fs=D().fs||[];const exMat=new Set(fs.map(f=>String(f.matricula))),exCpf=new Map(fs.filter(f=>f.cpf).map(f=>[String(f.cpf).replace(/\D/g,''),f]));
+ const fnc=new Map(S.ref.funcoes.map(f=>[impN(f.nome),f]));const g=(r,k)=>idx[k]!=null?(r.c[idx[k]]||'').trim():'';
+ let L=rows.map(r=>{const o={n:r.n,av:[],err:[]};o.matricula=g(r,'matricula').replace(/^-+$/,'');o.nome=g(r,'nome').replace(/\s+/g,' ').toUpperCase();const cp=impCpf(g(r,'cpf'));o.cpf=cp.cpf;if(cp.aviso)o.av.push(cp.aviso);
+  o.funcaoTxt=g(r,'funcao').replace(/\s+/g,' ').trim().toUpperCase();o.funcao=fnc.get(impN(o.funcaoTxt))||null;o.adm=impData(g(r,'admissao'));const sl=impSal(g(r,'salario'));o.sal=sl.v;if(sl.aviso)o.av.push(sl.aviso);
+  Object.assign(o,impFone(g(r,'telefone')));o.nasc=impData(g(r,'nascimento'));o.email=g(r,'email')||null;o.pis=g(r,'pis')||null;o.rg=g(r,'rg')||null;
+  const st=impN(g(r,'situacao'));o.deslig=impData(g(r,'desligamento'));o.status=o.deslig||/DESLIG|DEMIT|INATIV/.test(st)?'Desligado':'Ativo';
+  if(!o.nome)o.err.push('sem nome');if(!o.matricula)o.err.push('sem matrícula');if(!o.funcaoTxt)o.err.push('sem função');if(!o.adm)o.err.push(g(r,'admissao')?'data de admissão inválida':'sem data de admissão');return o}).filter(o=>o.nome||o.matricula);
+ // mesma pessoa (CPF) mais de uma vez: fica o contrato mais recente
+ const porCpf={};L.forEach(o=>{if(o.cpf)(porCpf[o.cpf]=porCpf[o.cpf]||[]).push(o)});const merg=[];
+ Object.values(porCpf).filter(x=>x.length>1).forEach(x=>{x.sort((a,b)=>String(b.adm||'').localeCompare(String(a.adm||''))||b.n-a.n);const k=x[0];x.slice(1).forEach(o=>{o.dup=k;merg.push(o)});k.av.push(`readmissão: ${x.length} contratos na planilha (linhas ${x.map(o=>o.n).join(', ')}); importado o mais recente`)});
+ const mats={};L.filter(o=>!o.dup).forEach(o=>{if(o.matricula)(mats[o.matricula]=mats[o.matricula]||[]).push(o)});Object.values(mats).filter(x=>x.length>1).forEach(x=>x.slice(1).forEach(o=>o.err.push('matrícula repetida na planilha (linha '+x[0].n+')')));
+ L.forEach(o=>{if(o.dup)return;if(exMat.has(o.matricula))o.ja='matrícula já cadastrada';else if(o.cpf&&exCpf.has(o.cpf.replace(/\D/g,'')))o.ja='CPF já cadastrado ('+exCpf.get(o.cpf.replace(/\D/g,'')).nome+')';o.inc=!o.ja&&!o.err.length});
+ const faltam={};L.filter(o=>!o.dup&&!o.funcao&&o.funcaoTxt).forEach(o=>{(faltam[o.funcaoTxt]=faltam[o.funcaoTxt]||[]).push(o.sal)});return {L,merg,faltam,idx}}
+function impPrev(){const X=S._imp;const vis=X.L.filter(o=>!o.dup);const nInc=vis.filter(o=>o.inc).length;const fal=Object.keys(X.faltam);
+ $('#impRes').innerHTML=`<div class="grid kpis" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin:10px 0">${kc('Linhas na planilha',X.L.length,'')}${kc('Serão importados',nInc,'marcados abaixo','ok')}${kc('Já cadastrados',vis.filter(o=>o.ja).length,'serão ignorados')}${kc('Com erro',vis.filter(o=>o.err.length).length,'corrija na planilha',vis.some(o=>o.err.length)?'bad':'')}${kc('Readmissões unificadas',X.merg.length,'um cadastro por CPF')}</div>
+ ${fal.length?`<div class="note small"><label style="display:inline;margin:0;color:var(--text)"><input type="checkbox" id="impCriaF" ${X.criaF?'checked':''} style="width:auto"> Criar as <b>${fal.length}</b> função(ões) que ainda não existem em Cadastros:</label> ${fal.map(f=>`<span class="tag">${esc(f)}</span>`).join(' ')}<br><span class="muted">Sem marcar, os funcionários dessas funções não são importados.</span></div>`:''}
+ <div class="toolbar mt" style="margin-bottom:6px"><label style="display:inline-flex;gap:6px;align-items:center;margin:0;color:var(--text)"><input type="checkbox" id="impTodos" style="width:auto;margin:0" ${nInc?'checked':''}> Marcar todos os válidos</label><span class="sp"></span><span class="small muted">A situação pode ser alterada linha a linha (Desligado pede a data).</span></div>
+ <div class="tablewrap" style="max-height:46vh;overflow:auto;border:1px solid var(--line);border-radius:8px"><table class="small"><thead><tr><th></th><th>Linha</th><th>Matrícula</th><th>Nome</th><th>CPF</th><th>Função</th><th>Admissão</th><th class="num">Salário</th><th>Celular</th><th>Situação</th><th>Observações</th></tr></thead><tbody>
+ ${vis.map((o,i)=>{const bloq=!!o.ja||!!o.err.length||(!o.funcao&&!X.criaF);const k=X.L.indexOf(o);return `<tr style="${bloq?'opacity:.55':''}"><td><input type="checkbox" data-impi="${k}" ${o.inc&&!bloq?'checked':''} ${bloq?'disabled':''} style="width:auto"></td><td class="muted">${o.n}</td><td>${esc(o.matricula||'—')}</td><td><b>${esc(o.nome)}</b></td><td style="white-space:nowrap">${esc(o.cpf||'—')}</td>
+  <td>${esc(o.funcaoTxt)}${o.funcao?'':' '+pill(X.criaF?'nova':'não cadastrada',X.criaF?'info':'bad')}</td><td>${o.adm?fD(o.adm):'—'}</td><td class="num">${o.sal!=null?BRL2(o.sal):'—'}</td><td style="white-space:nowrap">${esc(o.celular||o.telefone||'—')}</td>
+  <td style="white-space:nowrap"><select data-imps="${k}" style="width:auto;margin:0;padding:3px 6px" ${bloq?'disabled':''}><option ${o.status==='Ativo'?'selected':''}>Ativo</option><option ${o.status==='Desligado'?'selected':''}>Desligado</option></select>${o.status==='Desligado'?` <input type="date" data-impd="${k}" value="${o.deslig||''}" style="width:auto;margin:0;padding:3px 6px">`:''}</td>
+  <td>${o.ja?pill(o.ja,''):''}${o.err.map(e=>pill(e,'bad')).join(' ')}${o.av.map(a=>`<div class="muted">${esc(a)}</div>`).join('')}</td></tr>`}).join('')}</tbody></table></div>`;
+ const b=$('[data-act="fImportOk"]');const n=X.L.filter(o=>o.inc&&!o.dup&&(o.funcao||X.criaF)&&!o.ja&&!o.err.length).length;b.disabled=!n;b.textContent=n?`Importar ${n} funcionário(s)`:'Importar'}
+Object.assign(ACT,{
+ fImport:()=>{S._imp=null;openModal(`<h2>Importar funcionários em lote</h2><p class="small">Use a planilha exportada do Excel ou do Mais Controle em <b>CSV</b>. O portal reconhece as colunas pelo cabeçalho: <b>MATRICULA; NOME; CPF; FUNÇÃO; DATA_ADMISSAO; SALARIO; TELEFONE</b> e, se houver, NASCIMENTO, EMAIL, PIS, RG, SITUAÇÃO e DATA_DESLIGAMENTO. Antes de gravar, você confere tudo aqui.</p>
+  <input type="file" id="impArq" accept=".csv,.txt,text/csv"><div id="err" class="err"></div><div id="impRes" class="small"></div><div class="modal-actions"><button class="btn" data-act="close">Fechar</button><button class="btn primary" data-act="fImportOk" disabled>Importar</button></div>`,true)},
+ fImportOk:async()=>{const X=S._imp;if(!X)return;const sel=X.L.filter(o=>o.inc&&!o.dup&&!o.ja&&!o.err.length&&(o.funcao||X.criaF));if(!sel.length)return;
+  const semData=sel.filter(o=>o.status==='Desligado'&&!o.deslig);if(semData.length){$('#err').textContent=`Informe a data de desligamento de ${semData.length} funcionário(s) marcados como Desligado (linha ${semData.map(o=>o.n).join(', ')}).`;return}
+  const b=$('[data-act="fImportOk"]');b.disabled=true;b.textContent='Importando…';const erros=[];
+  try{if(X.criaF){const novas=[...new Set(sel.filter(o=>!o.funcao).map(o=>o.funcaoTxt))];for(const nm of novas){const sal=(X.faltam[nm]||[]).filter(v=>v!=null).sort((a,b2)=>a-b2);const md=sal.length?sal[Math.floor(sal.length/2)]:null;
+     const f=(await S.api.insert('funcoes',[{nome:nm,salario_base:md}]))[0];S.ref.funcoes.push(f);sel.filter(o=>o.funcaoTxt===nm).forEach(o=>o.funcao=f)}}
+   const row=o=>Object.assign({matricula:o.matricula,nome:o.nome,cpf:o.cpf,funcao_id:o.funcao.id,data_admissao:o.adm,status:o.status,data_desligamento:o.status==='Desligado'?o.deslig:null},o.telefone?{telefone:o.telefone}:{},o.celular?{celular:o.celular}:{},o.nasc?{nascimento:o.nasc}:{},o.email?{email:o.email}:{},o.pis?{pis:o.pis}:{},o.rg?{rg:o.rg}:{});
+   const feitos=[];for(let i=0;i<sel.length;i+=50){const lote=sel.slice(i,i+50);b.textContent=`Importando ${Math.min(i+50,sel.length)} de ${sel.length}…`;
+    try{const r=await S.api.insert('funcionarios',lote.map(row));r.forEach((x,j)=>feitos.push([lote[j],x]))}
+    catch(e){for(const o of lote){try{const x=(await S.api.insert('funcionarios',[row(o)]))[0];feitos.push([o,x])}catch(e2){erros.push(`Linha ${o.n} (${o.nome}): ${/cpf/i.test(e2.message)?'CPF já cadastrado':/matricula/i.test(e2.message)?'matrícula já cadastrada':/celular/i.test(e2.message)?'rode o ajuste 18 (coluna celular)':e2.message}`)}}}}
+   const rem=feitos.filter(([o])=>o.sal!=null).map(([o,x])=>({funcionario_id:x.id,salario:o.sal,adicional_pct:o.funcao.periculosidade_pct||0,va_valor:o.funcao.va_padrao??300}));
+   if(rem.length&&perm('salarios','incluir'))for(let i=0;i<rem.length;i+=100){try{await S.api.insert('funcionarios_remuneracao',rem.slice(i,i+100))}catch(e){erros.push('Salários: '+e.message)}}
+   await evento('Importou funcionários',feitos.length+' registros');
+   $('#impRes').innerHTML=`<div class="note mt" style="background:var(--ok-soft,#e8f6ee)"><b>${feitos.length} funcionário(s) importado(s).</b>${rem.length&&!perm('salarios','incluir')?' Os salários não foram gravados: seu perfil não tem permissão de salários.':''}</div>${erros.length?`<div class="note mt" style="background:var(--bad-soft)"><b>${erros.length} não importado(s):</b><br>${erros.slice(0,30).map(esc).join('<br>')}</div>`:''}`;
+   b.textContent='Concluído';S._imp=null;$('[data-act="close"]').addEventListener('click',()=>reload(),{once:true})}
+  catch(e){$('#err').textContent='Erro: '+e.message;b.disabled=false;b.textContent='Tentar de novo'}}});
+FIELD.push(async ev=>{const t=ev.target;if(!t)return false;
+ if(t.id==='impArq'){if(ev.type!=='change')return true;const f=t.files[0];if(!f)return true;$('#err').textContent='';try{S._imp=impAnalisa(await f.arrayBuffer());S._imp.criaF=perm('cadastros','incluir');if(!S._imp.L.length){$('#err').textContent='Não encontrei linhas de funcionários no arquivo.';return true}impPrev()}catch(e){$('#err').textContent='Não foi possível ler o arquivo: '+e.message}return true}
+ if(!S._imp)return false;const X=S._imp;
+ if(t.id==='impCriaF'){if(ev.type==='change'){X.criaF=t.checked;impPrev()}return true}
+ if(t.id==='impTodos'){if(ev.type==='change'){X.L.forEach(o=>{if(!o.dup&&!o.ja&&!o.err.length&&(o.funcao||X.criaF))o.inc=t.checked});impPrev()}return true}
+ if(t.dataset&&t.dataset.impi!==undefined){if(ev.type==='change'){X.L[+t.dataset.impi].inc=t.checked;impPrev()}return true}
+ if(t.dataset&&t.dataset.imps!==undefined){if(ev.type==='change'){X.L[+t.dataset.imps].status=t.value;impPrev()}return true}
+ if(t.dataset&&t.dataset.impd!==undefined){if(ev.type==='change')X.L[+t.dataset.impd].deslig=t.value||null;return true}
+ return false});
 iniciar();
