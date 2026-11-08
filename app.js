@@ -74,9 +74,9 @@ function traduzErro(e){const m=(e&&(e.message||e.error_description))||String(e);
  return m}
 
 // ---------------------------------------------------------------- estado
-const S={api:null,session:null,user:null,perfil:null,perms:{},obrasLib:null,route:'inicio',params:{},f:{},ref:{},open:{},dados:{},pd:null,draft:{}};
+const S={api:null,session:null,user:null,perfil:null,perms:{},obrasLib:null,route:'inicio',params:{},f:{},ref:{},open:{},dados:{},pd:null,draft:{},rail:(()=>{try{return !!localStorage.getItem('pa_rail')}catch(e){return false}})()};
 const perm=(m,a)=>!!(S.perfil&&(S.perfil.master||(S.perms[m]&&S.perms[m][a])));
-const ROUTE_MOD={inicio:null,colab:'colab',ficha:'colab',admissao:'admissao',admdet:'admissao',ponto:'ponto',rateio:'rateio',usuarios:'usuarios',perfis:'usuarios',cadastros:'cadastros',auditoria:'auditoria'};
+const ROUTE_MOD={inicio:null,colab:'colab',ficha:'colab',admissao:'admissao',admdet:'admissao',ponto:'ponto',rateio:'rateio',usuarios:'usuarios',perfis:'usuarios',cadastros:'cadastros',auditoria:'auditoria',relatorios:'indicadores',deslig:'movim',desligdet:'movim',atestados:'atestados',ferias:'ferias',procedimentos:null,setor:null};
 const can=r=>{const m=ROUTE_MOD[r];if(m===undefined)return S.perfil&&S.perfil.master;return m===null||perm(m,'ver')};
 const dis=(a,m)=>perm(m,a)?'':'disabled title="Seu perfil não tem permissão para esta ação"';
 const obraLib=id=>!id||S.perfil.master||S.user.todas_obras||(S.obrasLib||[]).includes(id);
@@ -107,10 +107,25 @@ const LOGO=()=>`<img src="logo.png" alt="Avante Engenharia" class="logo-img logo
 const ICON={home:'<path d="M3 10l9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/>',rh:'<path d="M16 20v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 20v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
  sst:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/>',log:'<path d="M1 3h15v13H1zM16 8h4l3 3v5h-7z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>',
  eng:'<path d="M2 20h20M4 20V9l8-5 8 5v11M9 20v-6h6v6"/>',fin:'<path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>',sup:'<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>',
- adm:'<circle cx="12" cy="12" r="3"/><path d="M12 1v3M12 20v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M1 12h3M20 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>',eye:'<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>'};
+ adm:'<circle cx="12" cy="12" r="3"/><path d="M12 1v3M12 20v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M1 12h3M20 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>',eye:'<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>',
+ colab:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+ admissao:'<path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/>',
+ ponto:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+ rateio:'<path d="M21.2 15.9A10 10 0 1 1 8 2.8"/><path d="M22 12A10 10 0 0 0 12 2v10z"/>',
+ relatorios:'<path d="M3 3v18h18"/><path d="M7 16v-5M12 16V7M17 16v-8"/>',
+ procedimentos:'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/><path d="M8 7h8M8 11h6"/>',
+ usuarios:'<circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4"/><circle cx="18" cy="17" r="2.5"/><path d="M18 12.5v2M18 19.5v2M13.5 17h2M20.5 17h2"/>',
+ perfis:'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+ cadastros:'<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>',
+ auditoria:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h5"/><path d="M14 2v6h6"/><circle cx="16.5" cy="16.5" r="3.5"/><path d="M19 19l3 3"/>',
+ deslig:'<path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M23 11h-6"/>',
+ atestados:'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v8M8 12h8"/>',
+ ferias:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+ soon:'<path d="M6 2h12M6 22h12M7 2v4l5 6-5 6v4M17 2v4l-5 6 5 6v4"/>',
+ rail:'<path d="M15 18l-6-6 6-6"/>'};
 const ico=(k,s)=>`<svg width="${s||18}" height="${s||18}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[k]}</svg>`;
 const SECTORS=[
- {id:'rh',t:'Recursos Humanos',icon:'rh',items:[{grp:'func',t:'Funcionários',sub:[{id:'colab',t:'Cadastro de funcionários'},{id:'admissao',t:'Nova admissão'}]},{id:'ponto',t:'Folha de ponto'},{id:'rateio',t:'Rateio da folha'}]},
+ {id:'rh',t:'Recursos Humanos',icon:'rh',items:[{grp:'func',t:'Funcionários',sub:[{id:'colab',t:'Cadastro de funcionários'},{id:'admissao',t:'Nova admissão'},{id:'deslig',t:'Desligamentos'}]},{id:'ponto',t:'Folha de ponto'},{id:'atestados',t:'Atestados médicos'},{id:'ferias',t:'Férias'},{id:'rateio',t:'Rateio da folha'},{id:'relatorios',t:'Relatórios e indicadores'},{id:'procedimentos',t:'Procedimentos de RH'}]},
  {id:'sst',t:'Saúde e Segurança (SESMT)',icon:'sst',items:[{id:'soon_sst',t:'Próxima fase',soon:1}]},
  {id:'log',t:'Logística',icon:'log',items:[{id:'soon_log',t:'Próxima fase',soon:1}]},
  {id:'eng',t:'Engenharia e Operação',icon:'eng',items:[{id:'soon_eng',t:'Próxima fase',soon:1}]},
@@ -119,14 +134,14 @@ const SECTORS=[
  {id:'adm',t:'Administração',icon:'adm',items:[{id:'usuarios',t:'Usuários'},{id:'perfis',t:'Perfis e permissões'},{id:'cadastros',t:'Cadastros e configurações'},{id:'auditoria',t:'Auditoria'}]}];
 ['soon_sst','soon_log','soon_eng','soon_fin','soon_sup'].forEach(r=>ROUTE_MOD[r]=null);
 const flat=s=>s.items.flatMap(i=>i.sub?i.sub:[i]);
-const TITLES={inicio:'Início',ficha:'Ficha do funcionário',admdet:'Processo de admissão'};SECTORS.forEach(s=>flat(s).forEach(i=>TITLES[i.id]=i.t));
-const PARENT={ficha:'colab',admdet:'admissao'};
-function crumbs(r){const rr=PARENT[r]||r;for(const s of SECTORS)for(const i of s.items){if(i.id===rr)return [s.t,i.t].concat(PARENT[r]?[TITLES[r]]:[]);if(i.sub){const x=i.sub.find(y=>y.id===rr);if(x)return [s.t,i.t,x.t].concat(PARENT[r]?[TITLES[r]]:[])}}return [TITLES[r]||'']}
-function navHTML(){const cur=PARENT[S.route]||S.route;
- return `<a class="sec-h home ${cur==='inicio'?'cur':''}" data-act="go" data-r="inicio">${ico('home')}<span>Início</span></a>`+SECTORS.map(s=>{const its=s.items.filter(i=>i.sub?i.sub.some(x=>can(x.id)):can(i.id));if(!its.length)return '';const has=flat(s).some(i=>i.id===cur);const open=S.open[s.id]??has;
-  return `<div class="sec ${open?'open':''}"><button class="sec-h ${has?'cur':''}" data-act="sec" data-s="${s.id}">${ico(s.icon)}<span>${s.t}</span><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+const TITLES={inicio:'Início',ficha:'Ficha do funcionário',admdet:'Processo de admissão',desligdet:'Processo de desligamento'};SECTORS.forEach(s=>flat(s).forEach(i=>TITLES[i.id]=i.t));
+const PARENT={ficha:'colab',admdet:'admissao',desligdet:'deslig'};
+function crumbs(r){if(r==='setor'){const s=SECTORS.find(x=>x.id===S.params.s);return [s?s.t:'']}const rr=PARENT[r]||r;for(const s of SECTORS)for(const i of s.items){if(i.id===rr)return [s.t,i.t].concat(PARENT[r]?[TITLES[r]]:[]);if(i.sub){const x=i.sub.find(y=>y.id===rr);if(x)return [s.t,i.t,x.t].concat(PARENT[r]?[TITLES[r]]:[])}}return [TITLES[r]||'']}
+function navHTML(){const cur=PARENT[S.route]||S.route;const hub=S.route==='setor'?S.params.s:null;
+ return `<a class="sec-h home ${cur==='inicio'?'cur':''}" data-act="go" data-r="inicio" title="Início">${ico('home')}<span>Início</span></a>`+SECTORS.map(s=>{const its=s.items.filter(i=>i.sub?i.sub.some(x=>can(x.id)):can(i.id));if(!its.length)return '';const has=flat(s).some(i=>i.id===cur)||hub===s.id;const open=!S.rail&&(S.open[s.id]??has);
+  return `<div class="sec ${open?'open':''}"><button class="sec-h ${has?'cur':''}" data-act="sec" data-s="${s.id}" title="${esc(s.t)}">${ico(s.icon)}<span>${s.t}</span><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
   ${open?`<nav class="nav sec-b">${its.map(i=>i.sub?`<a class="grp open"><span>${i.t}</span></a>${i.sub.filter(x=>can(x.id)).map(x=>`<a data-act="go" data-r="${x.id}" class="nsub ${cur===x.id?'active':''}">${x.t}</a>`).join('')}`:`<a data-act="go" data-r="${i.id}" class="${cur===i.id?'active':''}">${i.t}${i.soon?'<span class="tag">em breve</span>':''}</a>`).join('')}</nav>`:''}</div>`}).join('')}
-function shell(inner){return `<div class="app"><aside class="side" id="side"><div style="padding:4px 6px 14px">${LOGO()}</div>${navHTML()}</aside>
+function shell(inner){return `<div class="app ${S.rail?'rail':''}"><aside class="side" id="side"><div class="side-logo">${S.rail?'<img src="logo-marca.png" alt="Avante" class="logo-mk">':LOGO()}</div><div class="side-nav">${navHTML()}</div><button class="sec-h rail-btn" data-act="railTg" title="${S.rail?'Expandir menu':'Recolher menu'}">${ico('rail')}<span>Recolher menu</span></button></aside>
  <div class="main"><header class="top"><div style="display:flex;gap:10px;align-items:center;min-width:0"><button class="btn sm menu-btn" data-act="menu">Menu</button><span class="small muted crumbs">${crumbs(S.route).map(esc).join(' <span>›</span> ')}</span></div>
  <div style="display:flex;gap:10px;align-items:center"><button class="btn sm bell" data-act="notif" aria-label="Notificações"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>${S.naoLidas?`<span class="nbadge">${S.naoLidas}</span>`:''}</button>
  <div style="text-align:right"><div style="font-weight:600">${esc(S.user.nome)}</div><div class="small muted">${esc(S.perfil.nome)}</div></div><button class="btn sm" data-act="senha">Senha</button><button class="btn sm" data-act="logout">Sair</button></div></header>
@@ -184,9 +199,9 @@ document.addEventListener('input',onField);document.addEventListener('change',on
 document.addEventListener('keydown',ev=>{if(ev.key==='Enter'&&!S.user&&(ev.target.id==='em'||ev.target.id==='pw')&&!$('#lbtn').disabled){ev.preventDefault();doLogin()}});
 FIELD.push(ev=>{if(!S.user&&(ev.target.id==='em'||ev.target.id==='pw')){updLoginBtn();return true}});
 Object.assign(ACT,{
- go:t=>go(t.dataset.r,t.dataset.p?JSON.parse(t.dataset.p):null),
+ go:t=>go(t.dataset.r,t.dataset.p?JSON.parse(t.dataset.p):t.dataset.id?{id:t.dataset.id}:null),
  menu:()=>$('#side').classList.toggle('open'),
- sec:t=>{const id=t.dataset.s;S.open[id]=!t.closest('.sec').classList.contains('open');render()},
+ sec:t=>{const id=t.dataset.s;if(S.rail||!(S.route==='setor'&&S.params.s===id)){S.open[id]=true;go('setor',{s:id})}else{S.open[id]=!t.closest('.sec').classList.contains('open');render()}},railTg:()=>{S.rail=!S.rail;try{localStorage.setItem('pa_rail',S.rail?'1':'')}catch(e){}render()},
  login:()=>doLogin(),
  eye:()=>{const i=$('#pw');i.type=i.type==='password'?'text':'password'},
  logout:async()=>{await evento('Logout');await S.api.signOut();S.user=null;S.dados={};render()},
@@ -211,7 +226,7 @@ async function iniciar(){const cfg=window.PORTAL_CONFIG||{};
  try{await carregarUsuario()}catch(e){toast(e.message,true)}
  render();if(S.user&&!recup)await go('inicio')}
 // ================================================================ ADMINISTRAÇÃO
-const MODS=[['painel','Painel / início de RH'],['colab','Funcionários (cadastro)'],['admissao','Nova admissão'],['docs','Documentos dos funcionários'],['salarios','Salários e dados bancários'],['ponto','Folha de ponto'],['rateio','Rateio da folha'],['va','Vale-alimentação'],['movim','Desligamentos'],['ferias','Férias'],['sst','Saúde e segurança (SESMT)'],['rotinas','Rotinas do mês'],['indicadores','Indicadores'],['logistica','Logística'],['engenharia','Engenharia e operação'],['financeiro','Financeiro'],['suprimentos','Suprimentos'],['docsemp','Documentos da empresa'],['comunicados','Comunicados'],['modelos','Modelos de documentos'],['cadastros','Cadastros e configurações'],['auditoria','Auditoria'],['usuarios','Usuários e perfis']];
+const MODS=[['painel','Painel / início de RH'],['colab','Funcionários (cadastro)'],['admissao','Nova admissão'],['docs','Documentos dos funcionários'],['salarios','Salários e dados bancários'],['ponto','Folha de ponto'],['rateio','Rateio da folha'],['va','Vale-alimentação'],['movim','Desligamentos'],['atestados','Atestados médicos (inclui CID)'],['ferias','Férias'],['sst','Saúde e segurança (SESMT)'],['rotinas','Rotinas do mês'],['indicadores','Relatórios e indicadores'],['procedimentos','Procedimentos (editar)'],['logistica','Logística'],['engenharia','Engenharia e operação'],['financeiro','Financeiro'],['suprimentos','Suprimentos'],['docsemp','Documentos da empresa'],['comunicados','Comunicados'],['modelos','Modelos de documentos'],['cadastros','Cadastros e configurações'],['auditoria','Auditoria'],['usuarios','Usuários e perfis']];
 const ACOES=[['ver','Ver'],['incluir','Incluir'],['editar','Editar'],['excluir','Excluir'],['exportar','Exportar'],['aprovar','Aprovar / fechar']];
 
 // ---------- Usuários
@@ -235,7 +250,7 @@ Object.assign(ACT,{uNovo:()=>userModal(null),uEdit:t=>userModal(D().us.find(x=>x
   let id=t.dataset.id;
   if(!id){const email=$('#uEmail').value.trim().toLowerCase();if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){$('#err').textContent='Informe um e-mail válido.';return}
    const modo=(document.querySelector('[name="uModo"]:checked')||{}).value||'senha';const senha=modo==='senha'?$('#uSenha').value.trim():'';if(modo==='senha'&&senha.length<8){$('#err').textContent='A senha provisória precisa ter pelo menos 8 caracteres.';return}
-   try{await S.api.fn('criar-usuario',{email,nome,perfil,todas_obras:todas,obras,modo,senha,redirectTo:location.origin+location.pathname});
+   try{if(modo==='senha')await S.api.rpc('criar_usuario',{p_email:email,p_nome:nome,p_perfil:perfil,p_todas_obras:todas,p_obras:todas?[]:obras,p_senha:senha});else await S.api.fn('criar-usuario',{email,nome,perfil,todas_obras:todas,obras,modo,senha,redirectTo:location.origin+location.pathname});
     closeModal();S.ref.usuarios=await S.api.rpc('lista_usuarios').catch(()=>S.ref.usuarios);reload();
     if(modo==='senha')openModal(`<h2>Usuário criado</h2><p>Envie estes dados para <b>${esc(nome)}</b> por um canal seguro (pessoalmente ou WhatsApp):</p><div class="card" style="font-size:15px"><p><b>Endereço:</b> ${esc(location.origin)}</p><p><b>E-mail:</b> ${esc(email)}</p><p style="margin:0"><b>Senha provisória:</b> ${esc(senha)}</p></div><p class="small muted mt">No primeiro acesso o portal pede para trocar a senha. Esta senha não fica salva em lugar nenhum: anote antes de fechar.</p><div class="modal-actions"><button class="btn primary" data-act="close">Fechar</button></div>`);
     else toast('Convite enviado para '+email+'. A pessoa recebe um link para criar a senha.');return}
@@ -357,7 +372,7 @@ PAGES.ficha={async load(){const id=S.params.id;const f=(await S.api.select('func
  if(tab==='rem'){const ed2=perm('salarios','editar')||(!rem&&perm('salarios','incluir'));body=`<div class="card"><div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:0 14px">${FR.map(([c,l,t])=>campo('fr',c,l,t,rem?rem[c]:'',!ed2)).join('')}</div>${ed2?`<div class="toolbar mt" style="margin-bottom:0"><span class="sp"></span><button class="btn primary" data-act="rSalvar">Salvar remuneração</button></div>`:''}</div>`}
  if(tab==='docs')body=docsHTML(docs,'f');
  if(tab==='hist')body=`<div class="card tablewrap"><table><thead><tr><th>Data e hora</th><th>Usuário</th><th>Ação</th><th>Detalhe</th></tr></thead><tbody>${aud.map(a=>`<tr><td>${fDT(a.em)}</td><td class="small">${esc(a.email||'')}</td><td>${esc({INSERT:'Incluiu',UPDATE:'Alterou',DELETE:'Excluiu'}[a.acao]||a.acao)} ${esc(a.tabela||'')}</td><td class="small">${esc(difResumo(a))}</td></tr>`).join('')||'<tr><td colspan="4" class="muted">Sem registros ou sem permissão para ver a auditoria.</td></tr>'}</tbody></table></div>`;
- return `<button class="btn sm" data-act="go" data-r="colab">← Funcionários</button><div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin:14px 0 16px"><div><h1>${esc(f.nome)}</h1><p class="sub" style="margin:0">Matrícula ${esc(f.matricula)} · ${esc(funcaoNome(f.funcao_id))} · admissão ${fD(f.data_admissao)}</p></div><div>${pill(f.status,f.status==='Ativo'?'ok':'warn')} ${perm('docs','ver')?(r.obrPend?pill(r.obrPend+' documento(s) obrigatório(s) pendente(s)','bad'):pill('Documentação completa','ok')):''} <button class="btn sm" data-act="abrirEspelho" data-id="${f.id}">Espelho de ponto</button></div></div>
+ return `<button class="btn sm" data-act="go" data-r="colab">← Funcionários</button><div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin:14px 0 16px"><div><h1>${esc(f.nome)}</h1><p class="sub" style="margin:0">Matrícula ${esc(f.matricula)} · ${esc(funcaoNome(f.funcao_id))} · admissão ${fD(f.data_admissao)}</p></div><div>${pill(f.status,f.status==='Ativo'?'ok':'warn')} ${perm('docs','ver')?(r.obrPend?pill(r.obrPend+' documento(s) obrigatório(s) pendente(s)','bad'):pill('Documentação completa','ok')):''} <button class="btn sm" data-act="abrirEspelho" data-id="${f.id}">Espelho de ponto</button>${perm('movim','incluir')&&f.status!=='Desligado'?` <button class="btn sm danger" data-act="dNovo" data-id="${f.id}">Desligar</button>`:''}</div></div>
  <div class="tabs">${tabs.map(t=>`<button class="btn sm ${tab===t[0]?'primary':''}" data-act="fTab" data-t="${t[0]}">${t[1]}</button>`).join('')}</div>${body}`}};
 function campo(ns,c,l,t,v,ro){const a=`data-${ns}="${c}" ${ro?'disabled':''}`;v=v??'';let h;
  if(Array.isArray(t))h=`<select ${a}><option value=""></option>${t.map(o=>`<option ${o===v?'selected':''}>${esc(o)}</option>`).join('')}</select>`;
@@ -624,12 +639,12 @@ function espelhoExcel(f,k,pts){const p=periodo(k);let T={carga:0,atraso:0,falta:
  <tr class="h"><td colspan="2">Data</td><td colspan="4">Marcações</td><td>Trabalhada</td><td>Normal</td><td>Atraso</td><td>Falta</td><td>50%</td><td>100 %</td></tr>${rows}</table>
  <table class="tot"><tr><td class="a">HORA NORMAL</td><td class="b">${hxs(Math.max(0,T.carga-T.atraso-T.falta))}</td><td class="sp"></td><td class="a c">ATRASO</td><td class="b">${hxs(T.atraso)}</td></tr><tr><td class="a">HORA EXTRA 50%</td><td class="b">${hxs(T.he50)}</td><td class="sp"></td><td class="a c">FALTA</td><td class="b">${hxs(T.falta)}</td></tr><tr><td class="a">HORA EXTRA 100%</td><td class="b">${hxs(T.he100)}</td><td class="sp"></td><td></td><td></td></tr></table>
  <table class="as"><tr><td><div></div>Assinatura do Funcionário</td><td class="sp"></td><td><div></div>Assinatura da Chefia</td></tr></table></div>`}
-const ESX_CSS=`<style>@page{size:A4 portrait;margin:12mm 10mm}#printArea .esx{font-family:"Courier New",Courier,monospace;font-size:8.6pt;color:#000;page-break-after:always}#printArea .esx:last-child{page-break-after:auto}#printArea .esx table{width:100%;border-collapse:collapse}
-#printArea .esx .tt{border:1px solid #000;height:46pt}#printArea .esx .tt td{border:0}#printArea .esx .tt .lg{width:22%;padding:4pt 8pt}#printArea .esx .tt .lg img{height:30pt}#printArea .esx .tt .ti{text-align:center;font-weight:bold;font-size:13pt;padding-right:22%}
-#printArea .esx .hd td{padding:2pt;font-size:8.2pt}#printArea .esx .hd .k{font-weight:bold;color:#555;width:11%}#printArea .esx .hd .r{text-align:right;width:18%}#printArea .esx .gr{margin-top:3pt}#printArea .esx .gr td{padding:2.4pt 3pt;font-size:8.6pt}
-#printArea .esx .gr .h td{background:#BDD6EE!important;border:1px solid #000;text-align:center;padding:6pt 2pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}#printArea .esx .gr tr.g td{background:#D8D8D8!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}#printArea .esx .c{text-align:center}
-#printArea .esx .tot{margin-top:10pt}#printArea .esx .tot td{padding:2pt 4pt;font-size:8.2pt}#printArea .esx .tot .a{border:1px solid #000;width:22%}#printArea .esx .tot .b{border:1px solid #000;text-align:center;width:13%}#printArea .esx .tot .sp{border:0;width:30%}
-#printArea .esx .as{margin-top:38pt}#printArea .esx .as td{width:42%;text-align:center;font-size:8.2pt}#printArea .esx .as td div{border-top:1px solid #000;margin-bottom:3pt}#printArea .esx .as .sp{width:16%}</style>`;
+const ESX_CSS=`<style>@page{size:A4 portrait;margin:8mm 9mm}#printArea .esx{font-family:"Courier New",Courier,monospace;font-size:8.2pt;color:#000;page-break-after:always;break-after:page;break-inside:avoid;page-break-inside:avoid;height:279mm;max-height:279mm;overflow:hidden;display:flex;flex-direction:column}#printArea .esx tr{break-inside:avoid}#printArea .esx:last-child{page-break-after:auto}#printArea .esx table{width:100%;border-collapse:collapse}
+#printArea .esx .tt{border:1px solid #000;height:34pt}#printArea .esx .tt td{border:0}#printArea .esx .tt .lg{width:22%;padding:4pt 8pt}#printArea .esx .tt .lg img{height:24pt}#printArea .esx .tt .ti{text-align:center;font-weight:bold;font-size:13pt;padding-right:22%}
+#printArea .esx .hd td{padding:1.2pt 2pt;font-size:8pt}#printArea .esx .hd .k{font-weight:bold;color:#555;width:11%}#printArea .esx .hd .r{text-align:right;width:18%}#printArea .esx .gr{margin-top:3pt}#printArea .esx .gr td{padding:0 3pt;height:15.5pt;line-height:13pt;font-size:8.6pt}
+#printArea .esx .gr .h td{background:#BDD6EE!important;border:1px solid #000;text-align:center;padding:3pt 2pt;height:auto;-webkit-print-color-adjust:exact;print-color-adjust:exact}#printArea .esx .gr tr.g td{background:#D8D8D8!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}#printArea .esx .c{text-align:center}
+#printArea .esx .tot{margin-top:6pt}#printArea .esx .tot td{padding:1.5pt 4pt;font-size:8pt}#printArea .esx .tot .a{border:1px solid #000;width:22%}#printArea .esx .tot .b{border:1px solid #000;text-align:center;width:13%}#printArea .esx .tot .sp{border:0;width:30%}
+#printArea .esx .as{margin-top:auto;padding-top:26pt;padding-bottom:4pt}#printArea .esx .as td{width:42%;text-align:center;font-size:8.2pt}#printArea .esx .as td div{border-top:1px solid #000;margin-bottom:3pt}#printArea .esx .as .sp{width:16%}</style>`;
 Object.assign(ACT,{ePrint:async()=>{const {fs,pt}=D();const f=fs.find(x=>x.id===S.params.emat);await evento('Imprimiu espelho',f.matricula+' · '+compLabel(S.params.comp));docPrint(ESX_CSS+espelhoExcel(f,S.params.comp,pt))},
  ePrintTodos:async()=>{const p=periodo(S.params.comp);toast('Preparando os espelhos…');const pts=await S.api.select('ponto',{gte:{data:dk(p.ini)},lte:{data:dk(p.fim)}});const L=D().fs.filter(f=>pdk(f.data_admissao)<=p.fim&&(!f.data_desligamento||pdk(f.data_desligamento)>=p.ini));await evento('Imprimiu todos os espelhos',compLabel(S.params.comp)+' · '+L.length);docPrint(ESX_CSS+L.map(f=>espelhoExcel(f,S.params.comp,pts)).join(''))}});
 
@@ -691,7 +706,7 @@ Object.assign(ACT,{
 
 // ================================================================ INÍCIO
 PAGES.inicio={async load(){const o={};const ont=(()=>{let d=addD(T0,-1);while(carga(d)===0)d=addD(d,-1);return d})();o.ont=ont;
- const tasks=[];if(perm('colab','ver'))tasks.push(S.api.select('funcionarios',{cols:'id,status,data_admissao,data_desligamento,aso_vencimento,nome'}).then(x=>o.fs=x));
+ const tasks=[];if(perm('colab','ver'))tasks.push(S.api.select('funcionarios',{cols:'id,status,data_admissao,data_desligamento,aso_vencimento,nome,tipo_contrato'}).then(x=>o.fs=x));
  if(perm('ponto','ver'))tasks.push(S.api.select('ponto',{cols:'funcionario_id',eq:{data:dk(ont)}}).then(x=>o.pt=x),S.api.select('ponto_dia_status',{gte:{data:dk(addD(T0,-40))}}).then(x=>o.st=x));
  if(perm('admissao','ver'))tasks.push(S.api.select('admissoes',{cols:'id,numero,etapa,obra_id,funcao_id,aberto_por,salario,candidato'}).then(x=>o.adm=x));
  if(perm('rateio','ver'))tasks.push(S.api.select('competencias',{eq:{id:LAST}}).then(x=>o.cp=x[0]||null));
@@ -703,8 +718,685 @@ PAGES.inicio={async load(){const o={};const ont=(()=>{let d=addD(T0,-1);while(ca
  if(o.adm){const minhas=o.adm.filter(podeAgir);const and=o.adm.filter(r=>!['concluida','reprovada','cancelada'].includes(r.etapa));cards.push(kc('Admissões em andamento',and.length,minhas.length+' aguardando sua ação',minhas.length?'warn':'','admissao'));if(minhas.length)pend.push(['warn',minhas.length+' processo(s) de admissão aguardando sua ação','admissao'])}
  if(perm('rateio','ver')){const fech=o.cp&&o.cp.status==='Fechada';cards.push(kc('Rateio de '+compLabel(LAST),fech?'Fechado':'Aberto',perLabel(LAST),fech?'ok':'warn','rateio'));if(!fech&&perm('rateio','aprovar'))pend.push(['warn','Rateio de '+compLabel(LAST)+' ('+perLabel(LAST)+') ainda não foi fechado','rateio'])}
  return `<h1>${h<12?'Bom dia':h<18?'Boa tarde':'Boa noite'}, ${esc(S.user.nome.split(' ')[0])}</h1><p class="sub">${DOW[T0.getDay()]}, ${T0.getDate()} de ${MESESL[T0.getMonth()]} de ${T0.getFullYear()} · Portal de gestão da Avante Engenharia</p>
- <div class="grid kpis" style="grid-template-columns:repeat(auto-fill,minmax(240px,1fr))">${cards.join('')}</div>
+ ${tilesSetores()}<div class="grid kpis mt" style="grid-template-columns:repeat(auto-fill,minmax(240px,1fr))">${cards.join('')}</div>
  <div class="card mt"><h3>O que precisa da sua atenção (${pend.length})</h3>${pend.map(p=>`<div class="alert-item"><span>${pill(p[0]==='bad'?'Urgente':'Atenção',p[0])} ${esc(p[1])}</span><button class="btn sm" data-act="go" data-r="${p[2]}">Abrir</button></div>`).join('')||'<p class="muted">Tudo em dia por aqui.</p>'}</div>
  ${S.perfil.master&&(!S.ref.empresa.razao_social||S.ref.funcoes.some(f=>!f.salario_base))?`<div class="note mt"><b>Primeiros passos:</b> complete os <a class="lp-link" data-act="go" data-r="cadastros">dados da empresa e os salários-base das funções</a>, cadastre a equipe atual em <a class="lp-link" data-act="go" data-r="colab">Funcionários</a> (há importação por planilha) e libere os usuários em <a class="lp-link" data-act="go" data-r="usuarios">Usuários</a>.</div>`:''}`}};
 
+// ================================================================ RELATÓRIOS E INDICADORES DE RH
+const pctF=(v,c)=>isFinite(v)?v.toLocaleString('pt-BR',{minimumFractionDigits:c??1,maximumFractionDigits:c??1})+'%':'—';
+const hrs=m=>Math.round((m||0)/60).toLocaleString('pt-BR')+' h';
+function hbars(rows,fmt,vazio){rows=rows.filter(r=>r.v>0).sort((a,b)=>b.v-a.v);if(!rows.length)return `<p class="muted small">${vazio||'Sem dados no período.'}</p>`;const mx=Math.max(...rows.map(r=>r.v));
+ return `<div class="hb-list">${rows.map(r=>`<div class="hb" title="${esc(r.l)}: ${esc(fmt(r.v))}${r.h?' · '+esc(r.h):''}"><div class="hb-l">${esc(r.l)}</div><div class="hb-t"><div class="hb-f" style="width:${Math.max(1.5,r.v/mx*100).toFixed(1)}%"></div></div><div class="hb-v">${esc(fmt(r.v))}</div></div>`).join('')}</div>`}
+function vcols(rows,fmt){const mx=Math.max(1,...rows.map(r=>r.v));const iMax=rows.findIndex(r=>r.v===mx);
+ return `<div class="vc">${rows.map((r,i)=>`<div class="vc-c" title="${esc(r.l)}: ${esc(fmt(r.v))}${r.h?' · '+esc(r.h):''}"><div class="vc-v">${i===rows.length-1||i===iMax?esc(fmt(r.v)):''}</div><div class="vc-b" style="height:${Math.max(2,r.v/mx*100).toFixed(1)}%"></div><div class="vc-l">${esc(r.l)}</div></div>`).join('')}</div>`}
+const ETAPA_N={gestor:'Aprovação do gestor',diretoria:'Aprovação da diretoria',docs:'Documentos',exame:'Exame admissional',contab:'Contabilidade',assin:'Assinaturas',devolvida:'Devolvida'};
+
+PAGES.relatorios={async load(){const k=S.params.comp||LAST;S.params.comp=k;const p=periodo(k);
+ const podeCusto=perm('rateio','ver')&&perm('salarios','ver');
+ const[fs,pt,adm,docs,rd]=await Promise.all([
+  S.api.select('funcionarios',{order:['nome']}),
+  perm('ponto','ver')?S.api.select('ponto',{gte:{data:dk(p.ini)},lte:{data:dk(p.fim)}}):Promise.resolve(null),
+  perm('admissao','ver')?S.api.select('admissoes',{order:['criado_em',false]}).catch(()=>null):Promise.resolve(null),
+  perm('docs','ver')?S.api.select('documentos',{cols:'funcionario_id,tipo,situacao',eq:{situacao:'pendente'},notnull:['funcionario_id']}).catch(()=>null):Promise.resolve(null),
+  podeCusto?PAGES.rateio.load().catch(()=>null):Promise.resolve(null)]);
+ const[at,dl,fe]=await Promise.all([perm('atestados','ver')?S.api.select('atestados').catch(()=>null):null,perm('movim','ver')?S.api.select('desligamentos').catch(()=>null):null,perm('ferias','ver')?S.api.select('ferias').catch(()=>null):null]);
+ return {k,fs,pt,adm,docs,rd,at,dl,fe}},
+ html(){const d=D();const rt=S.params.rt||'geral';const tabs=[['geral','Visão geral'],d.at?['atest','Absenteísmo e atestados']:null,['deslig','Desligamentos e turnover'],['ferias','Férias e contratos']].filter(Boolean);
+  const body=rt==='atest'&&d.at?relAtest(d):rt==='deslig'?relDeslig(d):rt==='ferias'?relFerias(d):this.geral();
+  return body.replace('<!--TABS-->',`<div class="tabs">${tabs.map(t=>`<button class="btn sm ${rt===t[0]?'primary':''}" data-act="relTab" data-t="${t[0]}">${t[1]}</button>`).join('')}</div>`)},
+ geral(){const d=D();const k=d.k;const I=rhInd(d);const ob=S.params.robra||'';
+  const sel=relSel(d,true);
+  const kp=[kc('Funcionários ativos',N(I.ativos),`${I.adm} admiss${I.adm===1?'ão':'ões'} · ${I.desl} desligamento${I.desl===1?'':'s'} no período`,'','colab'),
+   kc('Turnover do período',pctF(I.turn),'(admissões + desligamentos) ÷ 2 ÷ efetivo médio',I.turn>5?'warn':''),
+   I.pt?kc('Absenteísmo',pctF(I.abs),`${hrs(I.falta+I.atest+I.atraso)} de ${hrs(I.prev)} previstas`,I.abs>4?'bad':I.abs>2?'warn':'ok'):'',
+   I.pt?kc('Horas extras',hrs(I.he50+I.he100),`50%: ${hrs(I.he50)} · 100%: ${hrs(I.he100)}${ob?' · nesta obra':''}`,'' ,'ponto'):'',
+   I.custo?kc('Custo da folha no período',BRL(I.custo.total),`HE: ${BRL(I.custo.he)} · ${I.custo.fech?'competência fechada':'cálculo prévio'}`,'','rateio'):'',
+   I.admA!=null?kc('Admissões em andamento',N(I.admA),I.tMedio!=null?`Tempo médio até admitir: ${I.tMedio} dias`:'Sem admissões concluídas ainda','','admissao'):'',
+   kc('ASO vencido / a vencer',`${I.asoV} / ${I.aso30}`,'vencidos · vencem em 30 dias',I.asoV?'bad':I.aso30?'warn':'ok'),
+   I.docP!=null?kc('Documentação pendente',N(I.docP),'funcionários ativos com documento pendente',I.docP?'warn':'ok','colab'):'',
+   I.pt&&I.semLanc?kc('Dias sem lançamento de ponto',N(I.semLanc),'dias úteis passados sem registro','warn','ponto'):''].join('');
+  const ofmt=v=>hrs(v);
+  return `${relHead(d)}${sel}
+  <div class="grid kpis">${kp}</div>
+  <div class="grid rel-g mt">
+   <div class="card"><h3>Efetivo ao fim de cada competência</h3><p class="small muted">Últimos 12 períodos de apuração (21 a 20)</p>${vcols(I.evo,v=>N(v))}</div>
+   ${I.pt?`<div class="card"><h3>Horas trabalhadas por obra</h3><p class="small muted">Inclui dias divididos entre duas obras</p>${hbars(I.porObra.map(o=>({l:obraNome(o.obra),v:o.min,h:o.pes.size+' pessoa(s)'})),ofmt)}</div>`:''}
+   ${I.pt?`<div class="card"><h3>Efetivo por obra</h3><p class="small muted">Pessoas que trabalharam ao menos um dia na obra</p>${hbars(I.porObra.map(o=>({l:obraNome(o.obra),v:o.pes.size})),v=>v+' pessoa'+(v>1?'s':''))}</div>`:''}
+   ${I.pt?`<div class="card"><h3>Horas extras por obra</h3><p class="small muted">50% e 100% somadas</p>${hbars(I.porObra.map(o=>({l:obraNome(o.obra),v:o.he,h:'50%: '+hrs(o.he50)+' · 100%: '+hrs(o.he-o.he50)})),ofmt,'Nenhuma hora extra no período.')}</div>`:''}
+   ${I.custo?`<div class="card"><h3>Custo da folha por obra</h3><p class="small muted">Salários, HE, encargos e VA rateados pelas horas</p>${hbars(I.custo.porObra.map(o=>({l:obraNome(o.obra),v:o.total})),v=>BRL(v))}</div>`:''}
+   <div class="card"><h3>Funcionários ativos por função</h3>${hbars(I.porFuncao,v=>N(v))}</div>
+   ${I.pt?`<div class="card"><h3>Faltas e atestados por funcionário</h3><p class="small muted">Dias no período (os 8 maiores)</p>${hbars(I.ausP.slice(0,8),v=>v+' dia'+(v>1?'s':''),'Nenhuma falta ou atestado no período.')}</div>`:''}
+   ${I.admA!=null?`<div class="card"><h3>Admissões em andamento por etapa</h3>${hbars(I.porEtapa,v=>N(v),'Nenhuma admissão em andamento.')}</div>`:''}
+  </div>
+  ${!I.pt?`<div class="note mt">Seu perfil não tem acesso à folha de ponto; absenteísmo, horas extras e horas por obra não aparecem.</div>`:''}
+  ${I.pt&&ob?`<div class="note mt">Filtro de obra aplicado às horas, efetivo e horas extras. Turnover, absenteísmo e cadastro consideram toda a empresa.</div>`:''}`}};
+
+function rhInd(d){const k=d.k,p=periodo(k);const ob=S.params.robra||'';const ate=p.fim<T0?p.fim:addD(T0,-1);const fs=d.fs||[];
+ const ativo=(f,dt)=>f.data_admissao&&pdk(f.data_admissao)<=dt&&(!f.data_desligamento||pdk(f.data_desligamento)>=dt);
+ const noPer=(x,q)=>x&&pdk(x)>=q.ini&&pdk(x)<=q.fim;
+ const fimRef=p.fim<T0?p.fim:T0;const at=fs.filter(f=>ativo(f,fimRef));const I={ativos:at.length};
+ I.adm=fs.filter(f=>noPer(f.data_admissao,p)).length;I.desl=fs.filter(f=>noPer(f.data_desligamento,p)).length;
+ const med=(fs.filter(f=>ativo(f,p.ini)).length+at.length)/2;I.turn=med?((I.adm+I.desl)/2)/med*100:0;
+ I.evo=[-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0].map(i=>{const kk=kAdd(k,i);const q=periodo(kk);const r=q.fim<T0?q.fim:T0;const a=fs.filter(f=>noPer(f.data_admissao,q)).length,s=fs.filter(f=>noPer(f.data_desligamento,q)).length;return {l:MESES[+kk.slice(5)-1]+'/'+kk.slice(2,4),v:fs.filter(f=>ativo(f,r)).length,h:a+' admissões · '+s+' desligamentos'}});
+ const fc={};at.forEach(f=>{const n=funcaoNome(f.funcao_id)||'Sem função';fc[n]=(fc[n]||0)+1});I.porFuncao=Object.entries(fc).map(([l,v])=>({l,v}));
+ const in30=addD(T0,30);I.asoV=at.filter(f=>f.aso_vencimento&&pdk(f.aso_vencimento)<T0).length;I.aso30=at.filter(f=>f.aso_vencimento&&pdk(f.aso_vencimento)>=T0&&pdk(f.aso_vencimento)<=in30).length;
+ if(d.docs){const ids=new Set(at.map(f=>f.id));I.docP=new Set(d.docs.filter(x=>ids.has(x.funcionario_id)).map(x=>x.funcionario_id)).size}
+ if(d.adm){const fimE=['concluida','reprovada','cancelada'];const and=d.adm.filter(a=>!fimE.includes(a.etapa));I.admA=and.length;const pe={};and.forEach(a=>{const n=ETAPA_N[a.etapa]||a.etapa;pe[n]=(pe[n]||0)+1});I.porEtapa=Object.entries(pe).map(([l,v])=>({l,v}));
+  const conc=d.adm.filter(a=>a.etapa==='concluida'&&a.data_admissao&&a.criado_em);I.tMedio=conc.length?Math.round(conc.reduce((s,a)=>s+Math.max(0,(pdk(a.data_admissao)-new Date(String(a.criado_em).slice(0,10)+'T00:00:00'))/864e5),0)/conc.length):null}
+ if(d.pt){I.pt=true;const M={};d.pt.forEach(r=>M[r.funcionario_id+'|'+String(r.data).slice(0,10)]=r);
+  Object.assign(I,{prev:0,falta:0,atest:0,atraso:0,he50:0,he100:0,semLanc:0});const po={};const aus={};
+  const addO=(o,min,f)=>{if(ob&&o!==ob)return;po[o]=po[o]||{obra:o,min:0,he:0,he50:0,pes:new Set()};po[o].min+=min;po[o].pes.add(f.id)};
+  for(const f of fs){for(let dt=new Date(p.ini);dt<=ate;dt=addD(dt,1)){if(!ativo(f,dt))continue;const r0=M[f.id+'|'+dk(dt)];const r=r0?limpa(r0):null;const o=calcDia(r,dt);
+   I.prev+=o.carga;I.falta+=o.falta;I.atraso+=o.atraso;if(!r0&&o.carga>0)I.semLanc++;
+   if(r&&r.ocorrencia==='ATESTADO')I.atest+=o.carga;if(r&&(r.ocorrencia==='FALTA'||r.ocorrencia==='ATESTADO')&&o.carga>0)aus[f.id]=(aus[f.id]||0)+1;
+   horasObra(r,o).forEach(x=>addO(x.obra,x.min,f));
+   if(r&&(o.he50||o.he100)&&(!ob||r.obra_id===ob)){I.he50+=o.he50;I.he100+=o.he100;if(r.obra_id&&(!ob||r.obra_id===ob)){addO(r.obra_id,0,f);po[r.obra_id].he+=o.he50+o.he100;po[r.obra_id].he50+=o.he50}}}}
+  I.porObra=Object.values(po);I.abs=I.prev?(I.falta+I.atest+I.atraso)/I.prev*100:0;
+  I.ausP=Object.entries(aus).map(([id,v])=>{const f=fs.find(x=>x.id===id);return {l:f?f.nome:'?',v}}).sort((a,b)=>b.v-a.v)}
+ if(d.rd&&d.rd.rem){const rd=d.rd;const fech=rd.cp&&rd.cp.status==='Fechada';const R=fech&&rd.snap.length?rateioSnap(rd):calcRateio(rd);const po=R.porObra.filter(o=>!ob||o.obra===ob);
+  I.custo={fech,porObra:po,total:po.reduce((s,o)=>s+o.total,0),he:po.reduce((s,o)=>s+(o.he||0),0)}}
+ return I}
+
+FIELD.push(ev=>{const t=ev.target;if(!t.dataset||!t.dataset.rel)return false;if(ev.type!=='change')return true;
+ if(t.dataset.rel==='comp'){S.params.comp=t.value;reload()}else{S.params.robra=t.value;render()}return true});
+Object.assign(ACT,{relCsv:()=>{const d=D();const I=rhInd(d);const k=d.k;const R=[['Indicador','Valor','Competência '+compLabel(k)+' ('+perLabel(k)+')']];
+ R.push(['Funcionários ativos',I.ativos],['Admissões no período',I.adm],['Desligamentos no período',I.desl],['Turnover (%)',I.turn.toFixed(2).replace('.',',')]);
+ if(I.pt)R.push(['Absenteísmo (%)',I.abs.toFixed(2).replace('.',',')],['Horas previstas',(I.prev/60).toFixed(1).replace('.',',')],['Horas de falta',(I.falta/60).toFixed(1).replace('.',',')],['Horas de atestado',(I.atest/60).toFixed(1).replace('.',',')],['Horas de atraso',(I.atraso/60).toFixed(1).replace('.',',')],['HE 50% (h)',(I.he50/60).toFixed(1).replace('.',',')],['HE 100% (h)',(I.he100/60).toFixed(1).replace('.',',')]);
+ if(I.custo)R.push(['Custo da folha (R$)',I.custo.total.toFixed(2).replace('.',',')]);
+ R.push(['ASO vencidos',I.asoV],['ASO a vencer em 30 dias',I.aso30]);
+ if(I.pt){R.push([],['Obra','Horas trabalhadas','Pessoas','Horas extras']);I.porObra.forEach(o=>R.push([obraNome(o.obra),(o.min/60).toFixed(1).replace('.',','),o.pes.size,(o.he/60).toFixed(1).replace('.',',')]))}
+ if(I.custo){R.push([],['Obra','Custo (R$)']);I.custo.porObra.forEach(o=>R.push([obraNome(o.obra),o.total.toFixed(2).replace('.',',')]))}
+ csv('indicadores_rh_'+k,R);evento('Exportou indicadores de RH',compLabel(k))}});
+
+// ================================================================ PROCEDIMENTOS DE RH
+function mdLite(t){const L=String(t||'').split(/\r?\n/);let h='',lst=null;const inl=s=>esc(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');const fecha=()=>{if(lst){h+=`</${lst}>`;lst=null}};
+ for(const raw of L){const l=raw.trim();let m;
+  if(!l){fecha();continue}
+  if(m=l.match(/^#{1,3}\s+(.*)/)){fecha();h+=`<h3>${inl(m[1])}</h3>`;continue}
+  if(m=l.match(/^[-•*]\s+(.*)/)){if(lst!=='ul'){fecha();h+='<ul>';lst='ul'}h+=`<li>${inl(m[1])}</li>`;continue}
+  if(m=l.match(/^\d+[.)]\s+(.*)/)){if(lst!=='ol'){fecha();h+='<ol>';lst='ol'}h+=`<li>${inl(m[1])}</li>`;continue}
+  fecha();h+=`<p>${inl(l)}</p>`}
+ fecha();return h}
+const procDoc=x=>`<table style="width:100%;border-collapse:collapse;margin-bottom:10pt"><tr><td style="width:30%"><img src="logo.png" style="height:34pt" alt=""></td><td style="text-align:right;font-size:9pt">Procedimento <b>${esc(x.codigo)}</b><br>Versão ${x.versao} · revisado em ${fD(x.revisado_em)}${x.responsavel?'<br>Responsável: '+esc(x.responsavel):''}</td></tr></table><h1>${esc(x.titulo)}</h1>${x.objetivo?`<h2>Objetivo</h2><p>${esc(x.objetivo)}</p>`:''}${mdLite(x.conteudo).replace(/<h3>/g,'<h2>').replace(/<\/h3>/g,'</h2>')}`;
+
+PAGES.procedimentos={async load(){return {L:await S.api.select('procedimentos',{order:['codigo']})}},
+ html(){const d=D();const q=(S.params.pq||'').toLowerCase();const all=(d.L||[]).filter(x=>x.ativo!==false);const L=all.filter(x=>!q||(x.titulo+' '+x.codigo+' '+(x.categoria||'')+' '+x.conteudo).toLowerCase().includes(q));
+  const inc=perm('procedimentos','incluir'),ed=perm('procedimentos','editar');
+  if(!all.length)return `<h1>Procedimentos de RH</h1><p class="sub">Os procedimentos ficam aqui para toda a equipe consultar, sempre na versão em vigor.</p><div class="card empty"><p>Nenhum procedimento cadastrado ainda.</p>${inc?`<p class="small muted">Posso carregar ${PROC_MODELOS.length} procedimentos-modelo já escritos com o fluxo da Avante (admissão, ponto 21 a 20, rateio, VA, atestados, férias, desligamento e mobilização no SESMT). Depois é só revisar e ajustar.</p><div style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap"><button class="btn primary" data-act="prModelos">Carregar procedimentos-modelo</button><button class="btn" data-act="prNovo">+ Novo procedimento</button></div>`:''}</div>`;
+  const cur=L.find(x=>x.id===S.params.pid)||L[0];const cats={};L.forEach(x=>{const c=x.categoria||'Geral';(cats[c]=cats[c]||[]).push(x)});
+  return `<h1>Procedimentos de RH</h1><p class="sub">Como cada rotina do RH deve ser feita na Avante. Sempre vale a versão publicada aqui.</p>
+  <div class="toolbar"><input data-pq="1" placeholder="Buscar procedimento…" value="${esc(S.params.pq||'')}" style="max-width:320px"><span class="sp"></span>${inc?`<button class="btn primary sm" data-act="prNovo">+ Novo procedimento</button>`:''}</div>
+  <div class="pr-wrap"><div class="card pr-list">${Object.entries(cats).map(([c,xs])=>`<div class="pr-cat">${esc(c)}</div>${xs.map(x=>`<a data-act="prVer" data-id="${x.id}" class="${cur&&x.id===cur.id?'active':''}"><span class="pr-cod">${esc(x.codigo)}</span>${esc(x.titulo)}</a>`).join('')}`).join('')||'<p class="muted small">Nada encontrado.</p>'}</div>
+  ${cur?`<article class="card pr-doc"><div class="pr-head"><div><div class="pr-cod">${esc(cur.codigo)} · ${esc(cur.categoria||'Geral')}</div><h2>${esc(cur.titulo)}</h2><div class="small muted">Versão ${cur.versao} · revisado em ${fD(cur.revisado_em)}${cur.responsavel?' · responsável: '+esc(cur.responsavel):''}</div></div>
+   <div style="display:flex;gap:6px;flex-wrap:wrap">${cur.arquivo_path?`<button class="btn sm" data-act="prArq" data-id="${cur.id}">Abrir anexo</button>`:''}<button class="btn sm" data-act="prPrint" data-id="${cur.id}">Imprimir</button><button class="btn sm" data-act="prWord" data-id="${cur.id}">Word</button>${ed?`<button class="btn sm" data-act="prEditar" data-id="${cur.id}">Editar</button>`:''}</div></div>
+   ${cur.objetivo?`<div class="note"><b>Objetivo:</b> ${esc(cur.objetivo)}</div>`:''}<div class="md">${mdLite(cur.conteudo)}</div></article>`:''}</div>`}};
+
+function prModal(x){x=x||{codigo:'PR-RH-'+String(((D().L||[]).length+1)).padStart(2,'0'),titulo:'',categoria:'',responsavel:'',objetivo:'',conteudo:''};
+ openModal(`<h2>${x.id?'Editar procedimento':'Novo procedimento'}</h2>
+ <div class="grid" style="grid-template-columns:140px 1fr;gap:10px"><div><label>Código</label><input id="prCod" value="${esc(x.codigo)}"></div><div><label>Título</label><input id="prTit" value="${esc(x.titulo)}"></div></div>
+ <div class="grid" style="grid-template-columns:1fr 1fr;gap:10px"><div><label>Categoria</label><input id="prCat" list="prCats" value="${esc(x.categoria||'')}" placeholder="Ex.: Admissão, Ponto, Folha"><datalist id="prCats">${[...new Set((D().L||[]).map(y=>y.categoria).filter(Boolean))].map(c=>`<option value="${esc(c)}">`).join('')}</datalist></div><div><label>Responsável</label><input id="prResp" value="${esc(x.responsavel||'')}" placeholder="Ex.: Coordenação de RH"></div></div>
+ <label>Objetivo</label><input id="prObj" value="${esc(x.objetivo||'')}">
+ <label>Conteúdo</label><textarea id="prTxt" rows="16" style="font-family:ui-monospace,Consolas,monospace;font-size:13px">${esc(x.conteudo||'')}</textarea>
+ <p class="small muted">Dicas: <b>## Título</b> cria uma seção · <b>- item</b> cria lista · <b>1. passo</b> cria lista numerada · <b>**texto**</b> deixa em negrito.</p>
+ <label>Anexo (PDF ou Word, opcional)</label><input type="file" id="prArqF" accept=".pdf,.doc,.docx">${x.arquivo_nome?`<p class="small muted">Atual: ${esc(x.arquivo_nome)}</p>`:''}
+ ${x.id?`<label style="display:flex;gap:8px;align-items:center;color:var(--text)"><input type="checkbox" id="prNovaVer" checked style="width:auto"> Registrar como nova versão (v${(x.versao||1)+1})</label>`:''}
+ <div id="err" class="err"></div><div class="modal-actions">${x.id&&perm('procedimentos','excluir')?`<button class="btn danger" data-act="prArquivar" data-id="${x.id}" style="margin-right:auto">Arquivar</button>`:''}<button class="btn" data-act="close">Cancelar</button><button class="btn primary" data-act="prSalvar" data-id="${x.id||''}">Salvar</button></div>`,true)}
+const prGet=id=>(D().L||[]).find(x=>x.id===id);
+Object.assign(ACT,{prVer:t=>{S.params.pid=t.dataset.id;render()},prNovo:()=>prModal(),prEditar:t=>prModal(prGet(t.dataset.id)),
+ prSalvar:async t=>{const id=t.dataset.id;const v=s=>$(s).value.trim();const row={codigo:v('#prCod'),titulo:v('#prTit'),categoria:v('#prCat')||null,responsavel:v('#prResp')||null,objetivo:v('#prObj')||null,conteudo:$('#prTxt').value};
+  if(!row.codigo||!row.titulo){$('#err').textContent='Informe código e título.';return}
+  const f=$('#prArqF').files[0];if(f&&(f.size>15*1024*1024||!/\.(pdf|docx?)$/i.test(f.name))){$('#err').textContent='Anexo: PDF ou Word de até 15 MB.';return}
+  const old=id?prGet(id):null;if(old&&$('#prNovaVer')&&$('#prNovaVer').checked){row.versao=(old.versao||1)+1;row.revisado_em=dk(T0)}row.atualizado_em=new Date().toISOString();
+  let rid=id;if(id)await S.api.update('procedimentos',{id},row);else{row.versao=1;row.revisado_em=dk(T0);rid=(await S.api.insert('procedimentos',row))[0].id}
+  if(f){const path='procedimentos/'+rid+'/'+Date.now()+'_'+f.name.replace(/[^\w.\-]/g,'_');await S.api.upload(path,f);if(old&&old.arquivo_path)S.api.removeFile(old.arquivo_path).catch(()=>{});await S.api.update('procedimentos',{id:rid},{arquivo_path:path,arquivo_nome:f.name})}
+  closeModal();S.params.pid=rid;toast('Procedimento salvo.');reload()},
+ prArquivar:async t=>{if(!confirm('Arquivar este procedimento? Ele deixa de aparecer na lista (o histórico fica na auditoria).'))return;await S.api.update('procedimentos',{id:t.dataset.id},{ativo:false});closeModal();delete S.params.pid;reload()},
+ prArq:async t=>{const x=prGet(t.dataset.id);window.open(await S.api.signedUrl(x.arquivo_path),'_blank')},
+ prPrint:t=>{const x=prGet(t.dataset.id);evento('Imprimiu procedimento',x.codigo);docPrint(procDoc(x))},
+ prWord:t=>{const x=prGet(t.dataset.id);docWord(x.codigo+' '+x.titulo,procDoc(x))},
+ prModelos:async()=>{const ex=new Set((D().L||[]).map(x=>x.codigo));const rows=PROC_MODELOS.filter(m=>!ex.has(m.codigo)).map(m=>Object.assign({versao:1,revisado_em:dk(T0)},m));if(rows.length)await S.api.insert('procedimentos',rows);toast(rows.length+' procedimentos carregados. Revise e ajuste o que for preciso.');reload()}});
+FIELD.push(ev=>{const t=ev.target;if(!t.dataset||!t.dataset.pq)return false;if(ev.type==='input'||ev.type==='change'){S.params.pq=t.value;const pos=t.selectionStart;render();const n=document.querySelector('[data-pq]');if(n){n.focus();try{n.setSelectionRange(pos,pos)}catch(e){}}}return true});
+
+const PROC_MODELOS=[
+{codigo:'PR-RH-01',categoria:'Admissão',titulo:'Abertura de vaga e admissão de funcionários',responsavel:'RH',objetivo:'Padronizar o caminho da contratação, do pedido da obra até o primeiro dia de trabalho, garantindo aprovação, documentação, exame e registro antes do início das atividades.',conteudo:`## Quando se aplica
+Toda contratação de funcionário CLT, em obra ou no escritório.
+
+## Etapas
+1. **Abertura da vaga (obra):** o responsável pela obra abre a solicitação em RH › Nova admissão, informando função, obra, motivo (aumento de quadro ou substituição), salário, tipo de contrato e data prevista de início.
+2. **Aprovações:** o gestor e, quando exigido, a diretoria aprovam ou devolvem a solicitação pelo próprio portal. Nada segue sem aprovação registrada.
+3. **Documentos do candidato:** o RH recebe e anexa no processo os documentos pessoais (RG, CPF, título, comprovante de residência, certidão de estado civil, PIS, CTPS digital, foto, dados bancários e, se houver, documentos dos dependentes).
+4. **Exame admissional:** o RH gera a guia de encaminhamento no portal. O candidato só inicia as atividades com ASO **apto** anexado.
+5. **Ficha preliminar para a contabilidade:** o RH completa os dados cadastrais e envia a ficha preliminar à contabilidade para o registro no eSocial (evento S-2200), que deve ocorrer **antes do início das atividades**.
+6. **Efetivação:** com o retorno da contabilidade, o RH informa matrícula, data de admissão e recibo do eSocial.
+7. **Assinaturas:** o RH anexa o contrato de trabalho e a ficha de registro assinados pelo empregado.
+8. **Conclusão:** ao concluir, o portal cria o cadastro do funcionário, avisa o SESMT para mobilização e treinamentos e libera o lançamento do ponto.
+
+## Cuidados
+- Contrato de experiência: no máximo 90 dias no total (padrão Avante: 45 + 45 dias).
+- Nenhum funcionário começa a trabalhar sem ASO apto, registro no eSocial e integração de segurança.
+- Documentos ficam somente no portal; não guardar cópias em pastas pessoais ou WhatsApp.`},
+{codigo:'PR-RH-02',categoria:'Ponto',titulo:'Lançamento diário do ponto',responsavel:'RH',objetivo:'Garantir que a jornada de cada funcionário seja registrada todos os dias, com a obra onde trabalhou, para apuração de horas e rateio de custos.',conteudo:`## Período de apuração
+O ponto é apurado **do dia 21 de um mês ao dia 20 do mês seguinte**. No dia 21 começa uma nova apuração.
+
+## Rotina diária
+1. Acessar RH › Folha de ponto › Lançamento diário, no dia útil seguinte ao trabalhado.
+2. Para cada funcionário, informar as marcações (entrada, saída para almoço, retorno e saída) ou a ocorrência do dia (falta, atestado, férias, folga, afastamento etc.).
+3. Selecionar a **obra** em que a pessoa trabalhou naquele dia. Se trabalhou em duas obras, usar "Dividir dia" e informar as horas da segunda obra.
+4. Conferir os alertas e salvar. Dias sem lançamento aparecem em "Situação do período".
+
+## Regras de cálculo
+- Jornada: segunda a quinta 9h, sexta 8h (44 horas semanais).
+- Tolerância de até 10 minutos por dia, sem desconto nem hora extra.
+- Sábado trabalhado: hora extra 50%. Domingo e feriado: hora extra 100%.
+
+## Cuidados
+- Atestados e justificativas devem ser anexados na ficha do funcionário no mesmo dia em que forem recebidos.
+- Competência fechada não aceita alterações; para corrigir, o RH reabre a competência com justificativa.`},
+{codigo:'PR-RH-03',categoria:'Ponto',titulo:'Espelho de ponto e assinatura',responsavel:'RH',objetivo:'Dar ciência ao funcionário das horas apuradas no período e manter o espelho assinado arquivado.',conteudo:`## Etapas
+1. Após o dia 20, conferir o período em RH › Folha de ponto › Espelho.
+2. Imprimir os espelhos (um por página) em "Imprimir todos do período".
+3. Colher a assinatura do funcionário e da chefia imediata.
+4. Digitalizar e anexar o espelho assinado na ficha do funcionário.
+
+## Cuidados
+- Divergências apontadas pelo funcionário devem ser corrigidas no portal antes do fechamento da competência.`},
+{codigo:'PR-RH-04',categoria:'Folha',titulo:'Fechamento da competência e rateio da folha por obra',responsavel:'RH',objetivo:'Distribuir o custo da folha entre as obras de forma proporcional às horas trabalhadas em cada uma.',conteudo:`## Quando
+Após o fechamento do ponto (dia 20) e o recebimento dos valores da folha enviados pela contabilidade.
+
+## Etapas
+1. Abrir RH › Rateio da folha e escolher a competência.
+2. Conferir funcionários sem lançamento de horas (vão para a obra de referência ou Escritório).
+3. Informar os valores reais de **INSS (parte da empresa), FGTS, provisão de férias e 13º salário** recebidos da contabilidade. Sem valor real, o portal usa os percentuais padrão.
+4. Conferir o custo por obra e exportar o CSV para o financeiro, se necessário.
+5. **Fechar a competência.** O fechamento grava uma fotografia do rateio e bloqueia alterações de ponto do período.
+
+## Como o custo é distribuído
+- Custo de cada pessoa = salário + adicionais + horas extras − faltas/atrasos, mais encargos e vale-alimentação.
+- O custo de cada pessoa é dividido entre as obras na proporção das horas que ela trabalhou em cada uma.`},
+{codigo:'PR-RH-05',categoria:'Benefícios',titulo:'Vale-alimentação',responsavel:'RH',objetivo:'Aplicar de forma uniforme as regras de concessão e desconto do vale-alimentação.',conteudo:`## Regras
+- Apuração por mês civil (dia 1 ao último dia do mês).
+- Valor proporcional aos dias de vínculo no mês (admitidos ou desligados no meio do mês).
+- Descontos por faltas injustificadas no mês: **1 falta = 25%**, **2 faltas = 50%**, **3 ou mais faltas = 100%**.
+- Atestados, férias e demais ausências justificadas não geram desconto.
+
+## Etapas
+1. Conferir no portal as faltas do mês.
+2. Validar o valor calculado no rateio e enviar ao fornecedor do benefício.`},
+{codigo:'PR-RH-06',categoria:'Ponto',titulo:'Atestados, faltas e abonos',responsavel:'RH',objetivo:'Padronizar o recebimento e o registro de atestados e justificativas de ausência.',conteudo:`## Regras internas
+- O funcionário entrega o atestado ao encarregado ou ao RH em até **48 horas** (regra interna, ajustar se necessário).
+- O RH lança a ocorrência **Atestado médico** no ponto dos dias cobertos e anexa o documento na ficha do funcionário.
+- Faltas sem justificativa são lançadas como **Falta**.
+- Abonos só com autorização registrada da chefia, lançados como **Abonado** com observação.
+
+## Afastamentos longos
+- Atestados acima de 15 dias consecutivos: comunicar a contabilidade para encaminhamento ao INSS e lançar **Afastado (INSS)** a partir do 16º dia.
+- Informar o SESMT para controle e exame de retorno ao trabalho quando aplicável.`},
+{codigo:'PR-RH-07',categoria:'Férias',titulo:'Programação e concessão de férias',responsavel:'RH',objetivo:'Evitar férias vencidas e garantir os prazos legais de aviso e pagamento.',conteudo:`## Etapas
+1. Acompanhar mensalmente quem completa o período aquisitivo.
+2. Combinar com a obra as datas, considerando o cronograma.
+3. Entregar o aviso de férias ao funcionário com pelo menos **30 dias de antecedência**.
+4. Solicitar à contabilidade o cálculo; o pagamento deve ocorrer até **2 dias antes** do início das férias.
+5. Lançar **Férias** no ponto dos dias correspondentes.
+
+## Cuidados
+- Férias não podem vencer o período concessivo (sob pena de pagamento em dobro).`},
+{codigo:'PR-RH-08',categoria:'Desligamento',titulo:'Desligamento de funcionários',responsavel:'RH',objetivo:'Organizar o encerramento do contrato com documentação, exame e prazos corretos.',conteudo:`## Etapas
+1. A obra comunica o desligamento ao RH com o motivo e a data.
+2. O RH registra o aviso (trabalhado ou indenizado) e informa a contabilidade.
+3. Encaminhar ao exame demissional, conforme prazos da NR-7 (confirmar com o SESMT).
+4. Recolher EPIs, crachá e ferramentas (registro com o SESMT e a logística).
+5. Conferir o ponto até o último dia e lançar no portal a data de desligamento.
+6. Pagamento das verbas rescisórias em até **10 dias** do término do contrato.
+7. Anexar na ficha do funcionário o termo de rescisão assinado e os demais documentos.`},
+{codigo:'PR-RH-09',categoria:'Integração com SESMT',titulo:'Mobilização e treinamentos do novo funcionário',responsavel:'RH e SESMT',objetivo:'Garantir que ninguém comece na obra sem integração e treinamentos obrigatórios da função.',conteudo:`## Etapas
+1. Ao concluir a admissão, o portal avisa o SESMT automaticamente.
+2. O SESMT confere ASO, programa a integração e os treinamentos das NRs exigidas para a função.
+3. Entrega de EPIs com ficha assinada.
+4. O SESMT libera a pessoa para a obra e registra a conclusão da mobilização.
+
+## Cuidados
+- O RH não informa a obra de início antes da liberação do SESMT.`},
+{codigo:'PR-RH-10',categoria:'Documentação',titulo:'Guarda de documentos dos funcionários',responsavel:'RH',objetivo:'Manter a documentação completa, organizada e protegida.',conteudo:`## Regras
+- Todo documento do funcionário é anexado na ficha dele no portal (checklist de documentos).
+- Os arquivos ficam em armazenamento privado; o acesso é por perfil de usuário e fica registrado na auditoria.
+- Documentos físicos assinados (contrato, ficha de registro, espelhos) devem ser digitalizados e anexados; o original fica no arquivo do RH.
+- Não enviar documentos pessoais por e-mail aberto ou grupos de mensagens.`}];
+// ================================================================ MENU EM BLOCOS (setores e atalhos)
+const SOON_TXT={soon_sst:'ASO, treinamentos, EPI, DDS, inspeções e mobilização',soon_log:'Veículos, combustível, avarias, multas e acidentes',soon_eng:'Indicadores padronizados de engenharia e operação',soon_fin:'Contas, fluxo de caixa e custos por obra',soon_sup:'Pedidos de compra, fornecedores e estoque'};
+const tile=(act,attrs,icon,t,extra)=>`<button class="tile ${extra||''}" data-act="${act}" ${attrs}>${ico(icon,30)}<span class="tile-t">${esc(t)}</span></button>`;
+function tilesSetores(){const L=SECTORS.filter(s=>s.items.some(i=>i.sub?i.sub.some(x=>can(x.id)):can(i.id)));
+ return `<div class="tiles">${L.map(s=>tile('sec',`data-s="${s.id}"`,s.icon,s.t,s.items.every(i=>i.soon)?'soon':'')).join('')}</div>`}
+PAGES.setor={html(){const s=SECTORS.find(x=>x.id===S.params.s);if(!s)return '<p>Setor não encontrado.</p>';
+ const its=s.items.flatMap(i=>i.sub?i.sub:[i]).filter(i=>can(i.id));
+ return `<h1>${esc(s.t)}</h1><p class="sub">Escolha o que deseja abrir.</p>
+ <div class="tiles">${its.map(i=>i.soon?tile('go',`data-r="${i.id}"`,'soon','Próxima fase','soon'):tile('go',`data-r="${i.id}"`,ICON[i.id]?i.id:s.icon,i.t)).join('')}</div>
+ ${its.some(i=>i.soon)?`<p class="small muted mt">${esc(SOON_TXT[its[0].id]||'')}</p>`:''}`}};
+
+// ================================================================ DESLIGAMENTOS
+const TIPOS_DESL=[
+ {id:'trabalhado',t:'Aviso prévio trabalhado',ini:'Empresa'},
+ {id:'indenizado',t:'Aviso prévio indenizado',ini:'Empresa'},
+ {id:'antecipada',t:'Rescisão antecipada do contrato de experiência (pela empresa)',ini:'Empresa'},
+ {id:'termino_exp',t:'Término do contrato de experiência (não prorrogação)',ini:'Empresa'},
+ {id:'prazo_det',t:'Término de contrato por prazo determinado / obra certa',ini:'Empresa'},
+ {id:'justa_causa',t:'Dispensa por justa causa (art. 482 da CLT)',ini:'Empresa'},
+ {id:'pedido',t:'Pedido de demissão',ini:'Empregado'},
+ {id:'antecipada_emp',t:'Rescisão antecipada do contrato de experiência (pelo empregado)',ini:'Empregado'},
+ {id:'acordo',t:'Rescisão por acordo (art. 484-A da CLT)',ini:'Acordo'},
+ {id:'falecimento',t:'Falecimento do empregado',ini:'Outros'}];
+const tipoD=id=>TIPOS_DESL.find(x=>x.id===id)||{t:id||'—',ini:''};
+const MOTIVOS_DESL=['Término de obra / redução de quadro','Desempenho abaixo do esperado','Faltas / indisciplina','Reestruturação interna','Fim do prazo do contrato','Proposta de outra empresa','Insatisfação com salário ou benefícios','Insatisfação com condições de trabalho','Mudança de cidade','Motivos pessoais ou familiares','Aposentadoria','Falecimento','Outro'];
+const ALINEAS=[['a','ato de improbidade'],['b','incontinência de conduta ou mau procedimento'],['c','negociação habitual sem permissão do empregador'],['d','condenação criminal transitada em julgado'],['e','desídia no desempenho das funções'],['f','embriaguez habitual ou em serviço'],['g','violação de segredo da empresa'],['h','ato de indisciplina ou de insubordinação'],['i','abandono de emprego'],['j','ato lesivo da honra ou da boa fama, ou ofensas físicas, no serviço'],['k','ato lesivo da honra ou da boa fama, ou ofensas físicas, contra o empregador e superiores'],['l','prática constante de jogos de azar'],['m','perda da habilitação ou requisitos para a profissão, por conduta dolosa']];
+const ETAPAS_D=[['aviso','Aviso emitido'],['checklist','Checklist de quitação'],['pagamento','Exame, TRCT e pagamento'],['concluido','Concluído']];
+const CHK_D=[
+ ['RH / Departamento Pessoal',[['rh_aviso','Aviso ou comunicado assinado e arquivado no portal'],['rh_ponto','Ponto lançado e conferido até o último dia'],['rh_exame','Exame demissional realizado ou dispensado conforme NR-7'],['rh_contab','Dados enviados à contabilidade (TRCT e eSocial S-2299)'],['rh_cracha','Crachá devolvido'],['rh_docs','Documentos originais do empregado devolvidos (se houver)']]],
+ ['SESMT',[['ss_epi','EPIs devolvidos e ficha de EPI baixada'],['ss_unif','Uniformes devolvidos'],['ss_pend','Sem acidente, ocorrência ou CAT pendente de tratativa']]],
+ ['Almoxarifado / Logística',[['lg_ferr','Ferramentas e equipamentos devolvidos'],['lg_veic','Veículo, chaves e cartão de combustível devolvidos (se houver)'],['lg_aloj','Alojamento desocupado e vistoriado (se houver)']]],
+ ['Financeiro',[['fi_adiant','Adiantamentos, empréstimos e vales conferidos para desconto'],['fi_contas','Prestação de contas (caixa, cartões) quitada']]],
+ ['Gestor da obra / área',[['ge_ativ','Atividades, documentos e acessos de trabalho entregues'],['ge_aval','Avaliação de desligamento feita (recontratável ou não)']]],
+ ['Contabilidade / Pagamento',[['ct_trct','TRCT emitido e conferido'],['ct_fgts','FGTS rescisório recolhido (quando devido)'],['ct_seg','Seguro-desemprego liberado (quando cabível)'],['ct_pag','Verbas pagas dentro do prazo legal (10 dias do término)']]]];
+const CHK_IDS=CHK_D.flatMap(s=>s[1].map(i=>i[0]));
+const diasEntre=(a,b)=>Math.round((pdk(b)-pdk(a))/864e5);
+const anosCasa=(adm,ate)=>{const a=pdk(adm),b=pdk(ate);let y=b.getFullYear()-a.getFullYear();if(b.getMonth()<a.getMonth()||(b.getMonth()===a.getMonth()&&b.getDate()<a.getDate()))y--;return Math.max(0,y)};
+const diasAvisoProp=(adm,ate)=>Math.min(90,30+3*anosCasa(adm,ate));
+function expInfo(f){const tc=String(f.tipo_contrato||'');if(!/experi/i.test(tc)||!f.data_admissao)return null;const m=tc.match(/(\d+)\s*\+\s*(\d+)/);const a=m?+m[1]:(+((tc.match(/(\d+)/)||[])[1])||90),b=m?+m[2]:0;
+ const adm=pdk(f.data_admissao);const f1=addD(adm,a-1),f2=b?addD(adm,a+b-1):null;return {a,b,f1,f2,fim:f2||f1}}
+const dataExt=d=>{d=pdk(d);return `${String(d.getDate()).padStart(2,'0')} de ${MESESL[d.getMonth()]} de ${d.getFullYear()}`};
+const empresaNome=()=>(S.ref.empresa&&S.ref.empresa.razao_social)||'AVANTE ENGENHARIA E CONSULTORIA LTDA';
+const empresaCidade=()=>(S.ref.empresa&&S.ref.empresa.cidade)||'__________________';
+
+// calcula datas padrão de cada tipo
+function deslCalc(tipo,f,dataAviso,extra){extra=extra||{};const o={data_aviso:dataAviso};const da=pdk(dataAviso);
+ const ex=expInfo(f);o.dias_aviso=null;o.data_projetada=null;o.termino_previsto=null;
+ if(tipo==='trabalhado'){o.ultimo_dia=dk(addD(da,30));o.dias_aviso=diasAvisoProp(f.data_admissao,dataAviso)}
+ else if(tipo==='indenizado'){o.ultimo_dia=dataAviso;o.dias_aviso=diasAvisoProp(f.data_admissao,dataAviso);o.data_projetada=dk(addD(da,o.dias_aviso))}
+ else if(tipo==='acordo'){o.ultimo_dia=dataAviso;o.dias_aviso=Math.ceil(diasAvisoProp(f.data_admissao,dataAviso)/2);o.data_projetada=dk(addD(da,o.dias_aviso))}
+ else if(tipo==='antecipada'||tipo==='antecipada_emp'){o.termino_previsto=ex?dk(da<=ex.f1?ex.f1:ex.fim):null;o.ultimo_dia=dataAviso}
+ else if(tipo==='termino_exp'){o.termino_previsto=ex?dk(da<=ex.f1?ex.f1:ex.fim):dataAviso;o.ultimo_dia=o.termino_previsto}
+ else if(tipo==='prazo_det'){o.termino_previsto=extra.termino_previsto||dataAviso;o.ultimo_dia=o.termino_previsto}
+ else if(tipo==='pedido'){o.ultimo_dia=extra.opcao_reducao==='Cumprirá o aviso de 30 dias'?dk(addD(da,30)):dataAviso}
+ else o.ultimo_dia=dataAviso;
+ o.prazo_pagamento=dk(addD(pdk(o.ultimo_dia),10));return o}
+
+const deslAtivo=x=>!['concluido','cancelado'].includes(x.etapa);
+PAGES.deslig={async load(){const[L,fs]=await Promise.all([S.api.select('desligamentos',{order:['criado_em',false]}),S.api.select('funcionarios',{cols:'id,matricula,nome,cpf,funcao_id,data_admissao,data_desligamento,status,tipo_contrato,obra_referencia_id',order:['nome']})]);return {L,fs}},
+ html(){const d=D();const fs=d.fs||[];const fN=id=>fs.find(f=>f.id===id)||{nome:'?'};const q=S.params.dq||'todos';
+  const L=(d.L||[]).filter(x=>q==='todos'||(q==='and'?deslAtivo(x):x.etapa===q));const and=(d.L||[]).filter(deslAtivo);const atras=and.filter(x=>x.prazo_pagamento&&pdk(x.prazo_pagamento)<T0&&!x.data_pagamento);
+  return `<h1>Desligamentos</h1><p class="sub">Emissão do aviso, checklist de quitação assinado pelos setores, exame demissional, TRCT e pagamento, tudo registrado.</p>
+  <div class="grid kpis">${kc('Em andamento',and.length,'processos abertos')}${kc('Pagamento em atraso',atras.length,'prazo de 10 dias do término vencido',atras.length?'bad':'ok')}${kc('Concluídos no ano',(d.L||[]).filter(x=>x.etapa==='concluido'&&String(x.ultimo_dia||x.data_desligamento).slice(0,4)===String(T0.getFullYear())).length,String(T0.getFullYear()))}</div>
+  <div class="toolbar mt"><div class="tabs" style="margin:0">${[['and','Em andamento'],['concluido','Concluídos'],['cancelado','Cancelados'],['todos','Todos']].map(t=>`<button class="btn sm ${q===t[0]?'primary':''}" data-act="dFilt" data-q="${t[0]}">${t[1]}</button>`).join('')}</div><span class="sp"></span>${perm('movim','incluir')?`<button class="btn primary" data-act="dNovo">+ Novo desligamento</button>`:''}</div>
+  <div class="card tablewrap"><table><thead><tr><th>Nº</th><th>Funcionário</th><th>Tipo</th><th>Aviso</th><th>Último dia</th><th>Pagar até</th><th>Etapa</th><th></th></tr></thead><tbody>
+  ${L.map(x=>{const f=fN(x.funcionario_id);const venc=x.prazo_pagamento&&!x.data_pagamento&&deslAtivo(x)&&pdk(x.prazo_pagamento)<T0;const et=(ETAPAS_D.find(e=>e[0]===x.etapa)||[0,'Cancelado'])[1];
+   return `<tr><td>${x.numero||''}</td><td><b>${esc(f.nome)}</b><div class="small muted">${esc(f.matricula||'')} · ${esc(funcaoNome(f.funcao_id))}</div></td><td class="small">${esc(tipoD(x.tipo).t)}</td><td>${fD(x.data_aviso)}</td><td>${fD(x.ultimo_dia||x.data_desligamento)}</td><td>${x.prazo_pagamento?(venc?pill(fD(x.prazo_pagamento)+' · vencido','bad'):fD(x.prazo_pagamento)):''}</td><td>${pill(et,x.etapa==='concluido'?'ok':x.etapa==='cancelado'?'':'warn')}</td><td><button class="btn sm" data-act="go" data-r="desligdet" data-id="${x.id}">Abrir</button></td></tr>`}).join('')||'<tr><td colspan="8" class="muted">Nenhum desligamento aqui.</td></tr>'}</tbody></table></div>`}};
+
+function dNovoModal(fid){const d=D();const fs=(d.fs||S.dados.deslig&&S.dados.deslig.fs||[]).filter(f=>f.status!=='Desligado');
+ openModal(`<h2>Novo desligamento</h2><p class="small muted">Escolha a pessoa e o tipo. O portal calcula as datas, gera o aviso no modelo da Avante e abre o checklist de quitação.</p>
+ <label>Funcionário</label><select id="dnF">${fs.map(f=>`<option value="${f.id}" ${f.id===fid?'selected':''}>${esc(f.nome)} · ${esc(f.matricula)}</option>`).join('')}</select>
+ <label>Tipo de desligamento</label><select id="dnT">${['Empresa','Empregado','Acordo','Outros'].map(g=>`<optgroup label="${{Empresa:'Por iniciativa da empresa',Empregado:'Por iniciativa do empregado',Acordo:'Por acordo',Outros:'Outros'}[g]}">${TIPOS_DESL.filter(t=>t.ini===g).map(t=>`<option value="${t.id}">${esc(t.t)}</option>`).join('')}</optgroup>`).join('')}</select>
+ <div class="grid" style="grid-template-columns:1fr 1fr;gap:0 12px"><div><label id="dnDl">Data da comunicação (entrega do aviso)</label><input type="date" id="dnD" value="${dk(T0)}"></div><div id="dnExtra"></div></div>
+ <label>Motivo (para os indicadores)</label><select id="dnM"><option value=""></option>${MOTIVOS_DESL.map(m=>`<option>${esc(m)}</option>`).join('')}</select>
+ <label>Observações</label><textarea id="dnO" rows="2" placeholder="Detalhes do motivo, combinados, pendências conhecidas"></textarea>
+ <div id="dnPrev" class="note mt small"></div><div id="err" class="err"></div>
+ <div class="modal-actions"><button class="btn" data-act="close">Cancelar</button><button class="btn primary" data-act="dCriar">Registrar desligamento</button></div>`);dnAtualiza()}
+function dnExtraHTML(t){if(t==='trabalhado')return `<label>Opção do empregado (Lei 7.093/83)</label><select id="dnX"><option value="">A escolher pelo empregado no aviso</option><option>Redução de 2 horas diárias</option><option>Falta de 7 dias corridos</option></select>`;
+ if(t==='pedido')return `<label>Aviso prévio do empregado</label><select id="dnX"><option>Cumprirá o aviso de 30 dias</option><option>Empresa dispensa o cumprimento</option><option>Não cumprirá (desconto do aviso)</option></select>`;
+ if(t==='prazo_det')return `<label>Término previsto do contrato</label><input type="date" id="dnTP" value="${dk(T0)}">`;
+ if(t==='justa_causa')return `<label>Fundamento (art. 482)</label><select id="dnX">${ALINEAS.map(a=>`<option value="${a[0]}">Alínea ${a[0]}: ${esc(a[1])}</option>`).join('')}</select>`;
+ if(t==='falecimento')return '';return ''}
+function dnAtualiza(){const t=$('#dnT').value;const ex=$('#dnExtra');if(ex.dataset.t!==t){ex.innerHTML=dnExtraHTML(t);ex.dataset.t=t}
+ $('#dnDl').textContent=t==='falecimento'?'Data do falecimento':['pedido','antecipada_emp'].includes(t)?'Data em que o empregado comunicou':'Data da comunicação (entrega do aviso)';
+ const fs=D().fs||[];const f=fs.find(x=>x.id===$('#dnF').value);if(!f||!$('#dnD').value)return;const c=deslCalc(t,f,$('#dnD').value,{opcao_reducao:($('#dnX')||{}).value,termino_previsto:($('#dnTP')||{}).value});const ei=expInfo(f);
+ const L=[`<b>Último dia de trabalho:</b> ${fD(c.ultimo_dia)}`];
+ if(c.dias_aviso)L.push(`<b>Aviso prévio proporcional:</b> ${c.dias_aviso} dias (${anosCasa(f.data_admissao,c.data_aviso)} ano(s) completo(s) de casa)${t==='trabalhado'&&c.dias_aviso>30?`. Os ${c.dias_aviso-30} dias além dos 30 trabalhados costumam ser indenizados (confirmar com a contabilidade)`:''}`);
+ if(c.data_projetada)L.push(`<b>Projeção do aviso indenizado:</b> ${fD(c.data_projetada)}`);
+ if(c.termino_previsto)L.push(`<b>Término previsto do contrato:</b> ${fD(c.termino_previsto)}${t==='antecipada'?` · indenização do art. 479 sobre ${Math.max(0,diasEntre(c.ultimo_dia,c.termino_previsto))} dia(s) restante(s) (metade da remuneração)`:''}`);
+ if(['antecipada','antecipada_emp','termino_exp'].includes(t)&&!ei)L.push('<span style="color:var(--bad)">Este funcionário não está com contrato de experiência no cadastro. Confira o tipo de contrato.</span>');
+ L.push(`<b>Prazo para pagamento das verbas:</b> ${fD(c.prazo_pagamento)} (10 dias do término, art. 477 §6º da CLT)`);
+ if(t==='acordo')L.push('Acordo: aviso indenizado pela metade, multa de 20% do FGTS, saque de até 80% do FGTS e sem seguro-desemprego.');
+ if(t==='justa_causa')L.push('<span style="color:var(--warn)">Justa causa exige provas e imediatidade. Valide com o jurídico antes de entregar o comunicado.</span>');
+ $('#dnPrev').innerHTML=L.join('<br>')}
+FIELD.push(ev=>{const t=ev.target;if(!t.id||!['dnF','dnT','dnD','dnX','dnTP'].includes(t.id))return false;if(ev.type==='change')dnAtualiza();return true});
+
+const dGet=()=>D().r;
+Object.assign(ACT,{dFilt:t=>{S.params.dq=t.dataset.q;render()},
+ dNovo:async t=>{if(!D().fs){S.dados[S.route]=Object.assign(D(),{fs:await S.api.select('funcionarios',{order:['nome']})})}dNovoModal(t.dataset.id)},
+ dCriar:async()=>{const fs=D().fs;const f=fs.find(x=>x.id===$('#dnF').value);const t=$('#dnT').value;const da=$('#dnD').value;if(!f||!da){$('#err').textContent='Escolha o funcionário e a data.';return}
+  if(pdk(da)<pdk(f.data_admissao)){$('#err').textContent='A data não pode ser anterior à admissão.';return}
+  const aberto=(await S.api.select('desligamentos',{eq:{funcionario_id:f.id}})).find(deslAtivo);if(aberto){$('#err').textContent='Já existe um desligamento em andamento para esta pessoa.';return}
+  const X=($('#dnX')||{}).value||null;const c=deslCalc(t,f,da,{opcao_reducao:X,termino_previsto:($('#dnTP')||{}).value});
+  const row=Object.assign(c,{funcionario_id:f.id,tipo:t,iniciativa:tipoD(t).ini,motivo_categoria:$('#dnM').value||null,motivo:$('#dnM').value||null,observacao:$('#dnO').value.trim()||null,data_desligamento:c.ultimo_dia,etapa:'aviso',checklist:{},opcao_reducao:['trabalhado','pedido'].includes(t)?X:null,alinea_482:t==='justa_causa'?X:null});
+  if(t==='falecimento')row.etapa='checklist';
+  const r=(await S.api.insert('desligamentos',row))[0];
+  if(['trabalhado','pedido'].includes(t)&&pdk(c.ultimo_dia)>T0&&perm('colab','editar'))await S.api.update('funcionarios',{id:f.id},{status:'Aviso prévio'}).catch(()=>{});
+  await evento('Registrou desligamento',f.nome+' · '+tipoD(t).t);closeModal();toast('Desligamento registrado. Imprima o aviso e colha a assinatura.');go('desligdet',{id:r.id})}});
+
+// ---------------------------------------------------------------- detalhe
+PAGES.desligdet={async load(){const id=S.params.id;const r=(await S.api.select('desligamentos',{eq:{id}}))[0];if(!r)throw new Error('Desligamento não encontrado.');
+ const[f,asos]=await Promise.all([S.api.select('funcionarios',{eq:{id:r.funcionario_id}}).then(x=>x[0]),perm('sst','ver')?S.api.select('asos',{eq:{funcionario_id:r.funcionario_id},order:['data',false]}).catch(()=>[]):Promise.resolve([])]);return {r,f,asos}},
+ html(){const {r,f,asos}=D();const ed=perm('movim','editar')&&deslAtivo(r);const ci=ETAPAS_D.findIndex(e=>e[0]===r.etapa);const ck=r.checklist||{};
+  const okN=CHK_IDS.filter(k=>ck[k]&&['ok','na'].includes(ck[k].s)).length;const T=tipoD(r.tipo);
+  const steps=`<div class="stepper">${ETAPAS_D.map((e,i)=>`<div class="st ${r.etapa==='cancelado'?'':i<ci||r.etapa==='concluido'?'sok':i===ci?'cur':''}"><span class="dot">${i+1}</span><span>${e[1]}</span></div>`).join('')}</div>`;
+  const temDoc=r.tipo!=='falecimento';
+  const cab=`<div class="card"><div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px 14px">
+   ${[['Tipo',T.t],['Iniciativa',r.iniciativa],['Comunicação',fD(r.data_aviso)],['Último dia de trabalho',fD(r.ultimo_dia)],r.dias_aviso?['Aviso proporcional',r.dias_aviso+' dias']:null,r.data_projetada?['Projeção do aviso',fD(r.data_projetada)]:null,r.termino_previsto?['Término previsto do contrato',fD(r.termino_previsto)]:null,r.opcao_reducao?['Opção do aviso',r.opcao_reducao]:null,r.alinea_482?['Fundamento','Art. 482, alínea '+r.alinea_482]:null,['Prazo de pagamento',fD(r.prazo_pagamento)],['Motivo',r.motivo_categoria||'—'],['Admissão',fD(f.data_admissao)+' · '+anosCasa(f.data_admissao,r.ultimo_dia)+' ano(s)']].filter(Boolean).map(([l,v])=>`<div><div class="small muted">${l}</div><div><b>${esc(v||'—')}</b></div></div>`).join('')}</div>${r.observacao?`<p class="small mt" style="margin-bottom:0"><b>Observações:</b> ${esc(r.observacao)}</p>`:''}</div>`;
+  const arq=(c,l)=>`<div class="alert-item"><span>${l}: ${r[c]?pill('Anexado','ok'):pill('Pendente','warn')}</span><span style="display:flex;gap:6px">${r[c]?`<button class="btn sm" data-act="dVerArq" data-c="${c}">Ver</button>`:''}${ed&&perm('docs','incluir')?`<label class="btn sm" style="margin:0">${r[c]?'Substituir':'Anexar'}<input type="file" data-dup="${c}" accept=".pdf,.jpg,.jpeg,.png" style="display:none"></label>`:''}</span></div>`;
+  // etapa 1
+  const b1=`<div class="card mt"><h3>1. Aviso / comunicado</h3><p class="small muted">Imprima em duas vias, colha as assinaturas e anexe a via assinada.</p>
+   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">${temDoc?`<button class="btn" data-act="dAviso">Imprimir ${esc(avisoTitulo(r.tipo).toLowerCase())}</button><button class="btn" data-act="dAvisoW">Word</button>`:'<span class="small muted">Falecimento não tem aviso: anexe a certidão de óbito.</span>'}</div>
+   ${arq('arq_aviso',r.tipo==='falecimento'?'Certidão de óbito':'Aviso assinado')}${ed&&r.etapa==='aviso'?`<div class="toolbar mt" style="margin-bottom:0"><span class="sp"></span><button class="btn primary" data-act="dEtapa" data-e="checklist">Aviso entregue: abrir checklist de quitação</button></div>`:''}</div>`;
+  // etapa 2
+  const b2=ci<1&&r.etapa!=='cancelado'?'':`<div class="card mt"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:flex-start"><div><h3>2. Checklist de quitação demissional</h3><p class="small muted" style="margin:0">${okN} de ${CHK_IDS.length} itens resolvidos. Cada setor confere a sua parte e assina o termo impresso.</p></div><div style="display:flex;gap:6px"><button class="btn sm" data-act="dTermo">Imprimir termo de quitação</button><button class="btn sm" data-act="dTermoW">Word</button></div></div>
+   ${CHK_D.map(([s,its])=>`<div class="chk-s"><div class="chk-h">${esc(s)}</div>${its.map(([k,l])=>{const v=ck[k]||{};return `<div class="chk-i"><span>${esc(l)}${v.por?`<span class="small muted"> · ${esc(v.por)} em ${fDT(v.em)}</span>`:''}</span><span class="chk-b">${[['ok','OK'],['na','N/A'],['pend','Pendente']].map(([s2,l2])=>`<button class="btn sm ${v.s===s2?(s2==='ok'?'okb':s2==='na'?'primary':'warnb'):''}" data-act="dChk" data-k="${k}" data-s="${s2}" ${ed?'':'disabled'}>${l2}</button>`).join('')}<input data-dobs="${k}" value="${esc(v.obs||'')}" placeholder="Observação" ${ed?'':'disabled'}></span></div>`}).join('')}</div>`).join('')}
+   ${arq('arq_quitacao','Termo de quitação assinado pelos setores e pelo empregado')}
+   ${ed&&r.etapa==='checklist'?`<div class="toolbar mt" style="margin-bottom:0"><span class="sp"></span><button class="btn primary" data-act="dEtapa" data-e="pagamento" ${okN<CHK_IDS.length?'title="Ainda há itens pendentes"':''}>Checklist concluído: seguir para pagamento</button></div>`:''}</div>`;
+  // etapa 3
+  const ult=asos&&asos[0];const dUlt=ult?diasEntre(ult.data,r.ultimo_dia):null;
+  const b3=ci<2&&r.etapa!=='cancelado'?'':`<div class="card mt"><h3>3. Exame demissional, TRCT e pagamento</h3>
+   <p class="small muted">${ult?`Último ASO: ${ult.tipo} em ${fD(ult.data)} (${dUlt} dias antes do último dia). `:''}Pela NR-7, o exame demissional pode ser dispensado se o último exame ocupacional foi feito há menos de 135 dias (grau de risco 1 e 2) ou 90 dias (grau de risco 3 e 4). Confirme com o SESMT.</p>
+   <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0 14px">
+    <div><label>Data do exame demissional</label><input type="date" data-dfd="exame_data" value="${r.exame_data||''}" ${ed?'':'disabled'}></div>
+    <div><label>&nbsp;</label><label style="display:flex;gap:8px;align-items:center;color:var(--text);margin:8px 0"><input type="checkbox" data-dfd="exame_dispensado" ${r.exame_dispensado?'checked':''} ${ed?'':'disabled'} style="width:auto"> Exame dispensado (NR-7)</label></div>
+    <div><label>Data do pagamento das verbas</label><input type="date" data-dfd="data_pagamento" value="${r.data_pagamento||''}" ${ed?'':'disabled'}></div>
+    <div><label>Recontratável?</label><select data-dfd="recontratavel" ${ed?'':'disabled'}><option value=""></option><option value="true" ${r.recontratavel===true?'selected':''}>Sim</option><option value="false" ${r.recontratavel===false?'selected':''}>Não</option></select></div></div>
+   ${r.data_pagamento&&r.prazo_pagamento&&pdk(r.data_pagamento)>pdk(r.prazo_pagamento)?`<div class="note mt" style="background:var(--bad-soft)">Pagamento após o prazo de ${fD(r.prazo_pagamento)}: há risco da multa do art. 477 §8º da CLT.</div>`:''}
+   ${arq('arq_trct','TRCT assinado')}
+   ${ed&&r.etapa==='pagamento'&&perm('movim','aprovar')?`<div class="toolbar mt" style="margin-bottom:0"><span class="sp"></span><button class="btn primary" data-act="dConcluir">Concluir desligamento</button></div>`:''}</div>`;
+  return `<button class="btn sm" data-act="go" data-r="deslig">← Desligamentos</button><div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin:14px 0 12px"><div><h1>${esc(f.nome)}</h1><p class="sub" style="margin:0">Desligamento nº ${r.numero||''} · matrícula ${esc(f.matricula)} · ${esc(funcaoNome(f.funcao_id))}</p></div><div style="display:flex;gap:6px;align-items:center">${r.etapa==='cancelado'?pill('Cancelado',''):r.etapa==='concluido'?pill('Concluído','ok'):''}${ed?`<button class="btn sm danger" data-act="dCancelar">Cancelar desligamento</button>`:''}<button class="btn sm" data-act="go" data-r="ficha" data-id="${f.id}">Ficha do funcionário</button></div></div>
+  ${steps}<div class="mt">${cab}</div>${b1}${b2}${b3}`}};
+
+async function dUpd(patch){const r=dGet();patch.atualizado_em=new Date().toISOString();await S.api.update('desligamentos',{id:r.id},patch);Object.assign(r,patch)}
+FIELD.push(async ev=>{const t=ev.target;if(!t.dataset)return false;
+ if(t.dataset.dobs){if(ev.type!=='change')return true;const ck=Object.assign({},dGet().checklist||{});ck[t.dataset.dobs]=Object.assign({},ck[t.dataset.dobs]||{},{obs:t.value});await dUpd({checklist:ck});return true}
+ if(t.dataset.dfd){if(ev.type!=='change')return true;const c=t.dataset.dfd;let v=t.type==='checkbox'?t.checked:t.value;if(c==='recontratavel')v=v===''?null:v==='true';if(v==='')v=null;await dUpd({[c]:v});toast('Salvo.');render();return true}
+ if(t.dataset.dup){if(ev.type!=='change')return true;const fl=t.files&&t.files[0];if(!fl)return true;if(fl.size>10*1024*1024||!/\.(pdf|jpe?g|png)$/i.test(fl.name)){toast('Use PDF, JPG ou PNG de até 10 MB',true);return true}
+  const r=dGet();const path=`funcionarios/${r.funcionario_id}/desligamento/${t.dataset.dup}_${Date.now()}.${fl.name.split('.').pop().toLowerCase()}`;toast('Enviando…');await S.api.upload(path,fl);await dUpd({[t.dataset.dup]:path});toast('Arquivo anexado.');render();return true}
+ return false});
+Object.assign(ACT,{
+ dChk:async t=>{const me=S.user.nome;const ck=Object.assign({},dGet().checklist||{});ck[t.dataset.k]=Object.assign({},ck[t.dataset.k]||{},{s:t.dataset.s,por:me,em:new Date().toISOString()});await dUpd({checklist:ck});render()},
+ dEtapa:async t=>{const r=dGet();const e=t.dataset.e;if(e==='checklist'&&!r.arq_aviso&&!confirm('O aviso assinado ainda não foi anexado. Seguir mesmo assim?'))return;
+  if(e==='pagamento'){const ck=r.checklist||{};const p=CHK_IDS.filter(k=>!(ck[k]&&['ok','na'].includes(ck[k].s)));if(p.length&&!confirm(p.length+' item(ns) do checklist ainda não foram resolvidos. Seguir mesmo assim?'))return}
+  await dUpd({etapa:e});await evento('Desligamento: etapa '+e,D().f.nome);render()},
+ dConcluir:async()=>{const {r,f}=D();if(pdk(r.ultimo_dia)>T0&&!confirm('O último dia de trabalho ('+fD(r.ultimo_dia)+') ainda não chegou. Concluir agora mesmo assim?'))return;if(!r.data_pagamento&&!confirm('A data do pagamento não foi informada. Concluir mesmo assim?'))return;if(!r.arq_trct&&!confirm('O TRCT assinado não foi anexado. Concluir mesmo assim?'))return;
+  await S.api.update('funcionarios',{id:f.id},{status:'Desligado',data_desligamento:r.ultimo_dia});await dUpd({etapa:'concluido',data_desligamento:r.ultimo_dia});await evento('Concluiu desligamento',f.nome);toast('Desligamento concluído. O funcionário saiu do quadro ativo a partir de '+fD(r.ultimo_dia)+'.');reload()},
+ dCancelar:async()=>{const {r,f}=D();if(!confirm('Cancelar este desligamento? O funcionário volta a ficar ativo.'))return;await dUpd({etapa:'cancelado'});if(f.status==='Aviso prévio')await S.api.update('funcionarios',{id:f.id},{status:'Ativo'}).catch(()=>{});await evento('Cancelou desligamento',f.nome);reload()},
+ dVerArq:async t=>{window.open(await S.api.signedUrl(dGet()[t.dataset.c]),'_blank')},
+ dAviso:()=>{const {r,f}=D();evento('Imprimiu aviso de desligamento',f.nome);docPrint(AV_CSS+avisoHTML(r,f))},
+ dAvisoW:()=>{const {r,f}=D();docWord(avisoTitulo(r.tipo)+' '+f.nome,AV_CSS.replace(/#printArea /g,'')+avisoHTML(r,f))},
+ dTermo:()=>{const {r,f}=D();evento('Imprimiu termo de quitação',f.nome);docPrint(AV_CSS+termoHTML(r,f))},
+ dTermoW:()=>{const {r,f}=D();docWord('Termo de quitação '+f.nome,AV_CSS.replace(/#printArea /g,'')+termoHTML(r,f))}});
+
+// ---------------------------------------------------------------- documentos (modelo Avante)
+const AV_CSS=`<style>@page{size:A4 portrait;margin:14mm 14mm}#printArea .av{font-family:Arial,Helvetica,sans-serif;font-size:10.5pt;color:#000;line-height:1.45;page-break-after:always}#printArea .av:last-child{page-break-after:auto}
+#printArea .av table{width:100%;border-collapse:collapse}#printArea .av .bx{border:1px solid #000;padding:7pt 9pt;margin-bottom:6pt}
+#printArea .av .hd td{border:1px solid #000;padding:6pt 8pt;vertical-align:middle}#printArea .av .hd .lg{width:24%;text-align:center}#printArea .av .hd .lg img{height:40pt}#printArea .av .hd .ti{text-align:center;font-weight:bold;font-size:11pt}
+#printArea .av .sp{letter-spacing:4pt;text-align:center;margin:4pt 0 6pt}#printArea .av p{margin:0 0 8pt;text-align:justify}#printArea .av .ass{text-align:center;font-size:9.5pt}#printArea .av .ln{border-top:1px solid #000;margin:30pt 0 3pt}
+#printArea .av .ck td,#printArea .av .ck th{border:1px solid #000;padding:1.6pt 5pt;font-size:8.4pt;line-height:1.25;vertical-align:top}#printArea .av .ck th{background:#e9eef3;text-align:left;-webkit-print-color-adjust:exact;print-color-adjust:exact}#printArea .av .ck .c{text-align:center;width:6%}
+#printArea .av .sg td{border:1px solid #000;border-top:0;padding:2pt 6pt;font-size:8.4pt;height:17pt;vertical-align:bottom}#printArea .av .muted{color:#444;font-size:8.5pt}#printArea .av.tq .hd .lg img{height:28pt}#printArea .av.tq .hd td{padding:4pt 8pt}#printArea .av.tq .ln{margin-top:16pt}#printArea .av.tq>p.muted{margin:2pt 0 0}#printArea .av.tq p{margin-bottom:4pt}#printArea .av.tq .bx{padding:5pt 8pt}</style>`;
+function avisoTitulo(t){return {trabalhado:'Aviso prévio trabalhado',indenizado:'Aviso prévio indenizado',antecipada:'Rescisão antecipada',termino_exp:'Comunicado de término de experiência',prazo_det:'Comunicado de término de contrato',justa_causa:'Comunicado de justa causa',pedido:'Pedido de demissão',antecipada_emp:'Pedido de rescisão antecipada',acordo:'Termo de acordo'}[t]||'Comunicado'}
+const avHead=t=>`<table class="hd"><tr><td class="lg"><img src="logo.png" alt="Avante"></td><td class="ti">${t}</td></tr></table>`;
+const avPara=f=>`<div class="bx">A(o) Sr.(a) <b>${esc(f.nome.toUpperCase())}</b><br>Portador(a) do CPF nº ${esc(f.cpf||'________________')}</div>`;
+const avLocal=d=>`<p style="text-align:right;margin-top:10pt">${esc(empresaCidade())}, ${dataExt(d)}.</p>`;
+const avEmp=()=>`<table style="margin-top:6pt"><tr><td style="width:45%"></td><td class="ass"><div class="ln"></div>${esc(empresaNome())}</td></tr></table>`;
+const avTest=()=>`<table style="margin-top:4pt"><tr><td class="ass" style="width:46%"><div class="ln"></div>TESTEMUNHA 01<br><span class="muted">Nome e CPF</span></td><td style="width:8%"></td><td class="ass"><div class="ln"></div>TESTEMUNHA 02<br><span class="muted">Nome e CPF</span></td></tr></table>`;
+function avisoHTML(r,f){const T=r.tipo;const ud=fD(r.ultimo_dia);let h='';
+ if(T==='trabalhado'||T==='indenizado'){const trab=T==='trabalhado';const op=r.opcao_reducao||'';
+  h=avHead('AVISO PRÉVIO DO EMPREGADOR PARA DISPENSA DO EMPREGADO')+avPara(f)+`<div class="sp">${trab?'T R A B A L H A D O':'I N D E N I Z A D O'}</div><div class="bx">`+
+  (trab?`<p>Pelo presente o(a) notificamos que a 30 dias da data da entrega deste, não mais serão utilizados os seus serviços pela nossa firma, e por isso, vimos avisá-lo(a) nos termos e para os efeitos do disposto no Art. 487 item II - Cap. VI - Título IV, do Decreto Lei nº 5.452, de 1º de maio de 1943, da CLT - CONSOLIDAÇÃO DAS LEIS DO TRABALHO.</p><p>Solicito a devolução do presente com o seu "CIENTE" e "OPÇÃO" abaixo.</p><p>Seu último dia de trabalho será <b>${ud}</b>, devendo V.Sa. comparecer ao departamento pessoal, munido da carteira profissional para formalização de sua rescisão de contrato de trabalho.</p>`
+  :`<p>Pelo presente o(a) notificamos que, a partir de <b>${ud}</b>, não mais serão utilizados os seus serviços pela nossa firma, ficando V.Sa. dispensado(a) do cumprimento do aviso prévio, que lhe será pago de forma indenizada, nos termos do Art. 487, § 1º, do Decreto Lei nº 5.452, de 1º de maio de 1943, da CLT - CONSOLIDAÇÃO DAS LEIS DO TRABALHO.</p><p>Solicito a devolução do presente com o seu "CIENTE" abaixo.</p><p>V.Sa. deverá comparecer ao departamento pessoal, munido da carteira profissional, para formalização de sua rescisão de contrato de trabalho.</p>`)+
+  `<p style="text-align:center;margin-top:14pt">Atenciosamente</p>${avEmp()}</div>`+
+  (trab?`<div class="sp" style="letter-spacing:0">CIENTE E OPÇÃO (Lei Nº 7.093/83)</div><div class="bx"><table><tr><td style="width:50%;vertical-align:top">Declaro-me ciente, da opção por<br><br>${fD(r.data_aviso)}</td><td style="vertical-align:top">[ ${/Redução/.test(op)?'X':'&nbsp;&nbsp;'} ] Redução de 2 (duas) hora(s) diária(s).<br><br>[ ${/7 dias/.test(op)?'X':'&nbsp;&nbsp;'} ] Falta de 7 (sete) dias corridos.</td></tr></table>
+  <table><tr><td class="ass" style="width:44%"><div class="ln"></div>Responsável quando menor</td><td style="width:12%"></td><td class="ass"><div class="ln"></div>Assinatura do Empregado</td></tr></table></div>`
+  :`<div class="sp" style="letter-spacing:0">CIENTE</div><div class="bx"><p>Ciente em ____/____/________.</p><table><tr><td class="ass" style="width:44%"><div class="ln"></div>Responsável quando menor</td><td style="width:12%"></td><td class="ass"><div class="ln"></div>Assinatura do Empregado</td></tr></table></div>`)}
+ else if(T==='antecipada'){h=avHead('RESCISÃO ANTECIPADA DO CONTRATO DE EXPERIÊNCIA<br>PELO EMPREGADOR')+avPara(f)+`<div class="bx"><p>Vimos pelo presente, comunicar-lhe que por não mais convir a esta empresa manter seu contrato de experiência, cujo término estava previsto para o dia <b>${r.termino_previsto?fD(r.termino_previsto):'____/____/______'}</b>, achamos por bem rescindi-lo antes do prazo acordado. Sendo assim, a partir de <b>${ud}</b> não serão mais necessários seus serviços.</p><p>A rescisão ocorre nos termos do art. 479 da Consolidação das Leis do Trabalho (CLT), sendo assegurado ao empregado o pagamento das verbas rescisórias cabíveis.</p><p>Solicitamos a devolução deste comunicado devidamente assinado, declarando ciência.</p>${avLocal(r.data_aviso)}<p style="text-align:center">Atenciosamente</p>${avEmp()}
+  <table><tr><td class="ass" style="width:46%"><div class="ln"></div>${esc(f.nome.toUpperCase())}<br>Empregado</td><td></td></tr></table>${avTest()}</div>`}
+ else if(T==='termino_exp'||T==='prazo_det'){const exp=T==='termino_exp';h=avHead(exp?'COMUNICADO DE TÉRMINO DO CONTRATO DE EXPERIÊNCIA':'COMUNICADO DE TÉRMINO DO CONTRATO POR PRAZO DETERMINADO')+avPara(f)+`<div class="bx"><p>Comunicamos que o seu contrato de trabalho ${exp?'de experiência':'por prazo determinado'}, iniciado em <b>${fD(f.data_admissao)}</b>, encerra-se em <b>${ud}</b>, data do término do prazo acordado, ${exp?'não sendo prorrogado nem convertido em contrato por prazo indeterminado':'não havendo prorrogação'}.</p><p>V.Sa. deverá comparecer ao departamento pessoal, munido da carteira profissional, para formalização da rescisão do contrato de trabalho e recebimento das verbas cabíveis.</p><p>Solicitamos a devolução deste comunicado devidamente assinado, declarando ciência.</p>${avLocal(r.data_aviso)}<p style="text-align:center">Atenciosamente</p>${avEmp()}<table><tr><td class="ass" style="width:46%"><div class="ln"></div>${esc(f.nome.toUpperCase())}<br>Empregado · ciente em ____/____/______</td><td></td></tr></table></div>`}
+ else if(T==='justa_causa'){const al=ALINEAS.find(a=>a[0]===r.alinea_482)||['__','__________'];h=avHead('COMUNICADO DE DISPENSA POR JUSTA CAUSA')+avPara(f)+`<div class="bx"><p>Comunicamos que, a partir de <b>${ud}</b>, fica rescindido o seu contrato de trabalho por justa causa, com fundamento no art. 482, alínea "${al[0]}" (${esc(al[1])}), da Consolidação das Leis do Trabalho (CLT)${r.observacao?`, em razão dos seguintes fatos: ${esc(r.observacao)}`:'.'}</p><p>V.Sa. deverá comparecer ao departamento pessoal, munido da carteira profissional, para formalização da rescisão e recebimento das verbas cabíveis.</p><p>Em caso de recusa em assinar, o presente comunicado será assinado por duas testemunhas.</p>${avLocal(r.data_aviso)}${avEmp()}<table><tr><td class="ass" style="width:46%"><div class="ln"></div>${esc(f.nome.toUpperCase())}<br>Empregado · ciente em ____/____/______</td><td></td></tr></table>${avTest()}</div>`}
+ else if(T==='pedido'||T==='antecipada_emp'){const ped=T==='pedido';const op=r.opcao_reducao||'';h=avHead(ped?'PEDIDO DE DEMISSÃO':'PEDIDO DE RESCISÃO ANTECIPADA DO CONTRATO DE EXPERIÊNCIA')+`<div class="bx">À<br><b>${esc(empresaNome())}</b></div><div class="bx"><p>Eu, <b>${esc(f.nome.toUpperCase())}</b>, portador(a) do CPF nº ${esc(f.cpf||'________________')}, ocupante do cargo de ${esc(funcaoNome(f.funcao_id))}, venho por meio desta ${ped?'solicitar o meu desligamento do quadro de funcionários desta empresa':'solicitar a rescisão antecipada do meu contrato de experiência, nos termos do art. 480 da CLT'}, a partir de <b>${fD(r.data_aviso)}</b>.</p>
+  ${ped?`<p>Quanto ao aviso prévio:<br>[ ${/Cumprirá/.test(op)?'X':'&nbsp;&nbsp;'} ] Cumprirei o aviso prévio de 30 (trinta) dias, sendo meu último dia de trabalho ${ud}.<br>[ ${/dispensa/.test(op)?'X':'&nbsp;&nbsp;'} ] Solicito a dispensa do cumprimento do aviso prévio.<br>[ ${/Não cumprirá/.test(op)?'X':'&nbsp;&nbsp;'} ] Não cumprirei o aviso prévio, ciente do desconto previsto no art. 487, § 2º, da CLT.</p>`:''}
+  ${avLocal(r.data_aviso)}<table><tr><td style="width:45%"></td><td class="ass"><div class="ln"></div>${esc(f.nome.toUpperCase())}<br>Empregado</td></tr></table></div>
+  <div class="bx"><b>DE ACORDO DA EMPRESA</b>${ped?'<br>[ &nbsp;&nbsp; ] Aviso a ser cumprido &nbsp;&nbsp; [ &nbsp;&nbsp; ] Dispensado o cumprimento do aviso':''}${avEmp()}</div>`}
+ else if(T==='acordo'){h=avHead('TERMO DE RESCISÃO DO CONTRATO DE TRABALHO POR ACORDO<br>(art. 484-A da CLT)')+`<div class="bx"><p><b>EMPREGADORA:</b> ${esc(empresaNome())}${S.ref.empresa&&S.ref.empresa.cnpj?', CNPJ '+esc(S.ref.empresa.cnpj):''}.</p><p><b>EMPREGADO(A):</b> ${esc(f.nome.toUpperCase())}, CPF nº ${esc(f.cpf||'________________')}, cargo ${esc(funcaoNome(f.funcao_id))}, admitido(a) em ${fD(f.data_admissao)}.</p>
+  <p>As partes acima, de livre e comum acordo, resolvem extinguir o contrato de trabalho com fundamento no art. 484-A da CLT, sendo o último dia de trabalho <b>${ud}</b>.</p><p>Ficam as partes cientes de que, nesta modalidade: (i) o aviso prévio, se indenizado, e a indenização sobre o saldo do FGTS são devidos pela metade; (ii) as demais verbas trabalhistas são devidas na integralidade; (iii) o(a) empregado(a) poderá movimentar até 80% do saldo da conta vinculada do FGTS; e (iv) a extinção por acordo não autoriza o ingresso no Programa de Seguro-Desemprego.</p>
+  ${avLocal(r.data_aviso)}<table><tr><td class="ass" style="width:46%"><div class="ln"></div>${esc(empresaNome())}<br>Empregadora</td><td style="width:8%"></td><td class="ass"><div class="ln"></div>${esc(f.nome.toUpperCase())}<br>Empregado(a)</td></tr></table>${avTest()}</div>`}
+ return `<div class="av">${h}</div>`}
+function termoHTML(r,f){const ck=r.checklist||{};const mk=(k,s)=>(ck[k]&&ck[k].s===s)?'X':'';
+ return `<div class="av tq">${avHead('CHECKLIST DE QUITAÇÃO DEMISSIONAL')}
+ <table class="ck" style="margin-bottom:6pt"><tr><td colspan="2"><b>Empregado:</b> ${esc(f.nome.toUpperCase())}</td><td><b>Matrícula:</b> ${esc(f.matricula)}</td></tr><tr><td><b>CPF:</b> ${esc(f.cpf||'')}</td><td><b>Cargo:</b> ${esc(funcaoNome(f.funcao_id))}</td><td><b>Admissão:</b> ${fD(f.data_admissao)}</td></tr><tr><td colspan="2"><b>Tipo:</b> ${esc(tipoD(r.tipo).t)}</td><td><b>Último dia:</b> ${fD(r.ultimo_dia)}</td></tr><tr><td colspan="2"><b>Obra / centro de custo:</b> ${esc(obraNome(f.obra_referencia_id)||'')}</td><td><b>Pagamento até:</b> ${fD(r.prazo_pagamento)}</td></tr></table>
+ ${CHK_D.map(([s,its])=>`<table class="ck" style="margin-top:4pt"><tr><th>${esc(s)}</th><th class="c">OK</th><th class="c">N/A</th><th class="c">Pend.</th><th style="width:24%">Observação</th></tr>${its.map(([k,l])=>`<tr><td>${esc(l)}</td><td class="c">${mk(k,'ok')}</td><td class="c">${mk(k,'na')}</td><td class="c">${mk(k,'pend')}</td><td>${esc((ck[k]&&ck[k].obs)||'')}</td></tr>`).join('')}</table>
+ <table class="sg"><tr><td style="width:40%">Responsável:</td><td style="width:35%">Assinatura:</td><td>Data: ____/____/______</td></tr></table>`).join('')}
+ <div class="bx" style="margin-top:8pt"><b>DECLARAÇÃO DO EMPREGADO</b><p style="margin-top:4pt">Declaro que conferi os itens acima, que devolvi os bens, ferramentas, equipamentos e materiais da empresa que estavam sob minha responsabilidade e que recebi os documentos que me pertencem.</p>
+ <table><tr><td class="ass" style="width:46%"><div class="ln"></div>${esc(f.nome.toUpperCase())}<br>Empregado</td><td style="width:8%"></td><td class="ass"><div class="ln"></div>Recursos Humanos<br>${esc(empresaNome())}</td></tr></table></div>
+ <p class="muted">Documento gerado pelo Portal Avante em ${fDT(new Date().toISOString())}. Desligamento nº ${r.numero||''}.</p></div>`}
+// ================================================================ ATESTADOS MÉDICOS
+const TIPOS_AT=['Atestado médico','Atestado odontológico','Declaração de comparecimento (horas)','Acompanhamento de filho ou dependente','Acidente de trabalho','Licença-maternidade','Licença-paternidade','Doação de sangue','Outros'];
+const atOcorr=t=>t==='Licença-maternidade'?'AFASTADO':['Licença-paternidade','Doação de sangue','Acompanhamento de filho ou dependente'].includes(t)?'ABONADO':'ATESTADO';
+const atFim=a=>addD(pdk(a.data_inicio),Math.max(1,a.dias||1)-1);
+const atHoras=a=>a.tipo==='Declaração de comparecimento (horas)';
+const CID_CAP=[['A00','B99','Infecciosas e parasitárias'],['C00','D48','Neoplasias'],['D50','D89','Sangue e imunidade'],['E00','E90','Endócrinas e metabólicas'],['F00','F99','Transtornos mentais e comportamentais'],['G00','G99','Sistema nervoso'],['H00','H59','Olhos'],['H60','H95','Ouvido'],['I00','I99','Aparelho circulatório'],['J00','J99','Aparelho respiratório'],['K00','K93','Aparelho digestivo (inclui dentário)'],['L00','L99','Pele'],['M00','M99','Osteomuscular (coluna, articulações)'],['N00','N99','Geniturinário'],['O00','O99','Gravidez e parto'],['P00','P96','Perinatais'],['Q00','Q99','Congênitas'],['R00','R99','Sintomas e sinais'],['S00','T98','Lesões e traumatismos'],['V01','Y98','Causas externas'],['Z00','Z99','Contato com serviços de saúde']];
+function cidCap(c){c=String(c||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,3);if(c.length<3)return 'Sem CID informado';const x=CID_CAP.find(([a,b])=>c>=a&&c<=b);return x?x[2]:'Outros'}
+// soma dos dias de atestados do mesmo grupo de CID em 60 dias (regra dos 15 dias para encaminhar ao INSS)
+function atInss(a,L){const ini=addD(pdk(a.data_inicio),-60);const cap=cidCap(a.cid);return L.filter(x=>x.funcionario_id===a.funcionario_id&&!atHoras(x)&&x.situacao!=='Recusado'&&pdk(x.data_inicio)>=ini&&pdk(x.data_inicio)<=pdk(a.data_inicio)&&(x.id===a.id||(a.cid&&cidCap(x.cid)===cap))).reduce((s,x)=>s+(+x.dias||0),0)}
+
+PAGES.atestados={async load(){const[L,fs]=await Promise.all([S.api.select('atestados',{order:['data_inicio',false]}),S.api.select('funcionarios',{cols:'id,matricula,nome,funcao_id,data_admissao,data_desligamento,status,obra_referencia_id',order:['nome']})]);return {L,fs}},
+ html(){const d=D();const fs=d.fs||[];const fN=id=>fs.find(f=>f.id===id)||{nome:'?'};const k=S.params.comp||CUR;const p=periodo(k);const q=(S.params.aq||'').toLowerCase();
+  const all=d.L||[];const L=all.filter(a=>pdk(a.data_inicio)<=p.fim&&atFim(a)>=p.ini).filter(a=>!q||fN(a.funcionario_id).nome.toLowerCase().includes(q));
+  const val=L.filter(a=>a.situacao!=='Recusado');const dias=val.filter(a=>!atHoras(a)).reduce((s,a)=>s+(+a.dias||0),0);const hrsD=val.filter(atHoras).reduce((s,a)=>s+(+a.horas||0),0);
+  const inss=all.filter(a=>a.situacao!=='Recusado'&&!atHoras(a)&&atInss(a,all)>15&&atFim(a)>=addD(T0,-15));
+  const ver=perm('docs','ver');
+  return `<h1>Atestados médicos</h1><p class="sub">Registro de atestados e declarações. Ao salvar, o portal já lança a ocorrência no ponto dos dias cobertos.</p>
+  <div class="toolbar"><select data-aq="comp">${[-5,-4,-3,-2,-1,0].map(i=>kAdd(CUR,i)).map(x=>`<option value="${x}" ${x===k?'selected':''}>${compLabel(x)} · ${perLabel(x)}</option>`).join('')}</select><input data-aq="busca" placeholder="Buscar funcionário…" value="${esc(S.params.aq||'')}" style="max-width:260px"><span class="sp"></span>${perm('atestados','exportar')?`<button class="btn sm" data-act="atCsv">Exportar CSV</button>`:''}${perm('atestados','incluir')?`<button class="btn primary" data-act="atNovo">+ Registrar atestado</button>`:''}</div>
+  <div class="grid kpis">${kc('Atestados no período',val.length,`${new Set(val.map(a=>a.funcionario_id)).size} pessoa(s)`)}${kc('Dias perdidos',N(dias),hrsD?`+ ${N(hrsD)} h em declarações`:'atestados de dias inteiros')}${kc('Acidentes de trabalho',val.filter(a=>a.acidente_trabalho||a.tipo==='Acidente de trabalho').length,'no período',val.some(a=>a.acidente_trabalho||a.tipo==='Acidente de trabalho')?'bad':'ok')}${kc('Acima de 15 dias',inss.length,'encaminhar ao INSS a partir do 16º dia',inss.length?'warn':'ok')}</div>
+  ${inss.length?`<div class="note mt" style="background:var(--warn-soft)"><b>Atenção (INSS):</b> ${inss.map(a=>esc(fN(a.funcionario_id).nome)+' ('+atInss(a,all)+' dias)').join(', ')}. A empresa paga os 15 primeiros dias; a partir do 16º dia o empregado deve ser encaminhado ao INSS. Atestados do mesmo grupo de doença em até 60 dias são somados.</div>`:''}
+  <div class="card tablewrap mt"><table><thead><tr><th>Funcionário</th><th>Tipo</th><th>Período</th><th>Dias/horas</th><th>CID</th><th>Obra</th><th>Situação</th><th>Ponto</th><th></th></tr></thead><tbody>
+  ${L.map(a=>{const f=fN(a.funcionario_id);return `<tr><td><b>${esc(f.nome)}</b><div class="small muted">${esc(funcaoNome(f.funcao_id))}</div></td><td class="small">${esc(a.tipo)}${a.acidente_trabalho?' '+pill('Acidente','bad'):''}</td><td>${fD(a.data_inicio)}${!atHoras(a)&&a.dias>1?' a '+fD(atFim(a)):''}</td><td>${atHoras(a)?N(+a.horas||0)+' h':a.dias+' dia(s)'}</td><td>${esc(a.cid||'—')}<div class="small muted">${a.cid?esc(cidCap(a.cid)):''}</div></td><td class="small">${esc(obraNome(a.obra_id)||'')}</td><td>${pill(a.situacao,a.situacao==='Aceito'?'ok':a.situacao==='Recusado'?'bad':'warn')}</td><td>${a.lancado_ponto?pill('Lançado','ok'):atHoras(a)?'<span class="small muted">—</span>':pill('Não','warn')}</td>
+   <td style="white-space:nowrap">${a.arquivo_path&&ver?`<button class="btn sm" data-act="atArq" data-id="${a.id}">Anexo</button> `:''}${perm('atestados','editar')?`<button class="btn sm" data-act="atEditar" data-id="${a.id}">Editar</button>`:''}</td></tr>`}).join('')||'<tr><td colspan="9" class="muted">Nenhum atestado neste período.</td></tr>'}</tbody></table></div>
+  <p class="small muted mt">O CID é dado de saúde (dado sensível pela LGPD): só aparece para perfis com acesso ao módulo de atestados. Peça o CID apenas com autorização do empregado.</p>`}};
+
+function atModal(a){const fs=(D().fs||[]).filter(f=>f.status!=='Desligado'||(a&&f.id===a.funcionario_id));a=a||{tipo:'Atestado médico',data_inicio:dk(addD(T0,-1)),dias:1,situacao:'Aceito',entregue_em:dk(T0)};const novo=!a.id;
+ openModal(`<h2>${novo?'Registrar atestado':'Editar atestado'}</h2>
+ <label>Funcionário</label><select id="atF" ${novo?'':'disabled'}>${fs.map(f=>`<option value="${f.id}" ${f.id===a.funcionario_id?'selected':''}>${esc(f.nome)} · ${esc(f.matricula)}</option>`).join('')}</select>
+ <div class="grid" style="grid-template-columns:1fr 1fr;gap:0 12px">
+  <div><label>Tipo</label><select id="atT">${TIPOS_AT.map(t=>`<option ${t===a.tipo?'selected':''}>${t}</option>`).join('')}</select></div>
+  <div><label>Situação</label><select id="atS">${['Aceito','Em análise','Recusado'].map(t=>`<option ${t===a.situacao?'selected':''}>${t}</option>`).join('')}</select></div>
+  <div><label>Data de início</label><input type="date" id="atD" value="${a.data_inicio}"></div>
+  <div id="atQW"><label id="atQL">Quantidade de dias</label><input type="text" inputmode="decimal" id="atQ" value="${atHoras(a)?(a.horas||''):a.dias}"></div>
+  <div><label>CID (opcional)</label><input id="atC" value="${esc(a.cid||'')}" placeholder="Ex.: M54.5" maxlength="8"></div>
+  <div><label>Obra em que estava alocado</label><select id="atO"><option value=""></option>${obrasUser().map(o=>`<option value="${o.id}" ${o.id===a.obra_id?'selected':''}>${esc(o.nome)}</option>`).join('')}</select></div>
+  <div><label>Profissional</label><input id="atP" value="${esc(a.profissional||'')}"></div><div><label>CRM / CRO</label><input id="atR" value="${esc(a.registro_prof||'')}"></div>
+  <div><label>Estabelecimento</label><input id="atE" value="${esc(a.estabelecimento||'')}"></div><div><label>Entregue ao RH em</label><input type="date" id="atEn" value="${a.entregue_em||''}"></div></div>
+ <label style="display:flex;gap:8px;align-items:center;color:var(--text)"><input type="checkbox" id="atAc" ${a.acidente_trabalho?'checked':''} style="width:auto"> Decorrente de acidente de trabalho (avisar o SESMT para a CAT)</label>
+ <label style="display:flex;gap:8px;align-items:center;color:var(--text)"><input type="checkbox" id="atIn" ${a.encaminhado_inss?'checked':''} style="width:auto"> Encaminhado ao INSS</label>
+ <label>Observação</label><textarea id="atOb" rows="2">${esc(a.observacao||'')}</textarea>
+ ${perm('docs','incluir')?`<label>Anexo do atestado (PDF ou foto)</label><input type="file" id="atArqF" accept=".pdf,.jpg,.jpeg,.png">`:''}
+ <label style="display:flex;gap:8px;align-items:center;color:var(--text)" id="atLpW"><input type="checkbox" id="atLp" ${a.lancado_ponto||novo?'checked':''} style="width:auto"> Lançar no ponto os dias cobertos</label>
+ <div id="atAviso" class="small mt"></div><div id="err" class="err"></div>
+ <div class="modal-actions">${!novo&&perm('atestados','excluir')?`<button class="btn danger" data-act="atExcluir" data-id="${a.id}" style="margin-right:auto">Excluir</button>`:''}<button class="btn" data-act="close">Cancelar</button><button class="btn primary" data-act="atSalvar" data-id="${a.id||''}">Salvar</button></div>`);atUi()}
+function atUi(){const h=$('#atT').value==='Declaração de comparecimento (horas)';$('#atQL').textContent=h?'Horas (ex.: 3,5)':'Quantidade de dias';$('#atQ').step=h?'0.5':'1';$('#atLpW').style.display=h?'none':'flex';
+ const n=+String($('#atQ').value).replace(',','.')||0;const av=[];if(!h&&n>15)av.push('<span style="color:var(--warn)">Mais de 15 dias: os primeiros 15 são pagos pela empresa e a partir do 16º o empregado deve ser encaminhado ao INSS.</span>');
+ if(!h&&n>0&&$('#atD').value)av.push(`Cobre de ${fD($('#atD').value)} a ${fD(addD(pdk($('#atD').value),n-1))}.`);$('#atAviso').innerHTML=av.join('<br>')}
+FIELD.push(ev=>{const t=ev.target;if(t.id&&['atT','atQ','atD'].includes(t.id)){atUi();return true}
+ if(t.dataset&&t.dataset.aq){if(t.dataset.aq==='comp'){if(ev.type==='change'){S.params.comp=t.value;render()}}else if(ev.type==='input'||ev.type==='change'){S.params.aq=t.value;const pos=t.selectionStart;render();const n=document.querySelector('[data-aq="busca"]');if(n){n.focus();try{n.setSelectionRange(pos,pos)}catch(e){}}}return true}return false});
+
+async function lancaPonto(fid,ini,n,oc,obs){let ok=0,pul=0;const ups=[];for(let i=0;i<n;i++){const d=addD(pdk(ini),i);if(carga(d)===0){pul++;continue}ups.push({funcionario_id:fid,data:dk(d),ocorrencia:oc,entrada1:null,saida1:null,entrada2:null,saida2:null,obra_id:null,obra2_id:null,minutos_obra2:0,observacao:obs})}
+ if(ups.length){await S.api.upsert('ponto',ups,'funcionario_id,data');ok=ups.length}return {ok,pul}}
+Object.assign(ACT,{atNovo:()=>atModal(),atEditar:t=>atModal((D().L||[]).find(x=>x.id===t.dataset.id)),
+ atArq:async t=>{const a=(D().L||[]).find(x=>x.id===t.dataset.id);window.open(await S.api.signedUrl(a.arquivo_path),'_blank')},
+ atExcluir:async t=>{if(!confirm('Excluir este atestado? Os dias já lançados no ponto não são apagados.'))return;await S.api.remove('atestados',{eq:{id:t.dataset.id}});closeModal();reload()},
+ atSalvar:async t=>{const id=t.dataset.id;const tipo=$('#atT').value;const h=tipo==='Declaração de comparecimento (horas)';const q=+String($('#atQ').value).replace(',','.');
+  if(!$('#atD').value||!(q>0)){$('#err').textContent='Informe a data e a quantidade.';return}if(!h&&(q%1||q>365)){$('#err').textContent='Dias deve ser um número inteiro.';return}
+  const fid=$('#atF').value;const f=(D().fs||[]).find(x=>x.id===fid);
+  const row={funcionario_id:fid,tipo,data_inicio:$('#atD').value,dias:h?0:q,horas:h?q:null,situacao:$('#atS').value,cid:$('#atC').value.trim().toUpperCase()||null,obra_id:$('#atO').value||(f&&f.obra_referencia_id)||null,profissional:$('#atP').value.trim()||null,registro_prof:$('#atR').value.trim()||null,estabelecimento:$('#atE').value.trim()||null,entregue_em:$('#atEn').value||null,acidente_trabalho:$('#atAc').checked||tipo==='Acidente de trabalho',encaminhado_inss:$('#atIn').checked,observacao:$('#atOb').value.trim()||null};
+  const fl=$('#atArqF')&&$('#atArqF').files[0];if(fl&&(fl.size>10*1024*1024||!/\.(pdf|jpe?g|png)$/i.test(fl.name))){$('#err').textContent='Anexo: PDF, JPG ou PNG de até 10 MB.';return}
+  let rid=id;if(id)await S.api.update('atestados',{id},row);else rid=(await S.api.insert('atestados',row))[0].id;
+  if(fl){const path=`funcionarios/${fid}/atestados/${rid}.${fl.name.split('.').pop().toLowerCase()}`;await S.api.upload(path,fl);await S.api.update('atestados',{id:rid},{arquivo_path:path})}
+  let msg='Atestado salvo.';
+  if(!h&&$('#atLp').checked&&row.situacao!=='Recusado'){try{const r=await lancaPonto(fid,row.data_inicio,q,atOcorr(tipo),tipo+(row.cid?'':''));await S.api.update('atestados',{id:rid},{lancado_ponto:true});msg+=` ${r.ok} dia(s) lançado(s) no ponto.`}catch(e){msg+=' Não foi possível lançar no ponto: '+traduzErro(e)}}
+  closeModal();toast(msg);reload()},
+ atCsv:()=>{const d=D();const fs=d.fs||[];const fN=id=>fs.find(f=>f.id===id)||{};const R=[['Funcionário','Matrícula','Função','Tipo','Início','Fim','Dias','Horas','CID','Grupo do CID','Obra','Situação','Acidente de trabalho','Encaminhado INSS','Lançado no ponto']];
+  (d.L||[]).forEach(a=>{const f=fN(a.funcionario_id);R.push([f.nome,f.matricula,funcaoNome(f.funcao_id),a.tipo,fD(a.data_inicio),atHoras(a)?'':fD(atFim(a)),a.dias,a.horas||'',a.cid||'',a.cid?cidCap(a.cid):'',obraNome(a.obra_id)||'',a.situacao,a.acidente_trabalho?'Sim':'Não',a.encaminhado_inss?'Sim':'Não',a.lancado_ponto?'Sim':'Não'])});csv('atestados',R);evento('Exportou atestados','')}});
+
+// ================================================================ FÉRIAS
+const fimFer=x=>addD(pdk(x.inicio),x.dias-1);
+// períodos aquisitivos de cada funcionário e o saldo de cada um
+function periodosFerias(f,L){if(!f.data_admissao)return[];const adm=pdk(f.data_admissao);const fim=f.data_desligamento?pdk(f.data_desligamento):T0;const out=[];
+ for(let i=0;i<60;i++){const ini=new Date(adm.getFullYear()+i,adm.getMonth(),adm.getDate());if(ini>fim)break;const af=addD(new Date(adm.getFullYear()+i+1,adm.getMonth(),adm.getDate()),-1);const conc=new Date(af.getFullYear()+1,af.getMonth(),af.getDate());
+  const usos=L.filter(x=>x.funcionario_id===f.id&&x.situacao!=='Cancelada'&&String(x.aquisitivo_ini).slice(0,10)===dk(ini));const usado=usos.reduce((s,x)=>s+x.dias+(+x.abono_dias||0),0);
+  const completo=af<T0;const saldo=Math.max(0,30-usado);let st;
+  if(!completo)st={t:'Em aquisição',c:''};else if(saldo===0)st={t:'Quitado',c:'ok'};else if(conc<T0)st={t:'Vencido (pagamento em dobro)',c:'bad'};else if(conc<=addD(T0,60))st={t:'Vence em breve',c:'warn'};else st={t:'Disponível',c:''};
+  out.push({ini,af,conc,usado,saldo,completo,st,usos})}return out}
+PAGES.ferias={async load(){const[L,fs]=await Promise.all([S.api.select('ferias',{order:['inicio',false]}),S.api.select('funcionarios',{cols:'id,matricula,nome,cpf,funcao_id,data_admissao,data_desligamento,status,obra_referencia_id',order:['nome']})]);return {L,fs}},
+ html(){const d=D();const fs=(d.fs||[]).filter(f=>f.status!=='Desligado');const L=d.L||[];const tab=S.params.ft||'controle';const fN=id=>(d.fs||[]).find(f=>f.id===id)||{nome:'?'};
+  const rows=[];fs.forEach(f=>periodosFerias(f,L).forEach(p=>{if(p.completo&&p.saldo>0)rows.push({f,p})}));rows.sort((a,b)=>a.p.conc-b.p.conc);
+  const venc=rows.filter(r=>r.p.conc<T0),breve=rows.filter(r=>r.p.conc>=T0&&r.p.conc<=addD(T0,60));const gozo=L.filter(x=>x.situacao!=='Cancelada'&&pdk(x.inicio)<=T0&&fimFer(x)>=T0);
+  const prox=L.filter(x=>x.situacao==='Programada'&&pdk(x.inicio)>T0);
+  const ed=perm('ferias','incluir');
+  let body;
+  if(tab==='controle')body=`<div class="card tablewrap"><table><thead><tr><th>Funcionário</th><th>Período aquisitivo</th><th>Gozar até</th><th>Saldo</th><th>Situação</th><th></th></tr></thead><tbody>${rows.map(({f,p})=>`<tr><td><b>${esc(f.nome)}</b><div class="small muted">${esc(funcaoNome(f.funcao_id))} · admissão ${fD(f.data_admissao)}</div></td><td>${fD(p.ini)} a ${fD(p.af)}</td><td>${fD(addD(p.conc,-1))}</td><td>${p.saldo} dia(s)</td><td>${pill(p.st.t,p.st.c)}</td><td>${ed?`<button class="btn sm" data-act="feNovo" data-f="${f.id}" data-ai="${dk(p.ini)}">Programar</button>`:''}</td></tr>`).join('')||'<tr><td colspan="6" class="muted">Nenhum período aquisitivo completo com saldo em aberto.</td></tr>'}</tbody></table></div>
+   <p class="small muted mt">Saldo considerado de 30 dias por período. Faltas injustificadas no período aquisitivo podem reduzir o direito (art. 130 da CLT): confira com a contabilidade.</p>`;
+  else body=`<div class="card tablewrap"><table><thead><tr><th>Funcionário</th><th>Gozo</th><th>Dias</th><th>Abono</th><th>Aviso até</th><th>Pagar até</th><th>Situação</th><th></th></tr></thead><tbody>${L.map(x=>{const f=fN(x.funcionario_id);const avisoLim=addD(pdk(x.inicio),-30);const st=x.situacao!=='Cancelada'&&x.situacao!=='Concluída'&&pdk(x.inicio)<=T0?(fimFer(x)>=T0?'Em gozo':'Concluída'):x.situacao;
+   return `<tr><td><b>${esc(f.nome)}</b><div class="small muted">Aquisitivo ${fD(x.aquisitivo_ini)} a ${fD(x.aquisitivo_fim)}</div></td><td>${fD(x.inicio)} a ${fD(fimFer(x))}</td><td>${x.dias}</td><td>${x.abono_dias||'—'}</td><td>${x.aviso_em?fD(x.aviso_em):pdk(x.inicio)>T0?(avisoLim<T0?pill(fD(avisoLim)+' · atrasado','bad'):fD(avisoLim)):'—'}</td><td>${fD(x.pagamento_ate)}</td><td>${pill(st,st==='Cancelada'?'':st==='Concluída'?'ok':'warn')}</td>
+   <td style="white-space:nowrap"><button class="btn sm" data-act="feAviso" data-id="${x.id}">Aviso</button> ${perm('ferias','editar')&&x.situacao!=='Cancelada'?`<button class="btn sm" data-act="feEditar" data-id="${x.id}">Editar</button>`:''}</td></tr>`}).join('')||'<tr><td colspan="8" class="muted">Nenhuma férias programada ainda.</td></tr>'}</tbody></table></div>`;
+  return `<h1>Férias</h1><p class="sub">Controle dos períodos aquisitivos, programação, aviso de férias e lançamento automático no ponto.</p>
+  <div class="grid kpis">${kc('Férias vencidas',venc.length,'período concessivo já terminou (pagamento em dobro)',venc.length?'bad':'ok')}${kc('Vencem em 60 dias',breve.length,'programar com urgência',breve.length?'warn':'ok')}${kc('Em gozo hoje',gozo.length,gozo.map(x=>fN(x.funcionario_id).nome.split(' ')[0]).slice(0,4).join(', '))}${kc('Programadas',prox.length,'a iniciar')}</div>
+  <div class="toolbar mt"><div class="tabs" style="margin:0"><button class="btn sm ${tab==='controle'?'primary':''}" data-act="feTab" data-t="controle">Períodos em aberto (${rows.length})</button><button class="btn sm ${tab==='prog'?'primary':''}" data-act="feTab" data-t="prog">Programação (${L.length})</button></div><span class="sp"></span>${ed?`<button class="btn primary" data-act="feNovo">+ Programar férias</button>`:''}</div>${body}`}};
+
+function feModal(x,fid,ai){const d=D();const fs=(d.fs||[]).filter(f=>f.status!=='Desligado');const novo=!x;x=x||{funcionario_id:fid||(fs[0]&&fs[0].id),dias:30,abono_dias:0,inicio:dk(addD(T0,35))};
+ openModal(`<h2>${novo?'Programar férias':'Editar férias'}</h2>
+ <label>Funcionário</label><select id="feF" ${novo?'':'disabled'}>${fs.map(f=>`<option value="${f.id}" ${f.id===x.funcionario_id?'selected':''}>${esc(f.nome)} · ${esc(f.matricula)}</option>`).join('')}</select>
+ <label>Período aquisitivo</label><select id="feA"></select>
+ <div class="grid" style="grid-template-columns:1fr 1fr 1fr;gap:0 12px"><div><label>Início do gozo</label><input type="date" id="feI" value="${x.inicio}"></div><div><label>Dias de gozo</label><input type="number" id="feD" min="5" max="30" value="${x.dias}"></div><div><label>Abono (vender dias)</label><input type="number" id="feAb" min="0" max="10" value="${x.abono_dias||0}"></div></div>
+ <div class="grid" style="grid-template-columns:1fr 1fr;gap:0 12px"><div><label>Aviso entregue em</label><input type="date" id="feAv" value="${x.aviso_em||''}"></div><div><label>Situação</label><select id="feS">${['Programada','Em gozo','Concluída','Cancelada'].map(s=>`<option ${s===x.situacao?'selected':''}>${s}</option>`).join('')}</select></div></div>
+ <label style="display:flex;gap:8px;align-items:center;color:var(--text)"><input type="checkbox" id="fe13" ${x.adianta_13?'checked':''} style="width:auto"> Adiantar 1ª parcela do 13º</label>
+ <label style="display:flex;gap:8px;align-items:center;color:var(--text)"><input type="checkbox" id="feLp" ${novo||x.lancado_ponto?'checked':''} style="width:auto"> Lançar "Férias" no ponto dos dias de gozo</label>
+ <label>Observação</label><input id="feOb" value="${esc(x.observacao||'')}">
+ <div id="feAviso" class="small mt"></div><div id="err" class="err"></div>
+ <div class="modal-actions"><button class="btn" data-act="close">Cancelar</button><button class="btn primary" data-act="feSalvar" data-id="${x.id||''}">Salvar</button></div>`);feUi(ai||(x.aquisitivo_ini&&String(x.aquisitivo_ini).slice(0,10)))}
+function feUi(sel){const d=D();const f=(d.fs||[]).find(y=>y.id===$('#feF').value);if(!f)return;const ps=periodosFerias(f,(d.L||[]).filter(x=>x.id!==($('[data-act="feSalvar"]')||{dataset:{}}).dataset.id));const a=$('#feA');
+ if(sel!==undefined||a.dataset.f!==f.id){const cur=sel||a.value;a.innerHTML=ps.map(p=>`<option value="${dk(p.ini)}|${dk(p.af)}" ${dk(p.ini)===cur?'selected':''}>${fD(p.ini)} a ${fD(p.af)} · saldo ${p.saldo} dia(s)${p.completo?'':' (em aquisição)'}</option>`).join('');a.dataset.f=f.id;if(!cur){const fst=ps.find(p=>p.completo&&p.saldo>0);if(fst)a.value=dk(fst.ini)+'|'+dk(fst.af)}}
+ const p=ps.find(z=>dk(z.ini)===String(a.value).split('|')[0]);const ini=$('#feI').value;const n=+$('#feD').value||0,ab=+$('#feAb').value||0;const av=[];
+ if(ini&&n){const i=pdk(ini);const fim=addD(i,n-1);av.push(`Gozo de ${fD(i)} a ${fD(fim)}, retorno em ${fD(addD(fim,1))}. Pagamento até ${fD(addD(i,-2))} (art. 145). Aviso até ${fD(addD(i,-30))} (art. 135).`);
+  const w=i.getDay();const pre=[1,2].some(k=>{const x=addD(i,k);return x.getDay()===0||isFer(x)});if(pre||w===5||w===6)av.push('<span style="color:var(--warn)">As férias não podem começar nos 2 dias que antecedem feriado ou o repouso semanal (art. 134 §3º).</span>');
+  if(addD(i,-30)<T0)av.push('<span style="color:var(--warn)">Menos de 30 dias até o início: o aviso fica fora do prazo legal.</span>');
+  if(p&&p.completo&&fim>=p.conc)av.push('<span style="color:var(--bad)">O gozo termina depois do limite do período concessivo: haverá pagamento em dobro dos dias excedentes.</span>')}
+ if(p&&n+ab>p.saldo)av.push(`<span style="color:var(--bad)">Gozo + abono (${n+ab}) maior que o saldo do período (${p.saldo}).</span>`);
+ if(ab>10)av.push('<span style="color:var(--bad)">O abono é de no máximo 1/3 das férias (10 dias).</span>');
+ if(n<30&&n<14&&p&&!p.usos.some(u=>u.dias>=14))av.push('<span style="color:var(--warn)">Se fracionar, um dos períodos precisa ter ao menos 14 dias e os demais ao menos 5 (art. 134 §1º).</span>');
+ $('#feAviso').innerHTML=av.join('<br>')}
+FIELD.push(ev=>{const t=ev.target;if(t.id&&['feF','feA','feI','feD','feAb'].includes(t.id)){if(t.id==='feF')feUi('');else feUi();return true}return false});
+Object.assign(ACT,{feTab:t=>{S.params.ft=t.dataset.t;render()},feNovo:t=>feModal(null,t.dataset.f,t.dataset.ai),feEditar:t=>feModal((D().L||[]).find(x=>x.id===t.dataset.id)),
+ feSalvar:async t=>{const id=t.dataset.id;const fid=$('#feF').value;const [ai,af]=String($('#feA').value).split('|');const ini=$('#feI').value;const n=+$('#feD').value,ab=+$('#feAb').value||0;
+  if(!ai||!ini||!(n>=5&&n<=30)){$('#err').textContent='Informe período aquisitivo, início e de 5 a 30 dias de gozo.';return}if(ab<0||ab>10){$('#err').textContent='Abono entre 0 e 10 dias.';return}
+  const row={funcionario_id:fid,aquisitivo_ini:ai,aquisitivo_fim:af,inicio:ini,dias:n,abono_dias:ab,adianta_13:$('#fe13').checked,aviso_em:$('#feAv').value||null,pagamento_ate:dk(addD(pdk(ini),-2)),situacao:$('#feS').value,observacao:$('#feOb').value.trim()||null};
+  let rid=id;if(id)await S.api.update('ferias',{id},row);else rid=(await S.api.insert('ferias',row))[0].id;let msg='Férias salvas.';
+  if($('#feLp').checked&&row.situacao!=='Cancelada'){try{const r=await lancaPonto(fid,ini,n,'FERIAS','Férias');await S.api.update('ferias',{id:rid},{lancado_ponto:true});msg+=` ${r.ok} dia(s) lançado(s) no ponto.`}catch(e){msg+=' Não foi possível lançar no ponto: '+traduzErro(e)}}
+  closeModal();toast(msg);S.params.ft='prog';reload()},
+ feAviso:t=>{const x=(D().L||[]).find(y=>y.id===t.dataset.id);const f=(D().fs||[]).find(y=>y.id===x.funcionario_id);const fim=fimFer(x);evento('Imprimiu aviso de férias',f.nome);
+  docPrint(AV_CSS+`<div class="av">${avHead('AVISO DE FÉRIAS')}${avPara(f)}<div class="bx"><p>Nos termos do art. 135 da Consolidação das Leis do Trabalho (CLT), comunicamos que suas férias relativas ao período aquisitivo de <b>${fD(x.aquisitivo_ini)}</b> a <b>${fD(x.aquisitivo_fim)}</b> serão concedidas de <b>${fD(x.inicio)}</b> a <b>${fD(fim)}</b>, totalizando <b>${x.dias} (${x.dias}) dias</b>, devendo V.Sa. retornar ao trabalho em <b>${fD(addD(fim,1))}</b>.</p>
+  ${x.abono_dias?`<p>Conforme requerido, ${x.abono_dias} dia(s) de férias serão convertidos em abono pecuniário (art. 143 da CLT).</p>`:''}${x.adianta_13?'<p>Será adiantada a primeira parcela do 13º salário, conforme solicitado.</p>':''}
+  <p>O pagamento da remuneração das férias será efetuado até <b>${fD(x.pagamento_ate)}</b>, nos termos do art. 145 da CLT.</p>${avLocal(x.aviso_em||T0)}${avEmp()}<table><tr><td class="ass" style="width:46%"><div class="ln"></div>${esc(f.nome.toUpperCase())}<br>Ciente em ____/____/______</td><td></td></tr></table></div></div>`)}});
+// ================================================================ RELATÓRIOS DE RH: abas por tema
+function relHead(d){return `<h1>Relatórios e indicadores de RH</h1><p class="sub">Competência ${compLabel(d.k)} (${perLabel(d.k)}). Os números saem direto do que é lançado no portal.</p><!--TABS-->`}
+function relSel(d,csvBtn){const k=d.k,ob=S.params.robra||'';return `<div class="toolbar"><select data-rel="comp">${[-5,-4,-3,-2,-1,0].map(i=>kAdd(CUR,i)).map(x=>`<option value="${x}" ${x===k?'selected':''}>${compLabel(x)} · ${perLabel(x)}${x===CUR?' · em apuração':''}</option>`).join('')}</select>
+ <select data-rel="obra"><option value="">Todas as obras</option>${obrasUser().map(o=>`<option value="${o.id}" ${o.id===ob?'selected':''}>${esc(o.nome)}</option>`).join('')}</select><span class="sp"></span>${csvBtn&&perm('indicadores','exportar')?`<button class="btn sm" data-act="relCsv">Exportar indicadores (CSV)</button>`:''}</div>`}
+const ULT12=k=>[-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0].map(i=>kAdd(k,i));
+const kLbl=kk=>MESES[+kk.slice(5)-1]+'/'+kk.slice(2,4);
+const grp=(L,fk,fv)=>{const o={};L.forEach(x=>{const k=fk(x);if(k==null)return;o[k]=(o[k]||0)+(fv?fv(x):1)});return Object.entries(o).map(([l,v])=>({l,v}))};
+const fdia=n=>N(n)+' dia'+(n===1?'':'s');
+function relCard(t,sub,inner,wide){return `<div class="card"${wide?' style="grid-column:1/-1"':''}><h3>${t}</h3>${sub?`<p class="small muted">${sub}</p>`:''}${inner}</div>`}
+Object.assign(ACT,{relTab:t=>{S.params.rt=t.dataset.t;render()}});
+
+// ---------- absenteísmo e atestados
+function atNoPer(a,p){const ini=pdk(a.data_inicio)>p.ini?pdk(a.data_inicio):p.ini;const fim=atFim(a)<p.fim?atFim(a):p.fim;let dias=0,min=0;
+ if(atHoras(a))return pdk(a.data_inicio)>=p.ini&&pdk(a.data_inicio)<=p.fim?{dias:0,min:(+a.horas||0)*60,conta:true}:{dias:0,min:0,conta:false};
+ for(let d=new Date(ini);d<=fim;d=addD(d,1)){dias++;min+=carga(d)}return {dias,min,conta:dias>0}}
+function relAtest(d){const p=periodo(d.k);const ob=S.params.robra||'';const fs=d.fs||[];const fN=id=>fs.find(f=>f.id===id)||{nome:'?'};
+ const all=(d.at||[]).filter(a=>a.situacao!=='Recusado'&&(!ob||a.obra_id===ob));const I=rhInd(d);
+ const per=all.map(a=>Object.assign({a},atNoPer(a,p))).filter(x=>x.conta);const dias=per.reduce((s,x)=>s+x.dias,0),min=per.reduce((s,x)=>s+x.min,0);
+ const pes=new Set(per.map(x=>x.a.funcionario_id));const ac=per.filter(x=>x.a.acidente_trabalho||x.a.tipo==='Acidente de trabalho');
+ const lim=p.fim<T0?p.fim:T0;const reinc=[...new Set(all.map(a=>a.funcionario_id))].filter(fid=>all.filter(a=>a.funcionario_id===fid&&pdk(a.data_inicio)<=lim&&pdk(a.data_inicio)>addD(lim,-90)).length>=3);
+ const inss=all.filter(a=>!atHoras(a)&&atInss(a,all)>15&&atFim(a)>=p.ini&&pdk(a.data_inicio)<=p.fim);
+ const taxa=I.prev?min/I.prev*100:null;
+ const evo=ULT12(d.k).map(kk=>{const q=periodo(kk);const xs=all.map(a=>atNoPer(a,q)).filter(x=>x.conta);return {l:kLbl(kk),v:xs.reduce((s,x)=>s+x.dias,0),h:xs.length+' atestado(s)'}});
+ const dow=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+ return `${relHead(d)}${relSel(d)}<div class="grid kpis">
+  ${kc('Atestados no período',N(per.length),pes.size+' pessoa(s)')}
+  ${kc('Dias de atestado',fdia(dias),hrs(min)+' de jornada perdida')}
+  ${kc('Absenteísmo por atestado',taxa==null?'—':pctF(taxa),taxa==null?'sem acesso ao ponto':'horas de atestado ÷ horas previstas',taxa>3?'bad':taxa>1.5?'warn':'ok')}
+  ${kc('Média por atestado',per.length?N(Math.round(dias/Math.max(1,per.filter(x=>x.dias).length)*10)/10)+' dias':'—','duração média')}
+  ${kc('Acidentes de trabalho',ac.length,'com afastamento no período',ac.length?'bad':'ok')}
+  ${kc('Reincidência',reinc.length,'3 ou mais atestados em 90 dias',reinc.length?'warn':'ok')}
+  ${kc('Acima de 15 dias (INSS)',inss.length,'no período',inss.length?'warn':'ok')}</div>
+ <div class="grid rel-g mt">
+  ${relCard('Dias de atestado por competência','Últimos 12 períodos (21 a 20)',vcols(evo,v=>N(v)),true)}
+  ${relCard('Por grupo de doença (CID)','Dias no período',hbars(grp(per,x=>cidCap(x.a.cid),x=>x.dias),fdia,'Sem atestados no período.'))}
+  ${relCard('Por obra','Dias no período',hbars(grp(per,x=>obraNome(x.a.obra_id)||'Sem obra informada',x=>x.dias),fdia,'Sem atestados no período.'))}
+  ${relCard('Por função','Dias no período',hbars(grp(per,x=>funcaoNome(fN(x.a.funcionario_id).funcao_id)||'Sem função',x=>x.dias),fdia,'Sem atestados no período.'))}
+  ${relCard('Por tipo','Quantidade no período',hbars(grp(per,x=>x.a.tipo),v=>N(v),'Sem atestados no período.'))}
+  ${relCard('Dia da semana em que o atestado começa','Concentração em segundas e sextas merece atenção',hbars(grp(per,x=>dow[pdk(x.a.data_inicio).getDay()]),v=>N(v),'Sem atestados no período.'))}
+  ${relCard('Funcionários com mais dias','Os 8 maiores no período',hbars(grp(per,x=>fN(x.a.funcionario_id).nome,x=>x.dias).sort((a,b)=>b.v-a.v).slice(0,8),fdia,'Sem atestados no período.'))}
+ </div>${reinc.length?`<div class="note mt"><b>Reincidência:</b> ${reinc.map(id=>esc(fN(id).nome)).join(', ')}. Sugestão: conversa com a liderança e avaliação do SESMT.</div>`:''}`}
+
+// ---------- desligamentos e turnover
+const FAIXAS_CASA=[[0,3,'Até 3 meses'],[3,6,'3 a 6 meses'],[6,12,'6 meses a 1 ano'],[12,24,'1 a 2 anos'],[24,60,'2 a 5 anos'],[60,1e9,'Mais de 5 anos']];
+const mesesCasa=(a,b)=>Math.max(0,(pdk(b)-pdk(a))/864e5/30.44);
+function relDeslig(d){const p=periodo(d.k);const ob=S.params.robra||'';const fs=d.fs||[];const fN=id=>fs.find(f=>f.id===id)||{};const I=rhInd(d);
+ const noPer=(x,q)=>x&&pdk(x)>=q.ini&&pdk(x)<=q.fim;const fOb=f=>!ob||f.obra_referencia_id===ob;
+ const dlAll=(d.dl||[]).filter(x=>x.etapa!=='cancelado');const dl=dlAll.filter(x=>fOb(fN(x.funcionario_id)));
+ const desP=fs.filter(f=>fOb(f)&&noPer(f.data_desligamento,p));const dlP=dl.filter(x=>noPer(x.ultimo_dia||x.data_desligamento,p));
+ const vol=dlP.filter(x=>x.iniciativa==='Empregado').length;const prec=desP.filter(f=>diasEntre(f.data_admissao,f.data_desligamento)<90).length;
+ const tCasa=desP.length?desP.reduce((s,f)=>s+mesesCasa(f.data_admissao,f.data_desligamento),0)/desP.length:null;
+ const and=dlAll.filter(deslAtivo);const atras=and.filter(x=>x.prazo_pagamento&&!x.data_pagamento&&pdk(x.prazo_pagamento)<T0);
+ const ks=ULT12(d.k);const q12={ini:periodo(ks[0]).ini,fim:p.fim};const dl12=dl.filter(x=>noPer(x.ultimo_dia||x.data_desligamento,q12));const des12=fs.filter(f=>fOb(f)&&noPer(f.data_desligamento,q12));
+ const ativo=(f,dt)=>f.data_admissao&&pdk(f.data_admissao)<=dt&&(!f.data_desligamento||pdk(f.data_desligamento)>=dt);
+ const evo=ks.map(kk=>{const q=periodo(kk);const r=q.fim<T0?q.fim:T0;const a=fs.filter(f=>fOb(f)&&noPer(f.data_admissao,q)).length,s=fs.filter(f=>fOb(f)&&noPer(f.data_desligamento,q)).length;const m=(fs.filter(f=>fOb(f)&&ativo(f,q.ini)).length+fs.filter(f=>fOb(f)&&ativo(f,r)).length)/2;return {l:kLbl(kk),v:m?((a+s)/2)/m*100:0,h:a+' admissões · '+s+' desligamentos'}});
+ const rec=dl12.filter(x=>x.recontratavel!=null);
+ return `${relHead(d)}${relSel(d)}<div class="grid kpis">
+  ${kc('Desligamentos no período',N(desP.length),`${I.adm} admissão(ões) no mesmo período`)}
+  ${kc('Turnover do período',pctF(I.turn),'(admissões + desligamentos) ÷ 2 ÷ efetivo médio',I.turn>5?'warn':'')}
+  ${kc('Pedidos de demissão',dlP.length?pctF(vol/dlP.length*100,0):'—',`${vol} de ${dlP.length} desligamento(s) registrados no portal`)}
+  ${kc('Turnover precoce',desP.length?pctF(prec/desP.length*100,0):'—','saíram com menos de 90 dias de casa',prec?'warn':'')}
+  ${kc('Tempo médio de casa',tCasa==null?'—':tCasa<12?N(Math.round(tCasa))+' meses':(tCasa/12).toLocaleString('pt-BR',{maximumFractionDigits:1})+' anos','de quem saiu no período')}
+  ${kc('Em andamento',and.length,atras.length?atras.length+' com pagamento atrasado':'nenhum pagamento atrasado',atras.length?'bad':'','deslig')}
+  ${kc('Recontratáveis',rec.length?pctF(rec.filter(x=>x.recontratavel).length/rec.length*100,0):'—','últimos 12 períodos')}</div>
+ <div class="grid rel-g mt">
+  ${relCard('Turnover por competência','Últimos 12 períodos',vcols(evo,v=>pctF(v)),true)}
+  ${relCard('Por tipo de desligamento','Últimos 12 períodos',hbars(grp(dl12,x=>tipoD(x.tipo).t),v=>N(v),'Nenhum desligamento registrado no portal ainda.'))}
+  ${relCard('Por motivo','Últimos 12 períodos',hbars(grp(dl12,x=>x.motivo_categoria||'Não informado'),v=>N(v),'Nenhum desligamento registrado no portal ainda.'))}
+  ${relCard('Por iniciativa','Últimos 12 períodos',hbars(grp(dl12,x=>x.iniciativa||'Não informado'),v=>N(v),'Nenhum desligamento registrado no portal ainda.'))}
+  ${relCard('Por tempo de casa','Quem saiu nos últimos 12 períodos',hbars(grp(des12,f=>{const m=mesesCasa(f.data_admissao,f.data_desligamento);return (FAIXAS_CASA.find(x=>m>=x[0]&&m<x[1])||[0,0,'?'])[2]}),v=>N(v),'Nenhum desligamento nos últimos 12 períodos.'))}
+  ${relCard('Por obra de referência','Últimos 12 períodos',hbars(grp(des12,f=>obraNome(f.obra_referencia_id)||'Sem obra'),v=>N(v),'Nenhum desligamento nos últimos 12 períodos.'))}
+  ${relCard('Por função','Últimos 12 períodos',hbars(grp(des12,f=>funcaoNome(f.funcao_id)||'Sem função'),v=>N(v),'Nenhum desligamento nos últimos 12 períodos.'))}
+ </div>`}
+
+// ---------- férias e contratos
+function expVencendo(fs,dias){const lim=addD(T0,dias);const out=[];fs.filter(f=>f.status!=='Desligado').forEach(f=>{const e=expInfo(f);if(!e)return;const alvo=e.f1>=T0?e.f1:e.f2&&e.f2>=T0?e.f2:null;if(alvo&&alvo<=lim)out.push({f,e,alvo,fase:alvo===e.f1&&e.f2?'Fim do 1º período (prorrogar ou encerrar)':'Fim da experiência (efetivar ou encerrar)'})});return out.sort((a,b)=>a.alvo-b.alvo)}
+function relFerias(d){const fs=(d.fs||[]).filter(f=>f.status!=='Desligado');const ob=S.params.robra||'';const fsO=fs.filter(f=>!ob||f.obra_referencia_id===ob);const L=d.fe||[];
+ const rows=[];if(d.fe)fsO.forEach(f=>periodosFerias(f,L).forEach(p=>{if(p.completo&&p.saldo>0)rows.push({f,p})}));
+ const venc=rows.filter(r=>r.p.conc<T0),breve=rows.filter(r=>r.p.conc>=T0&&r.p.conc<=addD(T0,60));const exp=expVencendo(fsO,30);
+ const gozo=L.filter(x=>x.situacao!=='Cancelada'&&pdk(x.inicio)<=T0&&fimFer(x)>=T0&&fsO.some(f=>f.id===x.funcionario_id));
+ const meses=[0,1,2,3,4,5,6,7,8,9,10,11].map(i=>{const m=new Date(T0.getFullYear(),T0.getMonth()+i,1),mf=new Date(T0.getFullYear(),T0.getMonth()+i+1,0);let v=0;L.filter(x=>x.situacao!=='Cancelada'&&fsO.some(f=>f.id===x.funcionario_id)).forEach(x=>{for(let dd=pdk(x.inicio);dd<=fimFer(x);dd=addD(dd,1))if(dd>=m&&dd<=mf)v++});return {l:MESES[m.getMonth()]+'/'+String(m.getFullYear()).slice(2),v,h:'dias de férias programados'}});
+ const tbl=(xs,cols)=>`<div class="tablewrap"><table><thead><tr>${cols.map(c=>`<th>${c[0]}</th>`).join('')}</tr></thead><tbody>${xs.map(x=>`<tr>${cols.map(c=>`<td>${c[1](x)}</td>`).join('')}</tr>`).join('')||`<tr><td colspan="${cols.length}" class="muted">Nada pendente.</td></tr>`}</tbody></table></div>`;
+ return `${relHead(d)}${relSel(d)}<div class="grid kpis">
+  ${d.fe?kc('Férias vencidas',venc.length,'pagamento em dobro',venc.length?'bad':'ok','ferias'):''}${d.fe?kc('Vencem em 60 dias',breve.length,'programar',breve.length?'warn':'ok','ferias'):''}${d.fe?kc('Em férias hoje',gozo.length,'pessoas'):''}
+  ${kc('Experiência vencendo',exp.length,'nos próximos 30 dias',exp.length?'warn':'ok')}</div>
+ <div class="grid rel-g mt">
+  ${relCard('Contratos de experiência: decisões dos próximos 30 dias','Prorrogar, efetivar ou encerrar antes da data',tbl(exp,[['Funcionário',x=>`<b>${esc(x.f.nome)}</b><div class="small muted">${esc(funcaoNome(x.f.funcao_id))}</div>`],['Data',x=>fD(x.alvo)],['Faltam',x=>diasEntre(dk(T0),dk(x.alvo))+' dia(s)'],['O que decidir',x=>`<span class="small">${x.fase}</span>`]]),true)}
+  ${d.fe?relCard('Férias vencidas ou a vencer em 60 dias','Período concessivo',tbl(venc.concat(breve),[['Funcionário',x=>`<b>${esc(x.f.nome)}</b>`],['Aquisitivo',x=>fD(x.p.ini)+' a '+fD(x.p.af)],['Gozar até',x=>fD(addD(x.p.conc,-1))],['Saldo',x=>x.p.saldo+' dia(s)'],['Situação',x=>pill(x.p.st.t,x.p.st.c)]]),true):''}
+  ${d.fe?relCard('Dias de férias programados por mês','Próximos 12 meses: ajuda a planejar a mão de obra das obras',vcols(meses,v=>N(v)),true):''}
+ </div>`}
+
+// ---------- Início: prazos do RH
+(function(){const L0=PAGES.inicio.load,H0=PAGES.inicio.html;
+ PAGES.inicio.load=async function(){const o=await L0.call(this);const t=[];
+  if(perm('movim','ver'))t.push(S.api.select('desligamentos',{cols:'id,funcionario_id,etapa,prazo_pagamento,data_pagamento,ultimo_dia'}).then(x=>o.dl=x).catch(()=>{}));
+  if(perm('ferias','ver'))t.push(S.api.select('ferias').then(x=>o.fe=x).catch(()=>{}));
+  if(perm('atestados','ver'))t.push(S.api.select('atestados',{gte:{data_inicio:dk(addD(T0,-75))}}).then(x=>o.at=x).catch(()=>{}));
+  await Promise.allSettled(t);return o};
+ PAGES.inicio.html=function(){const h=H0.call(this);const o=D();const fs=o.fs||[];const fN=id=>(fs.find(f=>f.id===id)||{nome:'?'}).nome;const it=[];
+  if(o.dl){o.dl.filter(deslAtivo).forEach(x=>{if(x.prazo_pagamento&&!x.data_pagamento){const n=diasEntre(dk(T0),x.prazo_pagamento);if(n<0)it.push(['bad',`Rescisão de ${fN(x.funcionario_id)}: pagamento atrasado desde ${fD(x.prazo_pagamento)}`,'desligdet',x.id]);else if(n<=3)it.push(['warn',`Rescisão de ${fN(x.funcionario_id)}: pagar até ${fD(x.prazo_pagamento)}`,'desligdet',x.id])}})}
+  if(fs.length&&fs[0].tipo_contrato!==undefined)expVencendo(fs,10).forEach(x=>it.push(['warn',`${x.f.nome}: ${x.fase.toLowerCase()} em ${fD(x.alvo)}`,'ficha',x.f.id]));
+  if(o.fe&&fs.length)fs.filter(f=>f.status!=='Desligado').forEach(f=>periodosFerias(f,o.fe).forEach(p=>{if(p.completo&&p.saldo>0&&p.conc<=addD(T0,45))it.push([p.conc<T0?'bad':'warn',`Férias de ${f.nome}: ${p.conc<T0?'vencidas desde '+fD(p.conc):'gozar até '+fD(addD(p.conc,-1))}`,'ferias'])}));
+  if(o.at)o.at.filter(a=>a.situacao!=='Recusado'&&!atHoras(a)&&!a.encaminhado_inss&&atInss(a,o.at)>15&&atFim(a)>=addD(T0,-15)).forEach(a=>it.push(['warn',`Atestados de ${fN(a.funcionario_id)} somam mais de 15 dias: encaminhar ao INSS`,'atestados']));
+  if(!it.length)return h;
+  return h+`<div class="card mt"><h3>Prazos do RH (${it.length})</h3>${it.map(p=>`<div class="alert-item"><span>${pill(p[0]==='bad'?'Urgente':'Atenção',p[0])} ${esc(p[1])}</span><button class="btn sm" data-act="go" data-r="${p[2]}"${p[3]?` data-id="${p[3]}"`:''}>Abrir</button></div>`).join('')}</div>`}})();
 iniciar();
