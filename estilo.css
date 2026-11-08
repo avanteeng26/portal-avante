@@ -306,3 +306,9 @@ dl.ficha{display:grid;grid-template-columns:160px 1fr;gap:6px 12px;margin:0}dl.f
 table.imp td,table.imp th{white-space:nowrap}
 table.imp .rt{display:inline-block;margin-left:4px;font-size:10px;padding:0 4px;border-radius:4px;background:#fdecc8;color:#8a5a00;vertical-align:1px}
 table.imp tr.imp-tot td{font-weight:600;border-top:2px solid #cfd6df;background:#f6f8fb}
+table.imp-nf{width:100%;margin-top:8px;border-collapse:collapse}
+table.imp-nf th,table.imp-nf td{padding:5px 6px;border-bottom:1px solid #e6eaf0;font-size:13px;text-align:left}
+table.imp-nf .num{text-align:right}
+table.imp-nf input[data-ret]{margin:0;padding:5px 8px}
+table.imp-nf input[data-ret]:disabled{background:#f3f5f8;color:#9aa3ad}
+.imp-chk{display:inline-flex;align-items:center;gap:6px;margin:0;font-weight:400;cursor:pointer}
