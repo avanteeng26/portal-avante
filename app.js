@@ -3805,7 +3805,7 @@ PAGES.orcamentos={async load(){const b=await obBase();const it=b.orcs?await S.ap
  html(){const d=D();if(d.orcs===null)return '<h1>Orçamentos</h1><div class="note">Rode o ajuste 22 no Supabase para ativar o setor de Obras.</div>';const q=(S.params.oq||'').toLowerCase();const st=S.params.ost||'';
   const L=d.orcs.filter(o=>(!st||o.status_proposta===st)&&(!q||[o.codigo,o.titulo,obraNome(o.obra_id),obCli(o.cliente_id)].join(' ').toLowerCase().includes(q)));const tot={};d.orcs.forEach(o=>tot[o.id]=orcCalc(o,(d.it||[]).filter(i=>i.orcamento_id===o.id)));
   return `<h1>Orçamentos</h1><p class="sub">Orçamentos de obra em etapas e itens, com custo, BDI e preço. Crie do zero ou importe a planilha exportada do OrçaFascio.</p>
-  <div class="toolbar"><input data-oq="1" placeholder="Buscar código, obra ou cliente…" value="${esc(S.params.oq||'')}" style="max-width:280px"><select data-obf="ost"><option value="">Todas as situações</option>${Object.keys(ORC_ST).map(s=>`<option ${s===st?'selected':''}>${s}</option>`).join('')}</select><span class="sp"></span>${perm('engenharia','incluir')?'<button class="btn primary" data-act="orcNovo">+ Novo orçamento</button>':''}</div>
+  <div class="toolbar"><input data-oq="1" placeholder="Buscar código, obra ou cliente…" value="${esc(S.params.oq||'')}" style="max-width:280px"><select data-obf="ost"><option value="">Todas as situações</option>${Object.keys(ORC_ST).map(s=>`<option ${s===st?'selected':''}>${s}</option>`).join('')}</select><span class="sp"></span>${perm('engenharia','incluir')?'<button class="btn" data-act="orcImpMC">Importar do Mais Controle</button> <button class="btn primary" data-act="orcNovo">+ Novo orçamento</button>':''}</div>
   <div class="card tablewrap"><table><thead><tr><th>Código</th><th>Obra</th><th>Cliente</th><th>Status da obra</th><th>Status da proposta</th><th class="num">Custo</th><th class="num">Preço</th></tr></thead><tbody>
   ${L.map(o=>{const ob=obraObj(o.obra_id);return `<tr style="cursor:pointer" data-act="go" data-r="orcdet" data-id="${o.id}"><td>${o.editavel===false?'🔒 ':''}<b>${esc(o.codigo)}</b></td><td>${esc(ob.nome||o.titulo||'—')}${o.titulo&&ob.nome?`<div class="small muted">${esc(o.titulo)}</div>`:''}</td><td class="small">${esc(obCli(o.cliente_id)||'—')}</td><td class="small">${esc(ob.status||'—')}</td><td>${pill(o.status_proposta,ORC_ST[o.status_proposta])}</td><td class="num">${BRL2(tot[o.id].custo)}</td><td class="num"><b>${BRL2(tot[o.id].preco)}</b></td></tr>`}).join('')||'<tr><td colspan="7" class="muted">Nenhum orçamento.</td></tr>'}</tbody></table></div>`}};
 FIELD.push(ev=>{const t=ev.target;if(!t.dataset||!t.dataset.oq)return false;if(ev.type==='input'){S.params.oq=t.value;const pos=t.selectionStart;render();const n=document.querySelector('[data-oq]');if(n){n.focus();try{n.setSelectionRange(pos,pos)}catch(e){}}}return true});
@@ -3888,7 +3888,7 @@ ACT.orcImport=()=>{S._oimp=null;openModal(`<h2>Importar orçamento de planilha</
  <div class="modal-actions"><button class="btn" data-act="close">Cancelar</button><button class="btn primary" data-act="orcImportOk" disabled>Importar</button></div>`,true)};
 function orcParsePlan(rows){const N_=c=>impN(c);let h=-1;for(let i=0;i<Math.min(rows.length,60);i++){const r=(rows[i]||[]).map(N_);if(r.some(c=>/DESCRI/.test(c))&&r.some(c=>/^(QUANT|QTD|QTDE|QUANTIDADE)/.test(c))){h=i;break}}if(h<0)throw new Error('Não encontrei o cabeçalho (Descrição e Quantidade) nas primeiras linhas.');
  const H=rows[h].map(N_);const f=re=>H.findIndex(c=>re.test(c));const ix={item:f(/^(ITEM|N|NO|NUM|NUMERO)$/),cod:f(/^COD/),banco:f(/^(BANCO|FONTE|BASE|REFERENCIA)$/),desc:f(/DESCRI/),und:f(/^(UND|UN|UNID|UNIDADE)$/),qtd:f(/^(QUANT|QTD|QTDE|QUANTIDADE)/),
-  unit:H.findIndex(c=>/UNIT/.test(c)&&!/BDI/.test(c)),unitB:H.findIndex(c=>/UNIT/.test(c)&&/BDI/.test(c))};if(ix.unit<0&&ix.unitB<0)ix.unit=H.findIndex(c=>/^(VALOR|PRECO|CUSTO)$/.test(c));
+  unit:H.findIndex(c=>/UNIT/.test(c)&&(!/BDI/.test(c)||/\b(S|SEM)\s*BDI/.test(c))),unitB:H.findIndex(c=>/UNIT/.test(c)&&/BDI/.test(c)&&!/\b(S|SEM)\s*BDI/.test(c))};if(ix.unitB<0&&ix.unit>=0&&/CUSTO/.test(H[ix.unit])){const pu=H.findIndex(c=>/PRECO/.test(c)&&/UNIT/.test(c));if(pu>=0)ix.unitB=pu}if(ix.unit<0&&ix.unitB<0)ix.unit=H.findIndex(c=>/^(VALOR|PRECO|CUSTO)$/.test(c));
  const out=[];const stack=[];let semNum=null,av=[];const g=(r,k)=>ix[k]>=0?String(r[ix[k]]||'').trim():'';
  for(let i=h+1;i<rows.length;i++){const r=rows[i]||[];const desc=g(r,'desc');if(!desc)continue;const it=g(r,'item').replace(/\.$/,'');if(/^TOTAL|^VALOR TOTAL|^BDI\b|^SUBTOTAL/i.test(semAc(desc))||/^TOTAL/i.test(semAc(it)))continue;
   const q=numPl(g(r,'qtd')),u=ix.unit>=0?numPl(g(r,'unit')):null,ub=ix.unitB>=0?numPl(g(r,'unitB')):null;const und=g(r,'und');const isItem=q!=null&&(und||u!=null||ub!=null);
@@ -3901,7 +3901,7 @@ function orcParsePlan(rows){const N_=c=>impN(c);let h=-1;for(let i=0;i<Math.min(
  out.forEach(r=>{if(r.tipo==='item'&&r._u&&r._ub){const b=Math.round((r._ub/r._u-1)*10000)/100;if(Math.abs(b-moda)>0.02)r.bdi=b}});
  const ordem={};out.forEach(r=>{const k=r.pai_id||'';ordem[k]=(ordem[k]||0)+1;r.ordem=ordem[k]});
  const vazias=out.filter(r=>r.tipo==='etapa'&&!out.some(x=>x.pai_id===r.id));if(vazias.length)av.push(vazias.length+' etapa(s) sem itens (mantidas)');if(ix.unit<0&&ix.unitB>=0)av.push('Só há valor unitário com BDI: importado como custo, com BDI 0%');
- return {rows:out,bdi:moda,ix,av}}
+ return {rows:out,bdi:moda,ix,av,h}}
 FIELD.push(async ev=>{const t=ev.target;if(t.id!=='oiArq')return false;if(ev.type!=='change')return true;const f=t.files[0];if(!f)return true;$('#err').textContent='';$('#oiRes').innerHTML='Lendo…';
  try{const P=orcParsePlan(await lerPlanilha(f));S._oimp=P;const its=P.rows.filter(r=>r.tipo==='item');const R=orcCalc({bdi:P.bdi},P.rows);
   $('#oiRes').innerHTML=`<div class="grid kpis" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));margin:10px 0">${kc('Etapas',P.rows.length-its.length,'')}${kc('Itens',its.length,'')}${kc('Custo',BRL2(R.custo),'')}${kc('BDI',N(P.bdi,2)+'%',its.filter(r=>r.bdi!=null).length+' item(ns) com BDI próprio')}${kc('Preço',BRL2(R.preco),'')}</div>
@@ -4369,4 +4369,59 @@ ACT.rdoImportMCOk=async()=>{const L=(S._rmc||[]).filter(r=>!r.erro&&r.obra_id&&!
 ACT.rdoPdfOrig=async()=>{const {r}=D();window.open(await S.api.signedUrl(r.arquivo_path),'_blank')};
 
 function rdoImportJa(r){if(r.erro)return;const ex=S._rmcEx||[];r.ja=r.obra_id?ex.find(x=>x.obra_id===r.obra_id&&+x.numero===+r.numero):null;r.mesmaData=r.obra_id&&r.data?ex.find(x=>x.obra_id===r.obra_id&&String(x.data).slice(0,10)===r.data&&+x.numero!==+r.numero):null;if(r.ja)r.pular=false}
+// ---------------------------------------------------------------- IMPORTAR ORÇAMENTOS DO MAIS CONTROLE EM LOTE ("Exportar Sintético" em Excel)
+// Cada arquivo vira um orçamento: etapas e itens (código, banco, descrição, und, quantidade, custo unitário e BDI),
+// com obra, cliente, código e situação (Venda = fechado). O total do arquivo é conferido com o total calculado.
+function orcMcMeta(rows,h,fname){const txt=[];for(let i=0;i<Math.max(h,0);i++){const c=(rows[i]||[]).map(x=>String(x==null?'':x).trim()).filter(Boolean);if(c.length)txt.push(c.join(' | '))}
+ const all=txt.join('\n');const pega=re=>{for(const l of txt){const cs=l.split(' | ');for(let k=0;k<cs.length;k++){const m=semAc(cs[k]).match(re);if(m){const resto=cs[k].slice(m.index+m[0].length).replace(/^[\s:.-]+/,'').trim();return resto||(cs[k+1]||'').trim()}}}return ''};
+ const m={obra:pega(/\bOBRA\b/),cliente:pega(/\b(CLIENTE|CONTRATANTE|PROPRIETARIO)\b/),orc:pega(/\bOR[CÇ]AMENTO\b(\s*(N[O°º.]*|NUMERO|COD[A-Z.]*))?/),titulo:pega(/\b(DESCRICAO|OBJETO|TITULO|SERVICO)\b/),base:pega(/\b(BANCOS?|DATA[\s-]*BASE|REFERENCIA)\b/),bdi:null};
+ const b=semAc(all).match(/BDI[^0-9\n]{0,20}([\d]+[.,]?\d*)\s*%/);if(b)m.bdi=numPl(b[1]);
+ const cod=(m.orc.match(/\d+(\/\d{2,4})?/)||String(fname).match(/(\d+\/\d{4}|\d{2,6})/)||[])[0];m.codigo=cod?(cod.includes('/')?cod:cod+'/'+T0.getFullYear()):'';
+ if(!m.obra)m.obra=String(fname).replace(/\.(xlsx|csv|txt)$/i,'').replace(/^(or[cç]amento|sint[eé]tico)[\s_-]*/i,'').replace(/[_]+/g,' ').trim();
+ return m}
+function orcMcTotal(rows,h,ix){let tot=null;for(let i=h+1;i<rows.length;i++){const r=rows[i]||[];const t=semAc(r.map(x=>String(x==null?'':x)).join(' '));if(/TOTAL\s*(GERAL|DO ORCAMENTO|COM BDI|C\/\s*BDI)|^\s*TOTAL\s*$|VALOR TOTAL/.test(t)&&!/SEM BDI|S\/\s*BDI/.test(t)){const ns=r.map(numPl).filter(n=>n!=null&&n>0);if(ns.length)tot=Math.max(...ns)}}return tot}
+ACT.orcImpMC=()=>{S._omc=null;openModal(`<h2>Importar orçamentos do Mais Controle</h2>
+ <p class="small">No Mais Controle, abra cada orçamento fechado e use <b>Exportar Sintético</b> (Excel). Selecione aqui um ou vários arquivos de uma vez: cada arquivo vira um orçamento no portal, com etapas, itens, quantidades, custos e BDI. O portal confere o total do arquivo com o total calculado.</p>
+ <input type="file" id="omcArq" accept=".xlsx,.csv,.txt" multiple>
+ <div class="grid" style="grid-template-columns:1fr 1fr;gap:0 12px;margin-top:6px"><div><label>Situação dos importados</label><select id="omcSt">${Object.keys(ORC_ST).map(s=>`<option ${s==='Venda'?'selected':''}>${s}</option>`).join('')}</select></div>
+ <div><label style="display:flex;gap:6px;align-items:center;margin-top:26px;color:var(--text)"><input type="checkbox" id="omcTrava" checked style="width:auto;margin:0"> Travar os importados (🔒 só leitura)</label></div></div>
+ <div id="err" class="err"></div><div id="omcRes" class="small"></div>
+ <div class="modal-actions"><button class="btn" data-act="close">Fechar</button><button class="btn primary" data-act="orcImpMCOk" disabled>Importar</button></div>`,true)};
+FIELD.push(async ev=>{const t=ev.target;if(!t)return false;
+ if(t.dataset&&t.dataset.omc!==undefined){const r=S._omc[+t.dataset.omc];const k=t.dataset.k;if(k==='on'){if(ev.type==='change'){r.pular=!t.checked;orcImpMCPrev()}return true}r[k]=t.value;if(ev.type==='change'){if(k==='codigo')r.ja=(OB.orcs||[]).some(o=>o.codigo===t.value.trim());orcImpMCPrev()}return true}
+ if(t.id!=='omcArq')return false;if(ev.type!=='change')return true;const fs=[...t.files];if(!fs.length)return true;$('#err').textContent='';if(!OB.orcs)await obBase();const out=[];
+ for(const[k,f]of fs.entries()){$('#omcRes').innerHTML=`Lendo ${k+1} de ${fs.length}: ${esc(f.name)}…`;try{const rows=await lerPlanilha(f);const P=orcParsePlan(rows);const M=orcMcMeta(rows,P.h,f.name);
+   if(P.ix.unit<0&&P.ix.unitB>=0&&M.bdi>0){P.rows.forEach(r=>{if(r.tipo==='item'&&r._ub!=null){r.custo_unit=Math.round(r._ub/(1+M.bdi/100)*10000)/10000;r.bdi=null}});P.bdi=M.bdi;P.av=P.av.filter(a=>!/BDI 0%/.test(a));P.av.push('Arquivo só tem preço com BDI: custo calculado com o BDI de '+N(M.bdi,2)+'% do cabeçalho')}
+   else if(!P.rows.some(r=>r._ub!=null)&&M.bdi!=null)P.bdi=M.bdi;
+   const R=orcCalc({bdi:P.bdi},P.rows);const ob=obraMatch(M.obra);const cl=M.cliente?nomeMatch(M.cliente,OB.clientes||[]):null;
+   const cod=M.codigo&&!out.some(x=>x.codigo===M.codigo)?M.codigo:'';
+   out.push({f,P,M,R,arq:orcMcTotal(rows,P.h,P.ix),codigo:cod,obra_id:ob?ob.id:(M.obra?'_nova':''),obra_nome:M.obra.toUpperCase().slice(0,120),cliente_id:cl?cl.id:'',titulo:M.titulo||'',ja:!!cod&&(OB.orcs||[]).some(o=>o.codigo===cod)})}
+  catch(e){out.push({f,erro:e.message})}}
+ // código ausente: próximo número livre
+ let n=parseInt(orcProxCodigo());out.forEach(r=>{if(!r.erro&&!r.codigo){while((OB.orcs||[]).some(o=>parseInt(o.codigo)===n)||out.some(x=>parseInt(x.codigo)===n))n++;r.codigo=n+'/'+T0.getFullYear();n++}});
+ S._omc=out;orcImpMCPrev();return true});
+function orcImpMCPrev(){const L=S._omc||[];const ok=r=>!r.erro&&!r.ja&&!r.pular&&r.codigo&&(r.obra_id!=='_nova'||r.obra_nome);const n=L.filter(ok).length;const obras=obrasUser().filter(o=>o.nome!=='ESCRITÓRIO');
+ const dif=r=>r.arq?Math.abs(r.R.preco-r.arq):0;
+ $('#omcRes').innerHTML=`<div class="grid kpis" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));margin:10px 0">${kc('Arquivos lidos',L.filter(r=>!r.erro).length,L.filter(r=>r.erro).length?L.filter(r=>r.erro).length+' com erro':'')}${kc('Serão importados',n,'','ok')}${kc('Já existem',L.filter(r=>r.ja).length,'mesmo código: ignorados')}${kc('Total importado',BRL2(L.filter(ok).reduce((s,r)=>s+r.R.preco,0)),'')}${kc('Conferência',L.filter(r=>!r.erro&&r.arq&&dif(r)>1).length?L.filter(r=>!r.erro&&r.arq&&dif(r)>1).length+' com diferença':'OK','total do arquivo × calculado',L.some(r=>!r.erro&&r.arq&&dif(r)>1)?'warn':'ok')}</div>
+ <div class="tablewrap" style="max-height:50vh;overflow:auto;border:1px solid var(--line);border-radius:8px"><table class="small"><thead><tr><th></th><th>Arquivo</th><th>Código</th><th>Obra</th><th>Cliente</th><th class="num">Itens</th><th class="num">BDI</th><th class="num">Preço calculado</th><th class="num">Total no arquivo</th></tr></thead><tbody>
+ ${L.map((r,i)=>r.erro?`<tr><td></td><td colspan="8" style="color:var(--bad)">${esc(r.f.name)}: ${esc(r.erro)}</td></tr>`:`<tr style="${ok(r)?'':'opacity:.6'}"><td><input type="checkbox" data-omc="${i}" data-k="on" ${!r.pular&&!r.ja?'checked':''} style="width:auto"></td>
+  <td>${esc(r.f.name)}${r.P.av.length?`<div class="muted">${r.P.av.map(esc).join('; ')}</div>`:''}</td>
+  <td><input data-omc="${i}" data-k="codigo" value="${esc(r.codigo)}" style="width:90px;padding:3px 6px;margin:0">${r.ja?'<div style="color:var(--bad)">código já existe</div>':''}</td>
+  <td><select data-omc="${i}" data-k="obra_id" style="padding:3px 6px;margin:0;max-width:220px"><option value="">Sem obra</option><option value="_nova" ${r.obra_id==='_nova'?'selected':''}>+ Criar obra nova</option>${obras.map(o=>`<option value="${o.id}" ${o.id===r.obra_id?'selected':''}>${esc(o.nome)}</option>`).join('')}</select>
+   ${r.obra_id==='_nova'?`<input data-omc="${i}" data-k="obra_nome" value="${esc(r.obra_nome)}" placeholder="Nome da obra" style="padding:3px 6px;margin:2px 0 0">`:''}${r.M.obra&&r.obra_id!=='_nova'?`<div class="muted">no arquivo: ${esc(r.M.obra)}</div>`:''}</td>
+  <td><select data-omc="${i}" data-k="cliente_id" style="padding:3px 6px;margin:0;max-width:180px"><option value="">—</option>${(OB.clientes||[]).map(c=>`<option value="${c.id}" ${c.id===r.cliente_id?'selected':''}>${esc(c.nome)}</option>`).join('')}</select>${r.M.cliente&&!r.cliente_id?`<div class="muted">no arquivo: ${esc(r.M.cliente)}</div>`:''}</td>
+  <td class="num">${r.P.rows.filter(x=>x.tipo==='item').length}</td><td class="num">${N(r.P.bdi,2)}%</td><td class="num"><b>${BRL2(r.R.preco)}</b></td>
+  <td class="num">${r.arq?BRL2(r.arq)+(dif(r)>1?`<div style="color:var(--bad)">dif. ${BRL2(r.R.preco-r.arq)}</div>`:' ✓'):'<span class="muted">—</span>'}</td></tr>`).join('')}</tbody></table></div>
+ <p class="small muted mt">Diferença pequena entre o total do arquivo e o calculado costuma vir de arredondamento do preço unitário. Depois de importar, abra o orçamento para conferir.</p>`;
+ const b=$('[data-act="orcImpMCOk"]');b.disabled=!n;b.textContent=n?`Importar ${n} orçamento(s)`:'Importar'}
+ACT.orcImpMCOk=async()=>{const L=(S._omc||[]).filter(r=>!r.erro&&!r.ja&&!r.pular&&r.codigo&&(r.obra_id!=='_nova'||r.obra_nome));if(!L.length)return;const b=$('[data-act="orcImpMCOk"]');b.disabled=true;const st=$('#omcSt').value,trava=$('#omcTrava').checked;let n=0;const erros=[];
+ for(const[k,r]of L.entries()){b.textContent=`Importando ${k+1} de ${L.length}…`;try{
+  let ob=r.obra_id||null;if(ob==='_nova'){ob=(await S.api.insert('obras',[{nome:r.obra_nome.trim().toUpperCase(),codigo:r.codigo.split('/')[0],status:st==='Venda'?'Em andamento':'Em orçamento',cliente_id:r.cliente_id||null,ativa:true}]))[0].id;r.obra_id=ob}
+  const o=(await S.api.insert('orcamentos',[{codigo:r.codigo.trim(),obra_id:ob,cliente_id:r.cliente_id||null,titulo:r.titulo||null,bdi:r.P.bdi||0,base_ref:r.M.base||null,status_proposta:st,origem:'maiscontrole',editavel:true,observacao:'Importado do Mais Controle ('+r.f.name+')'+(r.arq?' · total no arquivo '+BRL2(r.arq):''),criado_por:S.user.id}]))[0];
+  try{await orcInserirArvore(r.P.rows.map(x=>({id:uuidv(),_old:x.id,orcamento_id:o.id,pai_id:x.pai_id||null,ordem:x.ordem,tipo:x.tipo,codigo:x.codigo||null,banco:x.banco||null,descricao:x.descricao,unidade:x.unidade||null,quantidade:x.quantidade??null,custo_unit:x.custo_unit??null,bdi:x.bdi??null})).map((x,_,A)=>{const m=A._m||(A._m=Object.fromEntries(A.map(y=>[y._old,y.id])));x.pai_id=x.pai_id?m[x.pai_id]:null;delete x._old;return x}))}
+  catch(e){await S.api.remove('orcamentos',{eq:{id:o.id}}).catch(()=>{});throw e}
+  if(trava)await S.api.update('orcamentos',{id:o.id},{editavel:false}).catch(()=>{});n++}
+  catch(e){erros.push(`${r.f.name}: ${/duplicate|unique|repetido/i.test(e.message)?'código '+r.codigo+' já existe':e.message}`)}}
+ await carregarRef().catch(()=>{});await evento('Importou orçamentos do Mais Controle',n+' orçamento(s)');
+ $('#omcRes').innerHTML=`<div class="note mt"><b>${n} orçamento(s) importado(s).</b>${erros.length?`<br><span style="color:var(--bad)">${erros.map(esc).join('<br>')}</span>`:''}</div>`;b.textContent='Concluído';$('[data-act="close"]').addEventListener('click',()=>{OB.orcs=null;reload()},{once:true})};
 iniciar();
