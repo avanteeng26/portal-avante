@@ -297,3 +297,8 @@ dl.ficha{display:grid;grid-template-columns:160px 1fr;gap:6px 12px;margin:0}dl.f
 .fx-leg{display:flex;gap:18px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}.fx-leg span{display:flex;gap:6px;align-items:center}.fx-leg i{width:12px;height:12px;border-radius:3px;display:inline-block}
 .fx-leg i.ln{height:3px;width:18px;border-radius:2px;background:var(--fx-a)}.fx-leg i.ln.dash{background:repeating-linear-gradient(90deg,var(--fx-a) 0 5px,transparent 5px 9px)}
 .fx-wrap{overflow-x:auto}
+/* ---------- DRE */
+.dre td,.dre th{padding:7px 10px}.dre .num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}.dre .av{text-align:right;color:var(--muted);font-size:12px;white-space:nowrap}
+.dre .neg{color:var(--bad)}.dre-l td{font-weight:500}.dre-c td{font-size:12.5px;color:var(--muted)}.dre-c td:first-child{padding-left:34px}
+.dre-t td{font-weight:700;background:var(--surface2);border-top:1px solid var(--border)}.dre-t.fim td{background:var(--accent-soft);font-size:14.5px}
+.dre-tg{display:inline-block;width:16px;cursor:pointer;color:var(--muted);text-decoration:none}
