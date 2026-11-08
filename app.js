@@ -76,7 +76,7 @@ function traduzErro(e){const m=(e&&(e.message||e.error_description))||String(e);
 // ---------------------------------------------------------------- estado
 const S={api:null,session:null,user:null,perfil:null,perms:{},obrasLib:null,route:'inicio',params:{},f:{},ref:{},open:{},dados:{},pd:null,draft:{},rail:(()=>{try{return !!localStorage.getItem('pa_rail')}catch(e){return false}})()};
 const perm=(m,a)=>!!(S.perfil&&(S.perfil.master||(S.perms[m]&&S.perms[m][a])));
-const ROUTE_MOD={inicio:null,colab:'colab',ficha:'colab',admissao:'admissao',admdet:'admissao',ponto:'ponto',rateio:'rateio',usuarios:'usuarios',perfis:'usuarios',cadastros:'cadastros',auditoria:'auditoria',relatorios:'indicadores',deslig:'movim',desligdet:'movim',atestados:'atestados',ferias:'ferias',logpainel:'logistica',paineldir:'paineldir',finpainel:'financeiro',pagar:'financeiro',receber:'financeiro',fluxo:'financeiro',dre:'financeiro',impostos:'financeiro',transf:'financeiro',provisoes:'financeiro',concilia:'financeiro',comdash:'comercial',b2c:'comercial',b2b:'comercial',clientes:'comercial',contratos:'comercial',negocio:'comercial',modelos:'modelos',epi:'sst',epifunc:'sst',veiculo:'logistica',procedimentos:null,tarefas:null,setor:null};
+const ROUTE_MOD={inicio:null,colab:'colab',ficha:'colab',admissao:'admissao',admdet:'admissao',ponto:'ponto',rateio:'rateio',usuarios:'usuarios',perfis:'usuarios',cadastros:'cadastros',auditoria:'auditoria',relatorios:'indicadores',deslig:'movim',desligdet:'movim',atestados:'atestados',ferias:'ferias',logpainel:'logistica',paineldir:'paineldir',finpainel:'financeiro',pagar:'financeiro',receber:'financeiro',fluxo:'financeiro',dre:'financeiro',impostos:'financeiro',qualpainel:'qualidade',qualinsp:'qualidade',qualinspdet:'qualidade',qualnc:'qualidade',qualfichas:'qualidade',transf:'financeiro',provisoes:'financeiro',concilia:'financeiro',comdash:'comercial',b2c:'comercial',b2b:'comercial',clientes:'comercial',contratos:'comercial',negocio:'comercial',modelos:'modelos',epi:'sst',epifunc:'sst',veiculo:'logistica',procedimentos:null,tarefas:null,setor:null};
 const can=r=>{const m=ROUTE_MOD[r];if(m===undefined)return S.perfil&&S.perfil.master;return m===null||perm(m,'ver')};
 const dis=(a,m)=>perm(m,a)?'':'disabled title="Seu perfil não tem permissão para esta ação"';
 const obraLib=id=>!id||S.perfil.master||S.user.todas_obras||(S.obrasLib||[]).includes(id);
@@ -146,6 +146,8 @@ const ICON={home:'<path d="M3 10l9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><pa
  provisoes:'<path d="M4 7h16v12H4z"/><path d="M8 7V5h8v2M12 11v4M10 13h4"/>',
  transf:'<path d="M4 8h13l-3-3M20 16H7l3 3"/>',
  fintarifas:'<path d="M4 6h16v12H4z"/><path d="M4 10h16M8 15h3"/>',
+ qual:'<path d="M9 12l2 2 4-4"/><path d="M12 2l7 3v6c0 5-3.5 9-7 11-3.5-2-7-6-7-11V5z"/>',
+ qualpainel:'<path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/>',qualinsp:'<path d="M9 5h10M9 12h10M9 19h10M4 5l1 1 2-2M4 12l1 1 2-2M4 19l1 1 2-2"/>',qualnc:'<path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>',qualfichas:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 14l2 2 4-4"/>',qualmetas:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',qualtipos:'<path d="M20 12l-8 8-9-9V3h8z"/><circle cx="7.5" cy="7.5" r="1"/>',
  impostos:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>',
  dre:'<path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/>',
  soon:'<path d="M6 2h12M6 22h12M7 2v4l5 6-5 6v4M17 2v4l-5 6 5 6v4"/>',
@@ -157,15 +159,16 @@ const SECTORS=[
  {id:'sst',t:'Saúde e Segurança (SESMT)',icon:'sst',items:[{id:'epi',t:'Controle de EPI'},{id:'soon_sst',t:'Demais módulos',soon:1}]},
  {id:'log',t:'Logística',icon:'log',items:[{id:'logpainel',t:'Painel da frota'},{id:'veiculos',t:'Veículos'},{id:'abast',t:'Abastecimentos'},{id:'manut',t:'Manutenções e despesas'},{id:'ocorrv',t:'Multas, avarias e acidentes'},{id:'condutores',t:'Condutores'}]},
  {id:'eng',t:'Engenharia e Operação',icon:'eng',items:[{id:'soon_eng',t:'Próxima fase',soon:1}]},
+ {id:'qual',t:'Qualidade',icon:'qual',items:[{id:'qualpainel',t:'Painel da qualidade'},{id:'qualinsp',t:'Inspeções'},{id:'qualnc',t:'Não conformidades'},{id:'qualfichas',t:'Fichas de verificação'},{id:'qualmetas',t:'Metas de inspeção'},{grp:'qcad',t:'Cadastros',sub:[{id:'qualtipos',t:'Tipos de inspeção'}]}]},
  {id:'fin',t:'Financeiro',icon:'fin',items:[{id:'finpainel',t:'Painel financeiro'},{id:'pagar',t:'Contas a pagar'},{id:'receber',t:'Contas a receber'},{id:'fluxo',t:'Fluxo de caixa'},{id:'dre',t:'DRE'},{id:'impostos',t:'Impostos'},{id:'provisoes',t:'Provisões trabalhistas'},{id:'concilia',t:'Conciliação bancária'},{id:'transf',t:'Transferências'},{grp:'fcad',t:'Cadastros',sub:[{id:'fincontas',t:'Contas bancárias'},{id:'fincat',t:'Categorias'},{id:'finfav',t:'Favorecidos e clientes'},{id:'fintarifas',t:'Tarifas bancárias'}]}]},
  {id:'sup',t:'Suprimentos',icon:'sup',items:[{id:'soon_sup',t:'Próxima fase',soon:1}]},
  {id:'adm',t:'Administração',icon:'adm',items:[{id:'usuarios',t:'Usuários'},{id:'perfis',t:'Perfis e permissões'},{id:'cadastros',t:'Cadastros e configurações'},{id:'auditoria',t:'Auditoria'}]}];
 ['soon_sst','soon_log','soon_eng','soon_fin','soon_sup'].forEach(r=>ROUTE_MOD[r]=null);
 const flat=s=>s.items.flatMap(i=>i.sub?i.sub:[i]);
-const TITLES={inicio:'Início',tarefas:'Tarefas',paineldir:'Painel da diretoria',ficha:'Ficha do funcionário',admdet:'Processo de admissão',desligdet:'Processo de desligamento',veiculo:'Ficha do veículo',epifunc:'Ficha de EPI',negocio:'Processo comercial'};SECTORS.forEach(s=>flat(s).forEach(i=>TITLES[i.id]=i.t));
-const PARENT={ficha:'colab',admdet:'admissao',desligdet:'deslig',veiculo:'veiculos',epifunc:'epi',negocio:'b2c'};
+const TITLES={inicio:'Início',qualinspdet:'Inspeção',tarefas:'Tarefas',paineldir:'Painel da diretoria',ficha:'Ficha do funcionário',admdet:'Processo de admissão',desligdet:'Processo de desligamento',veiculo:'Ficha do veículo',epifunc:'Ficha de EPI',negocio:'Processo comercial'};SECTORS.forEach(s=>flat(s).forEach(i=>TITLES[i.id]=i.t));
+const PARENT={qualinspdet:'qualinsp',ficha:'colab',admdet:'admissao',desligdet:'deslig',veiculo:'veiculos',epifunc:'epi',negocio:'b2c'};
 function crumbs(r){if(r==='setor'){const s=SECTORS.find(x=>x.id===S.params.s);return [s?s.t:'']}const rr=PARENT[r]||r;for(const s of SECTORS)for(const i of s.items){if(i.id===rr)return [s.t,i.t].concat(PARENT[r]?[TITLES[r]]:[]);if(i.sub){const x=i.sub.find(y=>y.id===rr);if(x)return [s.t,i.t,x.t].concat(PARENT[r]?[TITLES[r]]:[])}}return [TITLES[r]||'']}
-const SHORT={com:'Comercial',rh:'RH',sst:'SESMT',log:'Logística',eng:'Engenharia',fin:'Financeiro',sup:'Suprimentos',adm:'Admin'};
+const SHORT={com:'Comercial',rh:'RH',sst:'SESMT',log:'Logística',eng:'Engenharia',qual:'Qualidade',fin:'Financeiro',sup:'Suprimentos',adm:'Admin'};
 function navHTML(){const cur=PARENT[S.route]||S.route;const hub=S.route==='setor'?S.params.s:null;
  const it=(act,attr,icon,lbl,on,tt)=>`<a class="snav ${on?'cur':''}" data-act="${act}" ${attr} title="${esc(tt||lbl)}">${ico(icon,22)}<span>${esc(lbl)}</span></a>`;
  const vis=s=>s.items.some(i=>i.sub?i.sub.some(x=>can(x.id)):can(i.id));const has=s=>flat(s).some(i=>i.id===cur)||hub===s.id;
@@ -255,7 +258,7 @@ async function iniciar(){const cfg=window.PORTAL_CONFIG||{};
  try{await carregarUsuario()}catch(e){toast(e.message,true)}
  render();if(S.user&&!recup)await go('inicio')}
 // ================================================================ ADMINISTRAÇÃO
-const MODS=[['paineldir','Painel da diretoria'],['painel','Painel / início de RH'],['colab','Funcionários (cadastro)'],['admissao','Nova admissão'],['docs','Documentos dos funcionários'],['salarios','Salários e dados bancários'],['ponto','Folha de ponto'],['rateio','Rateio da folha'],['va','Vale-alimentação'],['movim','Desligamentos'],['atestados','Atestados médicos (inclui CID)'],['ferias','Férias'],['sst','Saúde e segurança (SESMT)'],['rotinas','Rotinas do mês'],['indicadores','Relatórios e indicadores'],['procedimentos','Procedimentos (editar)'],['comercial','Comercial (clientes, processos e contratos)'],['logistica','Logística'],['engenharia','Engenharia e operação'],['financeiro','Financeiro'],['suprimentos','Suprimentos'],['docsemp','Documentos da empresa'],['comunicados','Comunicados'],['modelos','Modelos de documentos'],['cadastros','Cadastros e configurações'],['auditoria','Auditoria'],['usuarios','Usuários e perfis']];
+const MODS=[['paineldir','Painel da diretoria'],['painel','Painel / início de RH'],['colab','Funcionários (cadastro)'],['admissao','Nova admissão'],['docs','Documentos dos funcionários'],['salarios','Salários e dados bancários'],['ponto','Folha de ponto'],['rateio','Rateio da folha'],['va','Vale-alimentação'],['movim','Desligamentos'],['atestados','Atestados médicos (inclui CID)'],['ferias','Férias'],['sst','Saúde e segurança (SESMT)'],['rotinas','Rotinas do mês'],['indicadores','Relatórios e indicadores'],['procedimentos','Procedimentos (editar)'],['comercial','Comercial (clientes, processos e contratos)'],['logistica','Logística'],['engenharia','Engenharia e operação'],['qualidade','Qualidade (inspeções, fichas e não conformidades)'],['financeiro','Financeiro'],['suprimentos','Suprimentos'],['docsemp','Documentos da empresa'],['comunicados','Comunicados'],['modelos','Modelos de documentos'],['cadastros','Cadastros e configurações'],['auditoria','Auditoria'],['usuarios','Usuários e perfis']];
 const ACOES=[['ver','Ver'],['incluir','Incluir'],['editar','Editar'],['excluir','Excluir'],['exportar','Exportar'],['aprovar','Aprovar / fechar']];
 
 // ---------- Usuários
@@ -3013,8 +3016,9 @@ crud({id:'fintarifas',tabela:'fin_tarifas',mod:'financeiro',titulo:'Tarifas banc
  nota:'Dica: abra a Conciliação, veja como a tarifa aparece no histórico do banco (ex.: "TARIFA PIX ENVIADO") e copie um trecho para a regra. Use o valor fixo para separar tarifas com o mesmo texto e valores diferentes.'});
 // ================================================================ INÍCIO · indicadores do setor e pendências do usuário
 // substitui a página inicial antiga (atalhos de setor repetiam o menu lateral)
-const INI_SET=[['rh','Recursos Humanos','colab','rh'],['sst','Saúde e Segurança','sst','sst'],['log','Logística','logistica','logpainel'],['fin','Financeiro','financeiro','finpainel'],['com','Comercial','comercial','comdash']];
-function iniOrdem(){const n=semAc((S.perfil||{}).nome||'');const pri=/RH|RECURSOS|PESSOAL|DP/.test(n)?'rh':/FINANC/.test(n)?'fin':/LOGIST|FROTA/.test(n)?'log':/COMERC|VENDA/.test(n)?'com':/SESMT|SEGURAN|SST/.test(n)?'sst':null;
+const INI_LOAD=[],INI_EXT=[];
+const INI_SET=[['rh','Recursos Humanos','colab','rh'],['sst','Saúde e Segurança','sst','sst'],['log','Logística','logistica','logpainel'],['fin','Financeiro','financeiro','finpainel'],['com','Comercial','comercial','comdash'],['qual','Qualidade','qualidade','qualpainel']];
+function iniOrdem(){const n=semAc((S.perfil||{}).nome||'');const pri=/RH|RECURSOS|PESSOAL|DP/.test(n)?'rh':/FINANC/.test(n)?'fin':/LOGIST|FROTA/.test(n)?'log':/COMERC|VENDA/.test(n)?'com':/SESMT|SEGURAN|SST/.test(n)?'sst':/QUALID/.test(n)?'qual':null;
  const L=INI_SET.filter(s=>perm(s[2],'ver')||(s[0]==='rh'&&(perm('ponto','ver')||perm('admissao','ver')||perm('rateio','ver'))));return pri?L.sort((a,b)=>(b[0]===pri)-(a[0]===pri)):L}
 PAGES.inicio={async load(){const o={};const ont=(()=>{let d=addD(T0,-1);while(carga(d)===0)d=addD(d,-1);return d})();o.ont=ont;const t=[];const P=(c,f)=>{if(c)t.push(Promise.resolve().then(f).catch(()=>{}))};
  P(perm('colab','ver')||perm('ponto','ver'),async()=>{o.fs=await S.api.select('funcionarios',{cols:'*'})});
@@ -3028,9 +3032,10 @@ PAGES.inicio={async load(){const o={};const ont=(()=>{let d=addD(T0,-1);while(ca
  P(perm('logistica','ver'),async()=>{o.lg=await PAGES.logpainel.load()});
  P(perm('financeiro','ver'),async()=>{const[b,ex,cc]=await Promise.all([finBase(),S.api.select('fin_extrato',{cols:'id,conta_id,ignorado'}).catch(()=>[]),S.api.select('fin_conciliacao',{cols:'extrato_id'}).catch(()=>[])]);o.fin=b;const lk=new Set(cc.map(x=>x.extrato_id));o.exPend=ex.filter(e=>!e.ignorado&&!lk.has(e.id)).length});
  P(perm('comercial','ver'),async()=>{o.ng=await S.api.select('negocios',{cols:'id,numero,segmento,titulo,etapa,etapa_desde,situacao,valor,validade_proposta,previsao_fechamento,responsavel_id,cliente_id'})});
+ INI_LOAD.forEach(f=>t.push(Promise.resolve().then(()=>f(o)).catch(()=>{})));
  await Promise.allSettled(t);return o},
  html(){const o=D();const h=new Date().getHours();const pend=[];const blocos={};const ab=(r,id)=>`data-act="go" data-r="${r}"${id?` data-id="${id}"`:''}`;
-  const add=(set,sev,txt,r,id)=>pend.push({set,sev,txt,r,id});const fs=o.fs||[];const fN=id=>(fs.find(f=>f.id===id)||{nome:'?'}).nome;const at=fs.filter(f=>f.status!=='Desligado');
+  const add=(set,sev,txt,r,id,act)=>pend.push({set,sev,txt,r,id,act});const fs=o.fs||[];const fN=id=>(fs.find(f=>f.id===id)||{nome:'?'}).nome;const at=fs.filter(f=>f.status!=='Desligado');
   // ---------- RH
   {const K=[];if(fs.length&&perm('colab','ver')){const asoV=at.filter(f=>f.aso_vencimento&&pdk(f.aso_vencimento)<T0).length;K.push(kc('Funcionários ativos',at.length,asoV?asoV+' com ASO vencido':'no cadastro',asoV?'warn':'','colab'))}
    if(o.pt){const a=fs.filter(f=>ativoNoDia(f,o.ont)&&!semPonto(f)).length;const s=(o.st||[]).find(x=>String(x.data).slice(0,10)===dk(o.ont));K.push(kc('Ponto de '+fD(o.ont),o.pt.length+' de '+a,s?s.status:'não lançado',o.pt.length<a?'warn':'ok','ponto'));
@@ -3074,6 +3079,7 @@ PAGES.inicio={async load(){const o={};const ont=(()=>{let d=addD(T0,-1);while(ca
    K.push(kc('Fechados no mês',o.ng.filter(n=>n.situacao==='Ganho'&&String(n.etapa_desde||'').slice(0,7)===mes).length,'contratos ganhos','ok','comdash'));K.push(kc('Parados há mais de 30 dias',parados.length,'na mesma etapa',parados.length?'warn':'ok','comdash'));
    if(perm('comercial','editar')){(meus.length?parados.filter(n=>meus.includes(n)):parados).slice(0,8).forEach(n=>add('com','warn',`Negócio ${n.numero||''} ${n.titulo||''}: ${diasEntre(String(n.etapa_desde).slice(0,10),dk(T0))} dias na mesma etapa`,'negocio',n.id));pv.forEach(n=>add('com',pdk(n.validade_proposta)<T0?'bad':'warn',`Proposta do negócio ${n.numero||''} ${n.titulo||''} ${pdk(n.validade_proposta)<T0?'venceu':'vence'} em ${fD(n.validade_proposta)}`,'negocio',n.id))}
    blocos.com=K}
+  INI_EXT.forEach(f=>{try{f(o,add,blocos)}catch(e){console.warn('inicio',e)}});
   const tfL=o.tf||S._iniTf;let dele=null;if(tfL){tfL.filter(tfParaMim).forEach(t=>{const sv=tfSev(t);pend.push({set:'tf',sev:sv==='info'?'task':sv,txt:`${t.titulo} · ${tfPrazoTxt(t)}${t.criado_por&&t.criado_por!==S.user.id?' · de '+(tfNome(t.criado_por)||'—'):''}${!t.responsavel_id?' · para a equipe':''}`,act:'tfAbrir',id:t.id})});const D0=tfL.filter(t=>t.criado_por===S.user.id&&!tfParaMim(t));dele={n:D0.length,atr:D0.filter(t=>t.prazo&&pdk(t.prazo)<T0).length}}
   const ord=iniOrdem().filter(s=>blocos[s[0]]&&blocos[s[0]].length);const nome=Object.assign(Object.fromEntries(INI_SET.map(s=>[s[0],s[1]])),{tf:'Tarefa'});const rk={bad:0,warn:1,task:2};
   pend.sort((a,b)=>rk[a.sev]-rk[b.sev]||ord.findIndex(s=>s[0]===a.set)-ord.findIndex(s=>s[0]===b.set));const urg=pend.filter(p=>p.sev==='bad').length;const lim=S._iniTodas?pend.length:12;
@@ -3228,4 +3234,429 @@ FIELD.push(async ev=>{const t=ev.target;if(!t)return false;
  if(t.dataset&&t.dataset.imps!==undefined){if(ev.type==='change'){X.L[+t.dataset.imps].status=t.value;impPrev()}return true}
  if(t.dataset&&t.dataset.impd!==undefined){if(ev.type==='change')X.L[+t.dataset.impd].deslig=t.value||null;return true}
  return false});
+// ================================================================ QUALIDADE · FICHAS PADRÃO (obras civis de edificação)
+// tolerâncias de referência (PBQP-H / boas práticas); ajuste conforme projeto, especificação e normas da obra
+// item: [seção, o que verificar, critério de aceitação, método, crítico (1 = reprova a inspeção)]
+const QF_S='Execução de serviço (FVS)',QF_M='Recebimento de materiais (FVM)',QF_MOB='Mobilização de obra',QF_ENT='Vistoria de entrega';
+const QUAL_PADRAO=[
+ ['FVS-01','Locação da obra',QF_S,'Antes do início das fundações.',[
+  ['Referências','Marcos de referência (RN e alinhamento) implantados e protegidos','Conforme projeto de locação / levantamento topográfico','Visual',1],
+  ['Referências','Gabarito nivelado, travado e afastado da escavação','Desnível ≤ 5 mm; afastamento mínimo de 1 m','Nível / trena',0],
+  ['Eixos','Eixos e centros dos pilares/estacas marcados','Desvio ≤ 10 mm em relação ao projeto','Trena / estação total',1],
+  ['Eixos','Esquadro da edificação conferido','Diferença entre diagonais ≤ 10 mm','Trena (diagonais)',1],
+  ['Registro','Locação conferida pelo engenheiro antes de liberar escavação','Assinatura / registro no diário de obra','Documental',0]]],
+ ['FVS-02','Fundações (estacas, sapatas e blocos)',QF_S,'Escavação, armação e concretagem de elementos de fundação.',[
+  ['Escavação','Cota de assentamento e dimensões da escavação','Conforme projeto; fundo limpo, regularizado e sem água','Trena / nível',1],
+  ['Escavação','Solo de apoio compatível com o previsto em projeto','Sem material orgânico/solto; dúvida = consultar projetista','Visual',1],
+  ['Estacas','Locação, diâmetro e profundidade das estacas','Desvio de locação ≤ 10% do diâmetro; profundidade ≥ projeto','Trena',1],
+  ['Preparo','Lastro de concreto magro executado','Espessura ≥ 5 cm, nivelado','Trena',0],
+  ['Armação','Armadura conforme projeto (bitola, quantidade, espaçamento, arranques)','Conforme projeto estrutural','Visual / trena',1],
+  ['Armação','Cobrimento garantido com espaçadores','Cobrimento ≥ projeto (fundação ≥ 4,5 cm)','Trena',1],
+  ['Concretagem','Fck, slump e moldagem de corpos de prova','Conforme especificação; NF e romaneio conferidos','Documental / ensaio',1],
+  ['Impermeabilização','Impermeabilização de vigas baldrame/blocos','Duas demãos, sem falhas, até 15 cm acima do piso','Visual',0]]],
+ ['FVS-03','Fôrmas e escoramento',QF_S,'Pilares, vigas e lajes antes da concretagem.',[
+  ['Geometria','Dimensões internas das peças','Desvio ≤ 5 mm','Trena',1],
+  ['Geometria','Prumo de pilares','Desvio ≤ 5 mm na altura do pavimento','Prumo',1],
+  ['Geometria','Nível e contraflecha das lajes e vigas','Nível ≤ 5 mm; contraflecha conforme projeto','Nível / mangueira',0],
+  ['Estanqueidade','Juntas vedadas e fôrmas limpas, com desmoldante','Sem frestas > 2 mm; sem resíduos','Visual',0],
+  ['Escoramento','Escoras aprumadas, travadas e apoiadas em base firme','Espaçamento conforme projeto de escoramento','Visual / trena',1],
+  ['Embutidos','Passagens, caixas e furos posicionados antes da concretagem','Conforme projetos de instalações','Visual',0]]],
+ ['FVS-04','Armação',QF_S,'Conferência da armadura antes da concretagem.',[
+  ['Material','Aço com identificação de lote, sem corrosão excessiva ou óleo','Conforme NBR 7480; ferrugem superficial aceitável','Visual',0],
+  ['Armadura','Bitolas, quantidades e posições das barras','Conforme projeto estrutural','Visual / contagem',1],
+  ['Armadura','Espaçamento de estribos e barras','Desvio ≤ 10 mm','Trena',1],
+  ['Armadura','Emendas e ancoragens (comprimento de traspasse)','Conforme projeto','Trena',1],
+  ['Cobrimento','Espaçadores instalados e cobrimento garantido','Cobrimento ≥ projeto (ex.: 2,5 cm laje / 3 cm viga e pilar)','Trena',1],
+  ['Armadura','Armadura amarrada e firme (não desloca ao pisar)','Sem barras soltas','Visual',0],
+  ['Liberação','Armação liberada pelo engenheiro antes da concretagem','Registro assinado','Documental',1]]],
+ ['FVS-05','Concretagem',QF_S,'Recebimento, lançamento, adensamento e cura do concreto.',[
+  ['Recebimento','Nota fiscal: fck, volume, slump, horário de saída da usina','Conforme pedido; início da descarga ≤ 90 min da saída','Documental',1],
+  ['Recebimento','Ensaio de abatimento (slump)','Dentro da faixa especificada (ex.: 10 ± 2 cm)','Cone de Abrams',1],
+  ['Controle','Corpos de prova moldados e identificados','Conforme NBR 12655 (mín. 2 CP por caminhão / lote)','Visual / registro',1],
+  ['Lançamento','Fôrmas molhadas e limpas antes do lançamento','Sem água empoçada','Visual',0],
+  ['Lançamento','Altura de lançamento e adensamento com vibrador','Queda ≤ 2 m; sem segregação','Visual',0],
+  ['Acabamento','Nível e acabamento da superfície da laje','Desvio de nível ≤ 5 mm','Nível / régua',0],
+  ['Cura','Cura úmida iniciada e mantida','Mínimo 7 dias','Visual',1],
+  ['Desforma','Prazo de desforma respeitado','Laterais ≥ 3 dias; fundo de laje conforme projeto','Documental',1]]],
+ ['FVS-06','Alvenaria de vedação',QF_S,'Marcação e elevação de alvenaria em blocos cerâmicos ou de concreto.',[
+  ['Marcação','Primeira fiada conforme projeto de paredes (vãos e eixos)','Desvio ≤ 5 mm','Trena',1],
+  ['Marcação','Primeira fiada nivelada','Desnível ≤ 5 mm','Nível',0],
+  ['Elevação','Prumo da parede','Desvio ≤ 3 mm por metro / 5 mm na altura','Prumo',1],
+  ['Elevação','Planeza da parede','Flecha ≤ 5 mm em régua de 2 m','Régua de 2 m',0],
+  ['Elevação','Juntas horizontais e verticais','Espessura 10 mm ± 3 mm; juntas preenchidas','Trena',0],
+  ['Amarração','Amarração com pilares (tela ou ferro-cabelo) e entre paredes','A cada 2 fiadas ou conforme projeto','Visual',1],
+  ['Vãos','Vergas e contravergas','Apoio ≥ 30 cm de cada lado do vão','Trena',1],
+  ['Encunhamento','Encunhamento/fixação superior feito após o prazo','Somente após a elevação do pavimento superior','Visual',0]]],
+ ['FVS-07','Revestimento argamassado (chapisco, emboço e reboco)',QF_S,'Revestimento interno e externo de paredes e tetos.',[
+  ['Preparo','Base limpa, sem pó, óleo ou eflorescência; instalações embutidas e testadas','Antes do chapisco','Visual',0],
+  ['Chapisco','Chapisco aplicado e curado','Cobertura uniforme; cura ≥ 3 dias','Visual',0],
+  ['Taliscas','Taliscas e mestras posicionadas','Espessura conforme especificação (int. 5–20 mm; ext. 20–30 mm)','Trena / prumo',0],
+  ['Acabamento','Prumo do revestimento','Desvio ≤ 3 mm em 2 m','Prumo',1],
+  ['Acabamento','Planeza do revestimento','Flecha ≤ 3 mm em régua de 2 m','Régua de 2 m',1],
+  ['Acabamento','Esquadro e cantos vivos','Desvio ≤ 3 mm em 50 cm','Esquadro',0],
+  ['Aderência','Ausência de fissuras, bolhas ou som cavo','Teste de percussão sem som cavo','Percussão (martelo de borracha)',1]]],
+ ['FVS-08','Contrapiso',QF_S,'Contrapiso / regularização de pisos.',[
+  ['Preparo','Base limpa e umedecida; ponte de aderência aplicada','Sem entulho ou pó','Visual',0],
+  ['Nível','Nível acabado conforme projeto','Desvio ≤ 5 mm','Nível',1],
+  ['Caimento','Caimento para ralos em áreas molhadas','Mínimo 0,5% (ideal 1%) em direção ao ralo','Nível / teste com água',1],
+  ['Planeza','Planeza do contrapiso','Flecha ≤ 3 mm em régua de 2 m','Régua de 2 m',0],
+  ['Aderência','Sem som cavo, fissuras ou desagregação','Teste de percussão','Percussão',1]]],
+ ['FVS-09','Revestimento cerâmico (piso e parede)',QF_S,'Assentamento de cerâmica / porcelanato.',[
+  ['Material','Peças do mesmo lote, tonalidade e calibre','Conforme especificação','Visual / caixa',0],
+  ['Assentamento','Argamassa colante adequada e dupla colagem quando exigida','Peças > 30×30 cm com dupla colagem','Visual',1],
+  ['Assentamento','Juntas alinhadas e com espessura uniforme','Conforme especificação (± 1 mm)','Trena / visual',0],
+  ['Assentamento','Planeza e ressaltos entre peças','Ressalto ≤ 1 mm; planeza ≤ 3 mm em 2 m','Régua',0],
+  ['Aderência','Ausência de peças ocas (som cavo)','Nenhuma peça oca','Percussão',1],
+  ['Caimento','Caimento para ralos em áreas molhadas','Sem empoçamento no teste com água','Teste com água',1],
+  ['Acabamento','Rejuntamento completo e limpo; peças sem trincas','Sem falhas','Visual',0]]],
+ ['FVS-10','Impermeabilização',QF_S,'Áreas molhadas, lajes, reservatórios e baldrames.',[
+  ['Preparo','Superfície regularizada, seca e limpa; cantos arredondados','Raio de meia-cana ≥ 5 cm','Visual',1],
+  ['Aplicação','Produto e número de demãos conforme especificação','Conforme projeto/fabricante','Visual / documental',1],
+  ['Aplicação','Rodapé / subida nas paredes','Altura ≥ 30 cm (box ≥ 1,80 m ou conforme projeto)','Trena',1],
+  ['Aplicação','Arremates em ralos, tubos e soleiras','Reforço com tela / peça pré-fabricada','Visual',1],
+  ['Teste','Teste de estanqueidade (lâmina d’água)','72 h sem vazamento','Teste',1],
+  ['Proteção','Proteção mecânica executada após o teste','Sem danos à manta','Visual',0]]],
+ ['FVS-11','Instalações hidrossanitárias',QF_S,'Água fria/quente, esgoto e águas pluviais.',[
+  ['Execução','Tubulações conforme projeto (diâmetros, traçado, materiais)','Conforme projeto hidrossanitário','Visual',1],
+  ['Execução','Fixação, caimento do esgoto e ventilação','Caimento: ≤ 75 mm = 2%; ≥ 100 mm = 1%','Nível',1],
+  ['Execução','Pontos de utilização nas alturas e posições do projeto','Desvio ≤ 2 cm','Trena',0],
+  ['Teste','Teste de estanqueidade da água fria/quente','Pressão de ensaio por 1 h sem queda / vazamento','Manômetro',1],
+  ['Teste','Teste de estanqueidade do esgoto','Sem vazamento com coluna d’água','Teste',1],
+  ['Proteção','Tubos tamponados e protegidos até a instalação de louças','Sem entulho dentro das tubulações','Visual',0]]],
+ ['FVS-12','Instalações elétricas e de comunicação',QF_S,'Infraestrutura, fiação e quadros.',[
+  ['Infraestrutura','Eletrodutos e caixas conforme projeto (posição e altura)','Desvio ≤ 2 cm; caixas niveladas','Trena / nível',0],
+  ['Fiação','Bitolas dos condutores e cores padronizadas','Fase, neutro (azul) e terra (verde/verde-amarelo) conforme projeto','Visual',1],
+  ['Fiação','Emendas isoladas e somente dentro de caixas','Sem emendas em eletrodutos','Visual',1],
+  ['Quadros','Disjuntores, DR e DPS conforme diagrama unifilar','Circuitos identificados','Visual',1],
+  ['Aterramento','Aterramento instalado e medido','Resistência conforme projeto (ref. ≤ 10 Ω)','Terrômetro',1],
+  ['Teste','Teste de funcionamento de tomadas, interruptores e iluminação','100% dos pontos testados','Teste',1]]],
+ ['FVS-13','Esquadrias (portas e janelas)',QF_S,'Instalação de portas, janelas e batentes.',[
+  ['Instalação','Prumo, nível e esquadro do batente/marco','Desvio ≤ 2 mm','Prumo / nível',1],
+  ['Instalação','Fixação e vedação (espuma, silicone)','Sem folgas visíveis; vedação contínua','Visual',1],
+  ['Funcionamento','Abertura, fechamento e travamento','Sem atrito; fechaduras e trincos funcionando','Teste',1],
+  ['Estanqueidade','Janelas sem infiltração (teste com água)','Sem entrada de água','Teste com mangueira',1],
+  ['Acabamento','Peças sem riscos, amassados ou manchas','Proteção mantida até a entrega','Visual',0]]],
+ ['FVS-14','Forro de gesso / drywall',QF_S,'Forros e divisórias em gesso.',[
+  ['Estrutura','Tirantes e perfis espaçados conforme fabricante','Espaçamento ≤ 60 cm (ou conforme fabricante)','Trena',0],
+  ['Nível','Nível do forro','Desvio ≤ 3 mm em 2 m','Nível',1],
+  ['Acabamento','Juntas tratadas, sem fissuras ou ondulações','Fita e massa aplicadas','Visual',0],
+  ['Interfaces','Recortes para luminárias, sancas e alçapões de inspeção','Conforme projeto','Visual',0]]],
+ ['FVS-15','Pintura',QF_S,'Pintura interna e externa.',[
+  ['Preparo','Superfície curada (reboco ≥ 28 dias), seca, limpa e lixada','Sem pó, mofo ou eflorescência','Visual',1],
+  ['Preparo','Fundo preparador / selador e massa aplicados','Conforme especificação','Visual',0],
+  ['Aplicação','Número de demãos e cor conforme especificação','Mínimo 2 demãos de acabamento','Visual',1],
+  ['Acabamento','Cobertura uniforme, sem manchas, escorrimentos ou marcas de rolo','Inspeção com luz rasante','Visual',1],
+  ['Acabamento','Recortes limpos (rodapés, esquadrias, tomadas)','Sem respingos','Visual',0]]],
+ ['FVS-16','Cobertura (estrutura e telhamento)',QF_S,'Estrutura de madeira/metálica e telhas.',[
+  ['Estrutura','Estrutura conforme projeto (seções, espaçamentos, fixação)','Conforme projeto','Trena / visual',1],
+  ['Estrutura','Madeira tratada / estrutura metálica protegida contra corrosão','Conforme especificação','Visual',0],
+  ['Telhamento','Inclinação mínima do telhado','Conforme fabricante da telha','Nível / trena',1],
+  ['Telhamento','Sobreposição, alinhamento e fixação das telhas','Conforme fabricante','Visual',1],
+  ['Arremates','Rufos, calhas, condutores e cumeeiras','Sem pontos de infiltração; calhas com caimento','Visual / teste',1]]],
+ ['FVS-17','Louças, metais e acabamentos finais',QF_S,'Instalação de louças, metais, bancadas e acessórios.',[
+  ['Instalação','Louças niveladas, firmes e rejuntadas','Sem folgas','Nível / visual',0],
+  ['Instalação','Metais e registros funcionando, sem vazamento','Teste de todos os pontos','Teste',1],
+  ['Instalação','Ralos e sifões funcionando, sem retorno de odor','Fecho hídrico presente','Teste',1],
+  ['Acabamento','Bancadas, soleiras e peitoris nivelados e vedados','Caimento externo em peitoris','Nível / visual',0]]],
+ ['FVM-01','Recebimento de cimento e argamassa industrializada',QF_M,'Na entrega do fornecedor.',[
+  ['Documentos','Nota fiscal confere com o pedido (tipo, quantidade, marca)','Sem divergência','Documental',1],
+  ['Embalagem','Sacos íntegros, secos e dentro da validade','Sem empedramento','Visual',1],
+  ['Armazenagem','Armazenado em local coberto, sobre estrado, pilhas ≤ 10 sacos','Afastado de paredes e piso','Visual',0]]],
+ ['FVM-02','Recebimento de aço para armadura',QF_M,'Barras, fios e telas.',[
+  ['Documentos','Nota fiscal e certificado de qualidade do lote','Conforme pedido (CA-50/CA-60, bitolas)','Documental',1],
+  ['Material','Identificação das bitolas e ausência de corrosão profunda','Ferrugem superficial aceitável','Visual',1],
+  ['Material','Conferência por amostragem de bitola / peso','Conforme NBR 7480','Paquímetro / balança',0],
+  ['Armazenagem','Estocado sobre calços, separado por bitola, protegido','Sem contato com o solo','Visual',0]]],
+ ['FVM-03','Recebimento de blocos (cerâmicos ou de concreto)',QF_M,'Por carga recebida.',[
+  ['Documentos','Nota fiscal confere com o pedido (tipo, dimensão, quantidade)','Sem divergência','Documental',1],
+  ['Amostragem','Dimensões dos blocos (amostra de 13 peças)','Tolerância ± 3 mm','Trena',1],
+  ['Amostragem','Blocos sem trincas, quebras ou deformações','Até 2 peças defeituosas na amostra','Visual',1],
+  ['Armazenagem','Pilhas organizadas, próximas ao uso e protegidas','Altura ≤ 1,80 m','Visual',0]]],
+ ['FVM-04','Recebimento de agregados (areia e brita)',QF_M,'Por carga recebida.',[
+  ['Documentos','Nota fiscal e volume da caçamba','Volume conferido (medição da caçamba)','Trena / documental',1],
+  ['Material','Granulometria compatível com o pedido','Areia fina/média/grossa ou brita 0/1 conforme pedido','Visual',1],
+  ['Material','Ausência de torrões de argila, matéria orgânica e impurezas','Sem contaminação visível','Visual',1],
+  ['Armazenagem','Baias separadas, sobre base limpa','Sem mistura entre materiais','Visual',0]]],
+ ['FVM-05','Recebimento de concreto usinado',QF_M,'Por caminhão-betoneira.',[
+  ['Documentos','Nota fiscal: fck, volume, slump, brita e horário de saída','Conforme pedido','Documental',1],
+  ['Prazo','Tempo entre saída da usina e início da descarga','≤ 90 minutos','Relógio',1],
+  ['Ensaio','Slump test antes da descarga','Dentro da faixa especificada','Cone de Abrams',1],
+  ['Ensaio','Moldagem e identificação de corpos de prova','Conforme plano de controle','Registro',1],
+  ['Restrições','Não houve adição de água na obra sem autorização','Registro na NF quando autorizado','Visual / documental',1]]],
+ ['CHK-MOB','Checklist de mobilização de obra / novo contrato',QF_MOB,'Início de nova obra ou novo contrato: documentação, canteiro, segurança, equipe e qualidade.',[
+  ['Contrato e documentação','Contrato assinado e arquivado; escopo, prazo e medição entendidos pela equipe','Cópia na pasta da obra','Documental',1],
+  ['Contrato e documentação','ART/RRT de execução emitida e paga','ART registrada no CREA','Documental',1],
+  ['Contrato e documentação','Alvará de construção / licenças vigentes','Cópia na obra','Documental',1],
+  ['Contrato e documentação','Matrícula CNO (cadastro da obra na Receita) aberta','Número CNO registrado','Documental',1],
+  ['Contrato e documentação','Seguro de obra / risco de engenharia (quando previsto em contrato)','Apólice vigente','Documental',0],
+  ['Contrato e documentação','Placa da obra instalada (CREA e contratante)','Conforme exigência legal/contratual','Visual',0],
+  ['Projetos e planejamento','Projetos aprovados na última revisão disponíveis na obra','Lista mestra de projetos atualizada','Documental',1],
+  ['Projetos e planejamento','Orçamento, cronograma físico-financeiro e plano de ataque','Aprovados e divulgados ao encarregado','Documental',1],
+  ['Projetos e planejamento','Plano de qualidade da obra / fichas de verificação definidas','Lista de FVS e FVM aplicáveis','Documental',0],
+  ['Projetos e planejamento','Centro de custo da obra cadastrado no portal','Obra ativa no portal','Sistema',1],
+  ['Canteiro','Projeto/layout do canteiro definido (acessos, estoque, central de armação)','Conforme NR-18','Visual',0],
+  ['Canteiro','Tapume / isolamento e controle de acesso','Área isolada','Visual',1],
+  ['Canteiro','Ligações provisórias de água e energia','Instalações seguras e regularizadas','Visual',1],
+  ['Canteiro','Instalações de área de vivência (sanitários, vestiário, refeitório, água potável)','Conforme NR-18 e nº de trabalhadores','Visual',1],
+  ['Canteiro','Almoxarifado organizado e controle de materiais definido','Local coberto e com chave','Visual',0],
+  ['Canteiro','Locação de equipamentos contratada (betoneira, andaimes, etc.)','Contratos / notas na pasta','Documental',0],
+  ['Segurança do trabalho','PGR (Programa de Gerenciamento de Riscos) da obra elaborado','Documento assinado','Documental',1],
+  ['Segurança do trabalho','PCMSO e ASOs admissionais da equipe em dia','100% da equipe','Documental',1],
+  ['Segurança do trabalho','Integração de segurança realizada com toda a equipe','Lista de presença','Documental',1],
+  ['Segurança do trabalho','EPIs entregues e fichas de EPI assinadas','100% da equipe','Documental / portal',1],
+  ['Segurança do trabalho','Proteções coletivas (guarda-corpo, sinalização, extintores)','Instaladas conforme fase da obra','Visual',1],
+  ['Segurança do trabalho','Treinamentos NR (NR-35, NR-18, NR-12, NR-10) conforme atividades','Certificados válidos','Documental',1],
+  ['Equipe','Engenheiro responsável e encarregado definidos','Nomes e contatos divulgados','Documental',1],
+  ['Equipe','Equipe mobilizada registrada no portal (admissão concluída)','Funcionários com obra de referência','Sistema',1],
+  ['Equipe','Ponto da obra organizado (lançamento diário no portal)','Responsável pelo ponto definido','Sistema',0],
+  ['Equipe','Subempreiteiros contratados com documentação (contrato, CNPJ, ART quando aplicável)','Documentação na pasta','Documental',0],
+  ['Comunicação','Diário de obra aberto','Primeiro registro feito','Documental',0],
+  ['Comunicação','Reunião de partida (kick-off) com cliente e equipe registrada','Ata assinada','Documental',0],
+  ['Comunicação','Fornecedores principais definidos e cotações iniciais','Lista de fornecedores','Documental',0]]],
+ ['CHK-ENT','Vistoria de entrega de unidade',QF_ENT,'Vistoria final antes da entrega ao cliente.',[
+  ['Geral','Limpeza final da unidade concluída','Sem entulho, respingos ou poeira','Visual',0],
+  ['Esquadrias','Portas e janelas abrindo, fechando e travando; chaves entregues','100% testado','Teste',1],
+  ['Instalações','Todos os pontos elétricos testados (tomadas, interruptores, chuveiro)','100% testado','Teste',1],
+  ['Instalações','Todos os pontos hidráulicos testados, sem vazamentos','100% testado','Teste',1],
+  ['Revestimentos','Pisos e paredes sem peças ocas, trincas ou manchas','Sem pendências','Visual / percussão',1],
+  ['Pintura','Pintura uniforme, sem manchas ou falhas','Sem pendências','Visual',0],
+  ['Cobertura','Sem infiltrações ou goteiras (verificar após chuva ou teste)','Sem pendências','Visual / teste',1],
+  ['Documentos','Manual do proprietário, termo de garantia e habite-se/vistoria','Entregues e assinados','Documental',1]]]];
+function qualPadraoRows(){return QUAL_PADRAO.map(([codigo,nome,tipo,descricao,itens])=>({codigo,nome,tipo,descricao,versao:1,ativa:true,itens:itens.map((x,i)=>({id:codigo.toLowerCase().replace(/[^a-z0-9]/g,'')+'_'+(i+1),secao:x[0],texto:x[1],criterio:x[2],metodo:x[3],critico:!!x[4]}))}))}
+// ================================================================ QUALIDADE: inspeções, fichas de verificação, não conformidades e metas
+const QL={};
+const QI_ST={'Em andamento':'warn','Aprovada':'ok','Aprovada com ressalvas':'info','Reprovada':'bad','Cancelada':''};
+const QN_ST={'Aberta':'bad','Em tratamento':'warn','Aguardando verificação':'info','Encerrada':'ok','Cancelada':''};
+const QN_PRAZO={Grave:3,Moderada:7,Leve:15};
+const qlObrasAtivas=()=>obrasUser().filter(o=>o.nome!=='ESCRITÓRIO');
+const qlMes=()=>S.params.qm||dk(T0).slice(0,7);
+const qlMesSel=()=>`<select data-qlf="qm">${MESES12().map(k=>`<option value="${k}" ${k===qlMes()?'selected':''}>${mesLbl(k)}</option>`).join('')}</select>`;
+const qlNoMes=(d,k)=>String(d||'').slice(0,7)===k;
+const qlConcl=i=>i.status!=='Em andamento'&&i.status!=='Cancelada';
+const qlNcAtiva=n=>n.status==='Aberta'||n.status==='Em tratamento';
+const qlNcMinha=n=>n.responsavel_id===S.user.id||(!n.responsavel_id&&n.perfil_id===S.perfil.id);
+const qlResp=n=>n.responsavel_id?tfNome(n.responsavel_id)||'—':n.perfil_id?'Equipe '+(tfNome(n.perfil_id)||n.perfil_id):'—';
+function qlPrazoPill(n){if(!n.prazo)return '<span class="muted">sem prazo</span>';if(!qlNcAtiva(n))return fD(n.prazo);const x=diasEntre(dk(T0),String(n.prazo).slice(0,10));return pill(x<0?`vencida há ${-x} dia(s)`:x===0?'vence hoje':`${fD(n.prazo)} (${x} d)`,x<0?'bad':x<=3?'warn':'')}
+async function qlBase(opt){opt=opt||{};const[tipos,fichas,metas,insp,ncs]=await Promise.all([S.api.select('qual_tipos',{order:['nome']}).catch(()=>null),S.api.select('qual_fichas',{order:['codigo']}).catch(()=>[]),S.api.select('qual_metas').catch(()=>[]),
+ S.api.select('qual_inspecoes',{cols:'id,numero,ficha_id,tipo,obra_id,local,data,inspetor_id,status,conformidade,respostas,ficha,concluida_em,criado_em',order:['data',false]}).catch(()=>[]),S.api.select('qual_ncs',{order:['criado_em',false]}).catch(()=>[]),tfEquipe()]);
+ Object.assign(QL,{tipos,fichas,metas,insp,ncs});return {tipos,fichas,metas,insp,ncs}}
+// meta do mês por obra: cada meta vale para a obra indicada (ou para todas as obras ativas) e para o tipo indicado (ou qualquer tipo)
+function qlMetas(d,k){const ini=pdk(k+'-01'),fim=new Date(ini.getFullYear(),ini.getMonth()+1,0);const M=(d.metas||[]).filter(m=>m.ativa!==false&&pdk(m.inicio)<=fim&&(!m.fim||pdk(m.fim)>=ini));const I=(d.insp||[]).filter(i=>qlConcl(i)&&qlNoMes(i.data,k));
+ return qlObrasAtivas().map(o=>{const ms=M.filter(m=>!m.obra_id||m.obra_id===o.id).map(m=>({m,meta:+m.quantidade,real:I.filter(i=>i.obra_id===o.id&&(!m.tipo||i.tipo===m.tipo)).length}));const io=I.filter(i=>i.obra_id===o.id);
+  const C=io.reduce((s,i)=>s+qlCont(i).c,0),NC=io.reduce((s,i)=>s+qlCont(i).nc,0);return {o,ms,meta:ms.reduce((s,x)=>s+x.meta,0),real:io.length,realMeta:ms.reduce((s,x)=>s+Math.min(x.real,x.meta),0),conf:C+NC?C/(C+NC)*100:null,c:C,nc:NC,ncs:(d.ncs||[]).filter(n=>n.obra_id===o.id&&qlNcAtiva(n)).length}})}
+function qlCont(i){const R=i.respostas||{};let c=0,nc=0,na=0;Object.values(R).forEach(x=>{if(x.r==='C')c++;else if(x.r==='NC')nc++;else if(x.r==='NA')na++});return {c,nc,na}}
+
+// ---------------------------------------------------------------- PAINEL
+PAGES.qualpainel={async load(){return qlBase()},
+ html(){const d=D();if(d.tipos===null)return '<h1>Qualidade</h1><div class="note">Rode o ajuste 21 no Supabase para ativar o setor de Qualidade.</div>';const k=qlMes();const X=qlMetas(d,k);
+  const I=(d.insp||[]).filter(i=>qlConcl(i)&&qlNoMes(i.data,k));const meta=X.reduce((s,x)=>s+x.meta,0),realM=X.reduce((s,x)=>s+x.realMeta,0);const C=I.reduce((s,i)=>s+qlCont(i).c,0),NC=I.reduce((s,i)=>s+qlCont(i).nc,0);
+  const ab=(d.ncs||[]).filter(qlNcAtiva),venc=ab.filter(n=>n.prazo&&pdk(n.prazo)<T0),ver=(d.ncs||[]).filter(n=>n.status==='Aguardando verificação');
+  const enc=(d.ncs||[]).filter(n=>n.status==='Encerrada'&&n.verificada_em);const tm=enc.length?enc.reduce((s,n)=>s+Math.max(0,diasEntre(String(n.criado_em).slice(0,10),String(n.verificada_em).slice(0,10))),0)/enc.length:null;
+  const porServ={};(d.ncs||[]).filter(n=>qlNoMes(n.criado_em,k)).forEach(n=>{const s=n.servico||n.origem||'Outros';porServ[s]=(porServ[s]||0)+1});
+  const porTipo={};I.forEach(i=>porTipo[i.tipo||'—']=(porTipo[i.tipo||'—']||0)+1);
+  const mob=qlObrasAtivas().filter(o=>!(d.insp||[]).some(i=>i.obra_id===o.id&&i.tipo===QF_MOB&&qlConcl(i)));
+  return `<h1>Painel da qualidade</h1><p class="sub">Inspeções realizadas contra a meta, conformidade dos serviços e tratamento das não conformidades por obra.</p>
+  <div class="toolbar">${qlMesSel()}<span class="sp"></span>${perm('qualidade','exportar')?'<button class="btn sm" data-act="qlRelMes">Relatório do mês</button>':''}${perm('qualidade','incluir')?' <button class="btn primary" data-act="qlNovaInsp">+ Nova inspeção</button>':''}</div>
+  <div class="grid kpis">${kc('Inspeções no mês',I.length+(meta?' de '+meta:''),meta?`${Math.round(realM/meta*100)}% da meta`:'sem meta definida',meta?(realM>=meta?'ok':'warn'):'','qualinsp')}${kc('Conformidade dos itens',C+NC?pctF(C/(C+NC)*100):'—',`${C} conformes · ${NC} não conformes`,C+NC?(C/(C+NC)>=0.9?'ok':C/(C+NC)>=0.75?'warn':'bad'):'')}
+   ${kc('Não conformidades abertas',ab.length,venc.length+' com prazo vencido',venc.length?'bad':ab.length?'warn':'ok','qualnc')}${kc('Aguardando verificação',ver.length,'tratadas pela obra, falta conferir a eficácia',ver.length?'warn':'','qualnc')}${kc('Tempo médio de tratamento',tm==null?'—':N(tm,1)+' dias','da abertura ao encerramento')}</div>
+  <div class="card mt tablewrap"><h3>Por obra · ${mesLbl(k)}</h3><table><thead><tr><th>Obra</th><th class="num">Meta</th><th class="num">Realizadas</th><th style="width:22%">Andamento da meta</th><th class="num">Conformidade</th><th class="num">NCs abertas</th><th>Mobilização</th></tr></thead><tbody>
+  ${X.map(x=>{const p=x.meta?Math.min(100,x.realMeta/x.meta*100):null;return `<tr><td><b>${esc(x.o.nome)}</b>${x.ms.filter(m=>m.m.tipo).map(m=>`<div class="small muted">${esc(m.m.tipo)}: ${m.real} de ${m.meta}</div>`).join('')}</td><td class="num">${x.meta||'—'}</td><td class="num">${x.real}</td>
+   <td>${p==null?'<span class="muted small">sem meta</span>':`<div class="hb-t" title="${Math.round(p)}%"><div class="hb-f" style="width:${Math.max(2,p).toFixed(0)}%;${p>=100?'background:var(--ok)':''}"></div></div>`}</td><td class="num">${x.conf==null?'—':pctF(x.conf)}</td><td class="num">${x.ncs?`<b style="color:var(--bad)">${x.ncs}</b>`:'0'}</td><td>${mob.includes(x.o)?pill('pendente','warn'):pill('ok','ok')}</td></tr>`}).join('')||'<tr><td colspan="7" class="muted">Nenhuma obra ativa.</td></tr>'}</tbody></table></div>
+  <div class="grid mt" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr))">${relCard('Não conformidades por serviço',mesLbl(k),hbars(Object.entries(porServ).map(([l,v])=>({l,v})),v=>v+' NC','Nenhuma NC aberta no mês.'))}${relCard('Inspeções por tipo',mesLbl(k),hbars(Object.entries(porTipo).map(([l,v])=>({l,v})),v=>v+'','Nenhuma inspeção concluída no mês.'))}</div>
+  ${mob.length?`<div class="note mt"><b>Obras sem checklist de mobilização concluído:</b> ${mob.map(o=>esc(o.nome)).join(', ')}. ${perm('qualidade','incluir')?'<a class="lp-link" data-act="qlNovaInsp" data-tp="mob">Fazer o checklist</a>':''}</div>`:''}`}};
+
+// ---------------------------------------------------------------- INSPEÇÕES (lista)
+PAGES.qualinsp={async load(){return qlBase()},
+ html(){const d=D();if(d.tipos===null)return '<div class="note">Rode o ajuste 21 no Supabase.</div>';const k=S.params.qim||'todos';const ob=S.params.qio||'',tp=S.params.qit||'',st=S.params.qis||'';
+  const L=(d.insp||[]).filter(i=>(k==='todos'||qlNoMes(i.data,k))&&(!ob||i.obra_id===ob)&&(!tp||i.tipo===tp)&&(!st||i.status===st));
+  return `<h1>Inspeções</h1><p class="sub">Fichas de verificação aplicadas nas obras: recebimento de materiais, execução de serviços, mobilização, auditorias e vistorias.</p>
+  <div class="toolbar"><select data-qlf="qim"><option value="todos">Todos os meses</option>${MESES12().map(x=>`<option value="${x}" ${x===k?'selected':''}>${mesLbl(x)}</option>`).join('')}</select>
+   <select data-qlf="qio"><option value="">Todas as obras</option>${obrasUser().map(o=>`<option value="${o.id}" ${o.id===ob?'selected':''}>${esc(o.nome)}</option>`).join('')}</select>
+   <select data-qlf="qit"><option value="">Todos os tipos</option>${(d.tipos||[]).map(t=>`<option ${t.nome===tp?'selected':''}>${esc(t.nome)}</option>`).join('')}</select>
+   <select data-qlf="qis"><option value="">Todas as situações</option>${Object.keys(QI_ST).map(s=>`<option ${s===st?'selected':''}>${s}</option>`).join('')}</select><span class="sp"></span>${perm('qualidade','incluir')?'<button class="btn primary" data-act="qlNovaInsp">+ Nova inspeção</button>':''}</div>
+  <div class="card tablewrap"><table><thead><tr><th>Nº</th><th>Data</th><th>Ficha</th><th>Obra · local</th><th>Inspetor</th><th class="num">Conformidade</th><th>Situação</th></tr></thead><tbody>
+  ${L.map(i=>`<tr style="cursor:pointer" data-act="go" data-r="qualinspdet" data-id="${i.id}"><td class="muted">${i.numero||''}</td><td>${fD(i.data)}</td><td><b>${esc((i.ficha||{}).codigo||'')}</b> ${esc((i.ficha||{}).nome||'')}<div class="small muted">${esc(i.tipo||'')}</div></td><td>${esc(obraNome(i.obra_id))}<div class="small muted">${esc(i.local||'')}</div></td><td class="small">${esc(tfNome(i.inspetor_id)||'—')}</td><td class="num">${i.conformidade!=null?pctF(+i.conformidade):'—'}</td><td>${pill(i.status,QI_ST[i.status])}</td></tr>`).join('')||'<tr><td colspan="7" class="muted">Nenhuma inspeção.</td></tr>'}</tbody></table></div>`}};
+function qlNovaModal(tpMob){const d=QL;const F=(d.fichas||[]).filter(f=>f.ativa!==false);if(!F.length){toast('Cadastre ou carregue as fichas de verificação primeiro (Qualidade › Fichas de verificação).',true);return}
+ const fm=tpMob?F.find(f=>f.tipo===QF_MOB):null;const grupos={};F.forEach(f=>(grupos[f.tipo]=grupos[f.tipo]||[]).push(f));
+ openModal(`<h2>Nova inspeção</h2><div class="grid" style="grid-template-columns:1fr 1fr;gap:0 12px">
+  <div style="grid-column:span 2"><label>Ficha de verificação *</label><select id="qnF"><option value=""></option>${Object.entries(grupos).map(([t,L])=>`<optgroup label="${esc(t)}">${L.map(f=>`<option value="${f.id}" ${fm&&fm.id===f.id?'selected':''}>${esc(f.codigo)} · ${esc(f.nome)}</option>`).join('')}</optgroup>`).join('')}</select></div>
+  <div><label>Obra *</label><select id="qnO"><option value=""></option>${obrasUser().map(o=>`<option value="${o.id}">${esc(o.nome)}</option>`).join('')}</select></div>
+  <div><label>Data *</label><input type="date" id="qnD" value="${dk(T0)}"></div>
+  <div><label>Local (bloco, pavimento, unidade, trecho)</label><input id="qnL" placeholder="Ex.: Bloco A · 2º pavimento · apto 203"></div>
+  <div><label>Acompanhado por (na obra)</label><input id="qnR" placeholder="Ex.: encarregado"></div></div>
+ <div id="err" class="err"></div><div class="modal-actions"><button class="btn" data-act="close">Cancelar</button><button class="btn primary" data-act="qlCriarInsp">Iniciar inspeção</button></div>`)}
+
+// ---------------------------------------------------------------- INSPEÇÃO (preenchimento e relatório)
+PAGES.qualinspdet={async load(){const id=S.params.id;const[i]=await S.api.select('qual_inspecoes',{eq:{id}});if(!i)throw new Error('Inspeção não encontrada.');const[ncs]=await Promise.all([S.api.select('qual_ncs',{eq:{inspecao_id:id}}).catch(()=>[]),tfEquipe()]);return {i,ncs}},
+ html(){const {i,ncs}=D();const f=i.ficha||{};const ed=i.status==='Em andamento'&&perm('qualidade','editar');const R=i.respostas||{};const sec={};(f.itens||[]).forEach(it=>(sec[it.secao||'Itens']=sec[it.secao||'Itens']||[]).push(it));
+  const ct=qlCont(i);const tot=(f.itens||[]).length;const resp=Object.keys(R).filter(k=>R[k].r).length;
+  setTimeout(qlFotosCarregar,0);
+  return `<button class="btn sm" data-act="go" data-r="qualinsp">← Inspeções</button><div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin:14px 0 12px"><div><h1>${esc(f.codigo||'')} · ${esc(f.nome||'')}</h1><p class="sub" style="margin:0">Inspeção nº ${i.numero||''} · ${esc(i.tipo||'')} · ${esc(obraNome(i.obra_id))}${i.local?' · '+esc(i.local):''}</p></div><div style="display:flex;gap:6px;align-items:center">${pill(i.status,QI_ST[i.status])}<button class="btn sm" data-act="qlImprimir">Relatório (imprimir/PDF)</button>${ed&&perm('qualidade','excluir')?'<button class="btn sm danger" data-act="qlCancelarInsp">Cancelar</button>':''}</div></div>
+  <div class="card"><div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:0 14px"><div><label>Data</label><input type="date" data-qih="data" value="${String(i.data).slice(0,10)}" ${ed?'':'disabled'}></div><div><label>Local</label><input data-qih="local" value="${esc(i.local||'')}" ${ed?'':'disabled'}></div><div><label>Acompanhado por</label><input data-qih="responsavel_obra" value="${esc(i.responsavel_obra||'')}" ${ed?'':'disabled'}></div><div><label>Inspetor</label><input value="${esc(tfNome(i.inspetor_id)||'—')}" disabled></div></div>
+   <div class="grid kpis mt" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr))">${kc('Respondidos',resp+' de '+tot,'')}${kc('Conformes',ct.c,'','ok')}${kc('Não conformes',ct.nc,'',ct.nc?'bad':'')}${kc('Não se aplica',ct.na,'')}</div></div>
+  ${Object.entries(sec).map(([s,L])=>`<div class="card mt"><h3>${esc(s)}</h3>${L.map(it=>{const r=R[it.id]||{};return `<div class="qi-row ${r.r==='NC'?'nc':r.r==='C'?'c':''}"><div class="qi-t"><b>${esc(it.texto)}</b>${it.critico?' <span class="tag" style="background:var(--bad-soft);color:var(--bad)">crítico</span>':''}<div class="small muted">${it.criterio?'Critério: '+esc(it.criterio):''}${it.metodo?' · Método: '+esc(it.metodo):''}</div>
+   ${ed?`<input data-qio="${it.id}" value="${esc(r.obs||'')}" placeholder="${r.r==='NC'?'Descreva a não conformidade (obrigatório)':'Observação (opcional)'}" style="margin-top:6px">`:r.obs?`<div class="small" style="margin-top:4px">Obs.: ${esc(r.obs)}</div>`:''}</div>
+   <div class="qi-b">${[['C','Conforme'],['NC','Não conforme'],['NA','N/A']].map(([v,l])=>ed?`<button class="btn sm ${r.r===v?(v==='C'?'qi-ok':v==='NC'?'qi-nc':'primary'):''}" data-act="qlResp" data-it="${it.id}" data-v="${v}">${l}</button>`:r.r===v?pill(l,v==='C'?'ok':v==='NC'?'bad':''):'').join(' ')}</div></div>`}).join('')}</div>`).join('')}
+  <div class="card mt"><h3>Fotos</h3><div class="qi-fotos">${(i.fotos||[]).map((p,k)=>`<a class="qi-foto" data-act="qlFoto" data-k="${k}"><img data-qph="${esc(p.path)}" alt="${esc(p.nome||'')}"></a>`).join('')||'<span class="muted small">Nenhuma foto.</span>'}</div>${ed?`<label class="btn sm mt" style="display:inline-block">Adicionar fotos<input type="file" id="qiFotos" accept="image/*" multiple style="display:none"></label>`:''}
+   <label class="mt">Observações gerais</label><textarea data-qih="observacao" rows="3" ${ed?'':'disabled'}>${esc(i.observacao||'')}</textarea></div>
+  ${ncs.length?`<div class="card mt"><h3>Não conformidades geradas (${ncs.length})</h3>${ncs.map(n=>`<div class="alert-item"><span>${pill(n.status,QN_ST[n.status])} Nº ${n.numero||''} · ${esc(n.descricao)} · ${esc(qlResp(n))} · prazo ${n.prazo?fD(n.prazo):'—'}</span><button class="btn sm" data-act="ncAbrir" data-id="${n.id}">Abrir</button></div>`).join('')}</div>`:''}
+  ${ed?`<div class="toolbar mt"><span class="sp"></span>${resp<tot?`<button class="btn" data-act="qlRestantes">Marcar os ${tot-resp} restantes como conformes</button>`:''}<button class="btn primary" data-act="qlConcluir">Concluir inspeção</button></div>`:''}`}};
+async function qlFotosCarregar(){for(const im of document.querySelectorAll('img[data-qph]')){if(im.src)continue;try{im.src=await S.api.signedUrl(im.dataset.qph)}catch(e){}}}
+async function qlSalvarInsp(p){const {i}=D();Object.assign(i,p);await S.api.update('qual_inspecoes',{id:i.id},p)}
+function qlRelInsp(i,ncs,urls){const f=i.ficha||{};const R=i.respostas||{};const ct=qlCont(i);const emp=S.ref.empresa||{};const sec={};(f.itens||[]).forEach(it=>(sec[it.secao||'Itens']=sec[it.secao||'Itens']||[]).push(it));const lab={C:'C',NC:'NC',NA:'N/A'};
+ return `<style>#printArea .qr{font:8.6pt Arial,sans-serif;color:#000}#printArea .qr table{width:100%;border-collapse:collapse}#printArea .qr td,#printArea .qr th{border:1px solid #777;padding:3pt 4pt;vertical-align:top}#printArea .qr th{background:#e7eef6!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;text-align:left}#printArea .qr .hd td{border:1px solid #000}#printArea .qr .lgc{width:24%}#printArea .qr .lgc img{max-height:34pt;max-width:100%}#printArea .qr .ti{text-align:center;font-weight:bold;font-size:12pt}#printArea .qr .sec td{background:#f2f2f2!important;font-weight:bold;-webkit-print-color-adjust:exact;print-color-adjust:exact}#printArea .qr .r{text-align:center;width:34pt;font-weight:bold}#printArea .qr .nc{color:#b00}#printArea .qr .fts img{width:31%;margin:0 1% 4pt 0;max-height:160pt;object-fit:cover}#printArea .qr .as td{border:0;text-align:center;padding-top:30pt}#printArea .qr .as div{border-top:1px solid #000;margin:0 10pt 2pt}</style>
+ <div class="qr"><table class="hd"><tr><td class="lgc"><img src="logo.png"></td><td class="ti">RELATÓRIO DE INSPEÇÃO<br><span style="font-size:9.5pt;font-weight:normal">${esc(f.codigo||'')} · ${esc(f.nome||'')} (rev. ${f.versao||1})</span></td><td style="width:22%;font-size:8pt">Nº ${i.numero||''}<br>Data: ${fD(i.data)}<br>${esc(i.tipo||'')}</td></tr></table>
+ <table style="margin-top:4pt"><tr><td><b>Empresa:</b> ${esc(emp.razao_social||'Avante Engenharia')}</td><td><b>Obra:</b> ${esc(obraNome(i.obra_id))}</td><td><b>Local:</b> ${esc(i.local||'—')}</td></tr><tr><td><b>Inspetor:</b> ${esc(tfNome(i.inspetor_id)||'—')}</td><td><b>Acompanhado por:</b> ${esc(i.responsavel_obra||'—')}</td><td><b>Resultado:</b> ${esc(i.status)} · conformidade ${i.conformidade!=null?pctF(+i.conformidade):'—'} (${ct.c} C · ${ct.nc} NC · ${ct.na} N/A)</td></tr></table>
+ <table style="margin-top:6pt"><tr><th style="width:4%">#</th><th>Item verificado</th><th style="width:26%">Critério de aceitação</th><th class="r">Res.</th><th style="width:22%">Observação</th></tr>
+ ${Object.entries(sec).map(([s,L])=>`<tr class="sec"><td colspan="5">${esc(s)}</td></tr>`+L.map(it=>{const r=R[it.id]||{};return `<tr><td>${(f.itens||[]).indexOf(it)+1}</td><td>${esc(it.texto)}${it.critico?' <b>(crítico)</b>':''}</td><td>${esc(it.criterio||'')}${it.metodo?`<br><i>${esc(it.metodo)}</i>`:''}</td><td class="r ${r.r==='NC'?'nc':''}">${lab[r.r]||'—'}</td><td>${esc(r.obs||'')}</td></tr>`}).join('')).join('')}</table>
+ ${i.observacao?`<p style="margin:6pt 0"><b>Observações:</b> ${esc(i.observacao)}</p>`:''}
+ ${ncs&&ncs.length?`<table style="margin-top:6pt"><tr><th>NC</th><th>Descrição</th><th>Gravidade</th><th>Responsável</th><th>Prazo</th><th>Situação</th></tr>${ncs.map(n=>`<tr><td>${n.numero||''}</td><td>${esc(n.descricao)}</td><td>${esc(n.gravidade)}</td><td>${esc(qlResp(n))}</td><td>${n.prazo?fD(n.prazo):'—'}</td><td>${esc(n.status)}</td></tr>`).join('')}</table>`:''}
+ ${urls&&urls.length?`<p style="margin:8pt 0 3pt"><b>Registro fotográfico</b></p><div class="fts">${urls.map(u=>`<img src="${u}">`).join('')}</div>`:''}
+ <table class="as"><tr><td><div></div>Inspetor da qualidade<br>${esc(tfNome(i.inspetor_id)||'')}</td><td><div></div>Responsável na obra<br>${esc(i.responsavel_obra||'')}</td></tr></table>
+ <p style="font-size:7pt;color:#555;margin-top:8pt">Legenda: C = conforme · NC = não conforme · N/A = não se aplica. Gerado pelo Portal Avante em ${fDT(new Date())}.</p></div>`}
+function qlFichaBranco(f){const sec={};(f.itens||[]).forEach(it=>(sec[it.secao||'Itens']=sec[it.secao||'Itens']||[]).push(it));
+ return qlRelInsp({ficha:f,numero:'',data:null,tipo:f.tipo,obra_id:null,local:'',respostas:{},status:'________',conformidade:null},[],[]).replace('RELATÓRIO DE INSPEÇÃO','FICHA DE VERIFICAÇÃO')}
+Object.assign(ACT,{
+ qlNovaInsp:async t=>{if(!QL.fichas)await qlBase();qlNovaModal(t&&t.dataset&&t.dataset.tp==='mob')},
+ qlCriarInsp:async()=>{const fid=$('#qnF').value,ob=$('#qnO').value,dt=$('#qnD').value;if(!fid||!ob||!dt){$('#err').textContent='Escolha a ficha, a obra e a data.';return}const f=QL.fichas.find(x=>x.id===fid);
+  const r=(await S.api.insert('qual_inspecoes',[{ficha_id:f.id,ficha:{codigo:f.codigo,nome:f.nome,tipo:f.tipo,versao:f.versao,itens:f.itens},tipo:f.tipo,obra_id:ob,data:dt,local:$('#qnL').value.trim()||null,responsavel_obra:$('#qnR').value.trim()||null,inspetor_id:S.user.id,status:'Em andamento',respostas:{},fotos:[]}]))[0];closeModal();go('qualinspdet',{id:r.id})},
+ qlResp:async t=>{const {i}=D();const R=Object.assign({},i.respostas||{});const k=t.dataset.it;R[k]=Object.assign({},R[k]||{},{r:t.dataset.v});await qlSalvarInsp({respostas:R});const y=window.scrollY;render();window.scrollTo(0,y)},
+ qlRestantes:async()=>{const {i}=D();const R=Object.assign({},i.respostas||{});(i.ficha.itens||[]).forEach(it=>{if(!R[it.id]||!R[it.id].r)R[it.id]=Object.assign({},R[it.id]||{},{r:'C'})});await qlSalvarInsp({respostas:R});render()},
+ qlFoto:async t=>{const {i}=D();window.open(await S.api.signedUrl(i.fotos[+t.dataset.k].path),'_blank')},
+ qlCancelarInsp:async()=>{if(!confirm('Cancelar esta inspeção?'))return;await qlSalvarInsp({status:'Cancelada'});render()},
+ qlImprimir:async()=>{const {i,ncs}=D();const urls=[];for(const p of (i.fotos||[]).slice(0,12)){try{urls.push(await S.api.signedUrl(p.path))}catch(e){}}docPrint(qlRelInsp(i,ncs,urls))},
+ qlConcluir:async()=>{const {i}=D();const R=i.respostas||{};const it=i.ficha.itens||[];const falta=it.filter(x=>!R[x.id]||!R[x.id].r);if(falta.length){toast(`Responda todos os itens (${falta.length} sem resposta).`,true);return}
+  const ncI=it.filter(x=>R[x.id].r==='NC');const semObs=ncI.filter(x=>!String(R[x.id].obs||'').trim());if(semObs.length){toast('Descreva cada item não conforme no campo de observação.',true);return}
+  if(!ncI.length){if(!confirm('Concluir a inspeção como aprovada?'))return;return qlFinalizar([])}
+  const eq=TF.eq||[];const pfEng=eq.find(x=>x.tipo==='perfil'&&/engenh/i.test(x.nome))||eq.find(x=>x.tipo==='perfil'&&/encarreg/i.test(x.nome));const def=S._qlRespPad||(pfEng?'p:'+pfEng.id:'');
+  const opts=cur=>`<option value=""></option><optgroup label="Pessoa">${eq.filter(x=>x.tipo==='usuario').map(u=>`<option value="u:${u.id}" ${cur==='u:'+u.id?'selected':''}>${esc(u.nome)}</option>`).join('')}</optgroup><optgroup label="Equipe">${eq.filter(x=>x.tipo==='perfil').map(p=>`<option value="p:${p.id}" ${cur==='p:'+p.id?'selected':''}>Equipe ${esc(p.nome)}</option>`).join('')}</optgroup>`;
+  openModal(`<h2>Não conformidades da inspeção</h2><p class="small muted">Cada item não conforme vira uma NC para a obra tratar. O responsável recebe aviso no sino e vê a NC no "O que depende de você" até resolver.</p>
+  ${ncI.map(x=>{const g=x.critico?'Grave':'Moderada';return `<div class="card" style="margin:8px 0;padding:12px" data-ncw="${x.id}"><b>${esc(x.texto)}</b>${x.critico?' <span class="tag">crítico</span>':''}
+   <label>Descrição da NC</label><input data-ncf="desc" value="${esc(R[x.id].obs)}">
+   <div class="grid" style="grid-template-columns:1fr 1fr 1fr;gap:0 10px"><div><label>Responsável *</label><select data-ncf="resp">${opts(def)}</select></div><div><label>Gravidade</label><select data-ncf="grav">${['Leve','Moderada','Grave'].map(v=>`<option ${v===g?'selected':''}>${v}</option>`).join('')}</select></div><div><label>Prazo *</label><input type="date" data-ncf="prazo" value="${dk(addD(T0,QN_PRAZO[g]))}"></div></div></div>`}).join('')}
+  <div id="err" class="err"></div><div class="modal-actions"><button class="btn" data-act="close">Voltar</button><button class="btn primary" data-act="qlConcluirOk">Concluir e abrir ${ncI.length} NC</button></div>`,true)},
+ qlConcluirOk:async()=>{const L=[...document.querySelectorAll('[data-ncw]')].map(w=>{const g=k=>w.querySelector(`[data-ncf="${k}"]`).value;return {it:w.dataset.ncw,desc:g('desc').trim(),resp:g('resp'),grav:g('grav'),prazo:g('prazo')}});
+  if(L.some(x=>!x.desc||!x.resp||!x.prazo)){$('#err').textContent='Preencha descrição, responsável e prazo de todas as NCs.';return}S._qlRespPad=L[0].resp;await qlFinalizar(L)},
+ qlFotoUp:null});
+async function qlFinalizar(L){const {i}=D();const it=i.ficha.itens||[];const R=i.respostas||{};const ct=qlCont(i);const crit=it.some(x=>x.critico&&R[x.id].r==='NC');
+ const st=ct.nc?(crit?'Reprovada':'Aprovada com ressalvas'):'Aprovada';const conf=ct.c+ct.nc?Math.round(ct.c/(ct.c+ct.nc)*10000)/100:100;
+ if(L.length){const rows=L.map(x=>{const item=it.find(y=>y.id===x.it);return {inspecao_id:i.id,obra_id:i.obra_id,origem:'Inspeção',servico:i.ficha.codigo+' · '+i.ficha.nome,local:i.local,descricao:x.desc,gravidade:x.grav,prazo:x.prazo,status:'Aberta',responsavel_id:x.resp.startsWith('u:')?x.resp.slice(2):null,perfil_id:x.resp.startsWith('p:')?x.resp.slice(2):null,criado_por:S.user.id,historico:[{em:new Date().toISOString(),por:S.user.id,txt:'NC aberta na inspeção nº '+(i.numero||'')+(item?': '+item.texto:'')}]}});
+  const ins=await S.api.insert('qual_ncs',rows);const avis={};ins.forEach(n=>{const k=n.responsavel_id?'u:'+n.responsavel_id:'p:'+n.perfil_id;(avis[k]=avis[k]||[]).push(n)});
+  for(const [k,ns] of Object.entries(avis))await notificar({usuario:k.startsWith('u:')?k.slice(2):null,perfil:k.startsWith('p:')?k.slice(2):null,titulo:`${ns.length} não conformidade(s) na obra ${obraNome(i.obra_id)}`,texto:`${i.ficha.codigo} · ${i.local||''} · prazo ${fD(ns[0].prazo)}`,link:'inicio'})}
+ await qlSalvarInsp({status:st,conformidade:conf,concluida_em:new Date().toISOString()});await evento('Concluiu inspeção de qualidade',i.ficha.codigo+' · '+obraNome(i.obra_id)+' · '+st);closeModal();toast('Inspeção concluída: '+st+'.');reload()}
+FIELD.push(async ev=>{const t=ev.target;if(!t||!t.dataset)return false;
+ if(t.dataset.qlf){if(ev.type==='change'){S.params[t.dataset.qlf]=t.value;render()}return true}
+ if(t.dataset.qih){if(ev.type==='change')await qlSalvarInsp({[t.dataset.qih]:t.value||null});return true}
+ if(t.dataset.qio){if(ev.type==='change'){const {i}=D();const R=Object.assign({},i.respostas||{});R[t.dataset.qio]=Object.assign({},R[t.dataset.qio]||{},{obs:t.value.trim()});await qlSalvarInsp({respostas:R})}return true}
+ if(t.id==='qiFotos'){if(ev.type!=='change')return true;const {i}=D();const fs=[...t.files].filter(f=>f.size<=12*1024*1024);toast('Enviando '+fs.length+' foto(s)…');const novas=[];
+  for(const f of fs){const path=`qualidade/inspecoes/${i.id}/${Date.now()}_${Math.random().toString(36).slice(2,6)}.${(f.name.split('.').pop()||'jpg').toLowerCase()}`;try{await S.api.upload(path,f);novas.push({path,nome:f.name})}catch(e){toast('Falha ao enviar '+f.name+': '+e.message,true)}}
+  await qlSalvarInsp({fotos:(i.fotos||[]).concat(novas)});render();return true}
+ return false});
+
+// ---------------------------------------------------------------- NÃO CONFORMIDADES
+PAGES.qualnc={async load(){return qlBase()},
+ html(){const d=D();if(d.tipos===null)return '<div class="note">Rode o ajuste 21 no Supabase.</div>';const st=S.params.qns||'ativas';const ob=S.params.qno||'';const q=(S.params.qnq||'').toLowerCase();
+  const L=(d.ncs||[]).filter(n=>(st==='todas'||(st==='ativas'?n.status!=='Encerrada'&&n.status!=='Cancelada':n.status===st))&&(!ob||n.obra_id===ob)&&(!q||[n.descricao,n.servico,n.local,qlResp(n),n.numero].join(' ').toLowerCase().includes(q))).sort((a,b)=>String(a.prazo||'9999').localeCompare(String(b.prazo||'9999')));
+  return `<h1>Não conformidades</h1><p class="sub">Registro, tratamento pela obra e verificação de eficácia pela qualidade. O responsável é lembrado no "O que depende de você".</p>
+  <div class="toolbar"><select data-qlf="qns">${[['ativas','Em aberto (todas as etapas)'],['Aberta','Abertas'],['Em tratamento','Em tratamento'],['Aguardando verificação','Aguardando verificação'],['Encerrada','Encerradas'],['Cancelada','Canceladas'],['todas','Todas']].map(([v,l])=>`<option value="${v}" ${v===st?'selected':''}>${l}</option>`).join('')}</select>
+   <select data-qlf="qno"><option value="">Todas as obras</option>${obrasUser().map(o=>`<option value="${o.id}" ${o.id===ob?'selected':''}>${esc(o.nome)}</option>`).join('')}</select><input data-qnq="1" placeholder="Buscar…" value="${esc(S.params.qnq||'')}" style="max-width:200px"><span class="sp"></span>${perm('qualidade','incluir')?'<button class="btn primary" data-act="ncNova">+ Registrar NC</button>':''}</div>
+  <div class="card tablewrap"><table><thead><tr><th>Nº</th><th>Obra · local</th><th>Não conformidade</th><th>Gravidade</th><th>Responsável</th><th>Prazo</th><th>Situação</th></tr></thead><tbody>
+  ${L.map(n=>`<tr style="cursor:pointer" data-act="ncAbrir" data-id="${n.id}"><td class="muted">${n.numero||''}</td><td>${esc(obraNome(n.obra_id))}<div class="small muted">${esc(n.local||'')}</div></td><td><b>${esc(n.descricao)}</b><div class="small muted">${esc(n.servico||n.origem)}</div></td><td>${pill(n.gravidade,n.gravidade==='Grave'?'bad':n.gravidade==='Moderada'?'warn':'')}</td><td class="small">${esc(qlResp(n))}</td><td>${qlPrazoPill(n)}</td><td>${pill(n.status,QN_ST[n.status])}</td></tr>`).join('')||'<tr><td colspan="7" class="muted">Nenhuma não conformidade.</td></tr>'}</tbody></table></div>`}};
+FIELD.push(ev=>{const t=ev.target;if(!t.dataset||!t.dataset.qnq)return false;if(ev.type==='input'){S.params.qnq=t.value;const pos=t.selectionStart;render();const n=document.querySelector('[data-qnq]');if(n){n.focus();try{n.setSelectionRange(pos,pos)}catch(e){}}}return true});
+function ncHist(n,txt){return (n.historico||[]).concat([{em:new Date().toISOString(),por:S.user.id,txt}])}
+Object.assign(ACT,{
+ ncNova:async()=>{await tfEquipe();const eq=TF.eq||[];openModal(`<h2>Registrar não conformidade</h2><div class="grid" style="grid-template-columns:1fr 1fr;gap:0 12px">
+  <div><label>Obra *</label><select id="ncO"><option value=""></option>${obrasUser().map(o=>`<option value="${o.id}">${esc(o.nome)}</option>`).join('')}</select></div><div><label>Origem</label><select id="ncOr">${['Inspeção','Auditoria interna','Reclamação de cliente','Fornecedor','Segurança do trabalho','Outra'].map(o=>`<option>${o}</option>`).join('')}</select></div>
+  <div><label>Serviço / material</label><input id="ncS" placeholder="Ex.: Revestimento cerâmico"></div><div><label>Local</label><input id="ncL" placeholder="Ex.: Bloco B · apto 104"></div>
+  <div style="grid-column:span 2"><label>Descrição *</label><textarea id="ncD" rows="3"></textarea></div>
+  <div><label>Responsável *</label><select id="ncR"><option value=""></option><optgroup label="Pessoa">${eq.filter(x=>x.tipo==='usuario').map(u=>`<option value="u:${u.id}">${esc(u.nome)}</option>`).join('')}</optgroup><optgroup label="Equipe">${eq.filter(x=>x.tipo==='perfil').map(p=>`<option value="p:${p.id}">Equipe ${esc(p.nome)}</option>`).join('')}</optgroup></select></div>
+  <div><label>Gravidade</label><select id="ncG">${['Leve','Moderada','Grave'].map(v=>`<option ${v==='Moderada'?'selected':''}>${v}</option>`).join('')}</select></div><div><label>Prazo *</label><input type="date" id="ncP" value="${dk(addD(T0,7))}"></div>
+  <div style="grid-column:span 2"><label>Ação imediata (contenção), se houver</label><input id="ncA"></div></div>
+  <div id="err" class="err"></div><div class="modal-actions"><button class="btn" data-act="close">Cancelar</button><button class="btn primary" data-act="ncNovaOk">Registrar e avisar</button></div>`,true)},
+ ncNovaOk:async()=>{const v=q=>$(q).value.trim();const r=v('#ncR');if(!v('#ncO')||!v('#ncD')||!r||!v('#ncP')){$('#err').textContent='Preencha obra, descrição, responsável e prazo.';return}
+  const n=(await S.api.insert('qual_ncs',[{obra_id:v('#ncO'),origem:v('#ncOr'),servico:v('#ncS')||null,local:v('#ncL')||null,descricao:v('#ncD'),gravidade:v('#ncG'),prazo:v('#ncP'),acao_imediata:v('#ncA')||null,status:'Aberta',responsavel_id:r.startsWith('u:')?r.slice(2):null,perfil_id:r.startsWith('p:')?r.slice(2):null,criado_por:S.user.id,historico:[{em:new Date().toISOString(),por:S.user.id,txt:'NC registrada ('+v('#ncOr')+')'}]}]))[0];
+  await notificar({usuario:n.responsavel_id,perfil:n.responsavel_id?null:n.perfil_id,titulo:'Não conformidade na obra '+obraNome(n.obra_id),texto:n.descricao.slice(0,120)+' · prazo '+fD(n.prazo),link:'inicio'});closeModal();toast('NC registrada e responsável avisado.');reload()},
+ ncAbrir:async t=>{const[n]=await S.api.select('qual_ncs',{eq:{id:t.dataset.id}});if(!n){toast('NC não encontrada.',true);return}await tfEquipe();S._nc=n;const q=perm('qualidade','editar');const meu=qlNcMinha(n)||q;
+  openModal(`<h2>NC nº ${n.numero||''} · ${esc(obraNome(n.obra_id))}</h2><p class="small">${pill(n.status,QN_ST[n.status])} ${pill(n.gravidade,n.gravidade==='Grave'?'bad':n.gravidade==='Moderada'?'warn':'')} ${qlPrazoPill(n)}</p>
+  <dl class="ficha" style="grid-template-columns:150px 1fr;margin:8px 0"><dt>Não conformidade</dt><dd><b>${esc(n.descricao)}</b></dd><dt>Serviço · local</dt><dd>${esc([n.servico,n.local].filter(Boolean).join(' · ')||'—')}</dd><dt>Origem</dt><dd>${esc(n.origem)}${n.inspecao_id&&perm('qualidade','ver')?` · <a class="lp-link" data-act="go" data-r="qualinspdet" data-id="${n.inspecao_id}">ver inspeção</a>`:''}</dd><dt>Responsável</dt><dd>${esc(qlResp(n))}</dd><dt>Aberta por</dt><dd>${esc(tfNome(n.criado_por)||'—')} em ${fDT(n.criado_em)}</dd>${n.acao_imediata?`<dt>Ação imediata</dt><dd>${esc(n.acao_imediata)}</dd>`:''}${n.causa?`<dt>Causa</dt><dd>${esc(n.causa)}</dd>`:''}${n.acao_corretiva?`<dt>Ação corretiva</dt><dd>${esc(n.acao_corretiva)} <span class="small muted">(${esc(tfNome(n.tratada_por)||'')} · ${fDT(n.tratada_em)})</span></dd>`:''}${n.parecer?`<dt>Verificação</dt><dd>${n.eficaz?'Eficaz':'Não eficaz'}: ${esc(n.parecer)} <span class="small muted">(${esc(tfNome(n.verificada_por)||'')})</span></dd>`:''}</dl>
+  ${(n.fotos||[]).length?`<div class="qi-fotos">${n.fotos.map(p=>`<img data-qph="${esc(p.path)}" alt="">`).join('')}</div>`:''}
+  ${meu&&qlNcAtiva(n)?`<div class="card" style="margin:10px 0"><h3 style="margin-top:0">Tratamento</h3><label>Causa (por que aconteceu?)</label><input id="ncCa" value="${esc(n.causa||'')}"><label>Ação corretiva executada</label><textarea id="ncAc" rows="2">${esc(n.acao_corretiva||'')}</textarea><label>Fotos da correção</label><input type="file" id="ncFt" accept="image/*" multiple></div>`:''}
+  ${q&&n.status==='Aguardando verificação'?`<div class="card" style="margin:10px 0"><h3 style="margin-top:0">Verificação da eficácia</h3><label>Parecer</label><input id="ncPa" placeholder="O que foi conferido na obra"><label>Se não eficaz, novo prazo</label><input type="date" id="ncNp" value="${dk(addD(T0,5))}"></div>`:''}
+  <h3 style="margin:10px 0 4px">Histórico</h3>${(n.historico||[]).slice().reverse().map(h=>`<div class="tl-i small"><b>${esc(tfNome(h.por)||'—')}</b> · ${fDT(h.em)}<div>${esc(h.txt)}</div></div>`).join('')}
+  <div class="modal-actions">${q&&qlNcAtiva(n)?'<button class="btn danger" data-act="ncAcao" data-a="cancelar" style="margin-right:auto">Cancelar NC</button>':''}<button class="btn" data-act="close">Fechar</button>${meu&&n.status==='Aberta'?'<button class="btn" data-act="ncAcao" data-a="iniciar">Iniciar tratamento</button>':''}${meu&&qlNcAtiva(n)?'<button class="btn primary" data-act="ncAcao" data-a="tratar">Concluir tratamento</button>':''}${q&&n.status==='Aguardando verificação'?'<button class="btn" data-act="ncAcao" data-a="naoeficaz">Não eficaz: devolver</button><button class="btn primary" data-act="ncAcao" data-a="eficaz">Eficaz: encerrar</button>':''}</div>`,true);qlFotosCarregar()},
+ ncAcao:async t=>{const n=S._nc;const a=t.dataset.a;const agora=new Date().toISOString();let p={},msg='',avisa=null;
+  if(a==='iniciar'){p={status:'Em tratamento',historico:ncHist(n,'Tratamento iniciado')};msg='Tratamento iniciado.'}
+  if(a==='tratar'){const ca=$('#ncCa').value.trim(),ac=$('#ncAc').value.trim();if(!ac){toast('Descreva a ação corretiva executada.',true);return}const fl=[...($('#ncFt').files||[])];const fotos=(n.fotos||[]).slice();
+   for(const f of fl){const path=`qualidade/ncs/${n.id}/${Date.now()}_${Math.random().toString(36).slice(2,6)}.${(f.name.split('.').pop()||'jpg').toLowerCase()}`;try{await S.api.upload(path,f);fotos.push({path,nome:f.name})}catch(e){}}
+   p={status:'Aguardando verificação',causa:ca||null,acao_corretiva:ac,tratada_em:agora,tratada_por:S.user.id,fotos,historico:ncHist(n,'Tratamento concluído: '+ac)};msg='Enviado para verificação da qualidade.';avisa={usuario:n.criado_por,titulo:'NC tratada: verificar eficácia',texto:obraNome(n.obra_id)+' · '+n.descricao.slice(0,100)}}
+  if(a==='eficaz'){const pa=$('#ncPa').value.trim()||'Correção conferida';p={status:'Encerrada',eficaz:true,parecer:pa,verificada_em:agora,verificada_por:S.user.id,historico:ncHist(n,'Verificada como eficaz e encerrada: '+pa)};msg='NC encerrada.'}
+  if(a==='naoeficaz'){const pa=$('#ncPa').value.trim();if(!pa){toast('Escreva o parecer explicando o que falta.',true);return}const np=$('#ncNp').value;p={status:'Em tratamento',eficaz:false,parecer:pa,prazo:np||n.prazo,verificada_em:agora,verificada_por:S.user.id,historico:ncHist(n,'Não eficaz, devolvida à obra: '+pa+(np?' · novo prazo '+fD(np):''))};msg='Devolvida à obra.';avisa={usuario:n.responsavel_id,perfil:n.responsavel_id?null:n.perfil_id,titulo:'NC devolvida: correção não eficaz',texto:pa.slice(0,120)}}
+  if(a==='cancelar'){const m=prompt('Motivo do cancelamento:');if(!m)return;p={status:'Cancelada',historico:ncHist(n,'Cancelada: '+m)};msg='NC cancelada.'}
+  await S.api.update('qual_ncs',{id:n.id},p);if(avisa&&(avisa.usuario||avisa.perfil)&&avisa.usuario!==S.user.id)await notificar(Object.assign(avisa,{link:'inicio'}));closeModal();toast(msg);reload()}});
+
+// ---------------------------------------------------------------- FICHAS DE VERIFICAÇÃO
+PAGES.qualfichas={async load(){return qlBase()},
+ html(){const d=D();if(d.tipos===null)return '<div class="note">Rode o ajuste 21 no Supabase.</div>';const ed=perm('qualidade','editar');const tp=S.params.qft||'';const tem=new Set((d.fichas||[]).map(f=>f.codigo));const faltam=QUAL_PADRAO.filter(x=>!tem.has(x[0]));
+  const L=(d.fichas||[]).filter(f=>!tp||f.tipo===tp);const uso=id=>(d.insp||[]).filter(i=>i.ficha_id===id).length;
+  return `<h1>Fichas de verificação</h1><p class="sub">Modelos usados nas inspeções: itens a verificar, critério de aceitação, método e itens críticos (que reprovam a inspeção). Alterar uma ficha não muda as inspeções já feitas.</p>
+  <div class="toolbar"><select data-qlf="qft"><option value="">Todos os tipos</option>${(d.tipos||[]).map(t=>`<option ${t.nome===tp?'selected':''}>${esc(t.nome)}</option>`).join('')}</select><span class="sp"></span>${ed&&faltam.length?`<button class="btn" data-act="qfPadrao">Carregar ${faltam.length} ficha(s) padrão de edificação</button>`:''}${ed?' <button class="btn primary" data-act="qfNova">+ Nova ficha</button>':''}</div>
+  ${!(d.fichas||[]).length?'<div class="note">Nenhuma ficha cadastrada. Carregue as fichas padrão de obras civis de edificação (17 FVS de serviços, 5 FVM de materiais, checklist de mobilização e vistoria de entrega) e ajuste ao seu padrão.</div>':''}
+  <div class="card tablewrap"><table><thead><tr><th>Código</th><th>Ficha</th><th>Tipo</th><th class="num">Itens</th><th class="num">Críticos</th><th class="num">Rev.</th><th class="num">Inspeções</th><th></th></tr></thead><tbody>
+  ${L.map(f=>`<tr style="${f.ativa===false?'opacity:.5':''}"><td><b>${esc(f.codigo)}</b></td><td>${esc(f.nome)}${f.ativa===false?' '+pill('inativa',''):''}<div class="small muted">${esc(f.descricao||'')}</div></td><td class="small">${esc(f.tipo)}</td><td class="num">${(f.itens||[]).length}</td><td class="num">${(f.itens||[]).filter(i=>i.critico).length}</td><td class="num">${f.versao||1}</td><td class="num">${uso(f.id)}</td>
+   <td style="white-space:nowrap;text-align:right"><button class="btn sm" data-act="qfBranco" data-id="${f.id}" title="Imprimir para usar em papel">Imprimir</button>${ed?` <button class="btn sm" data-act="qfEditar" data-id="${f.id}">Editar</button> <button class="btn sm" data-act="qfDuplicar" data-id="${f.id}">Duplicar</button>`:''}</td></tr>`).join('')||'<tr><td colspan="8" class="muted">Nenhuma ficha.</td></tr>'}</tbody></table></div>`}};
+function qfEditor(f){f=JSON.parse(JSON.stringify(f||{codigo:'',nome:'',tipo:QF_S,descricao:'',itens:[],ativa:true}));S._qf=f;
+ openModal(`<h2>${f.id?'Editar ficha':'Nova ficha de verificação'}</h2><div class="grid" style="grid-template-columns:1fr 2fr 1.4fr;gap:0 12px"><div><label>Código *</label><input id="qfC" value="${esc(f.codigo)}" placeholder="FVS-18"></div><div><label>Nome *</label><input id="qfN" value="${esc(f.nome)}"></div>
+  <div><label>Tipo *</label><select id="qfT">${(QL.tipos||[]).map(t=>`<option ${t.nome===f.tipo?'selected':''}>${esc(t.nome)}</option>`).join('')}</select></div><div style="grid-column:span 3"><label>Descrição / quando aplicar</label><input id="qfD" value="${esc(f.descricao||'')}"></div></div>
+ <label style="display:inline-flex;gap:6px;align-items:center;color:var(--text)"><input type="checkbox" id="qfA" ${f.ativa!==false?'checked':''} style="width:auto;margin:0"> Ficha ativa</label>
+ <h3 class="mt" style="margin-bottom:4px">Itens</h3><div id="qfItens"></div><button class="btn sm mt" data-act="qfItem">+ Adicionar item</button>
+ <div id="err" class="err"></div><div class="modal-actions"><button class="btn" data-act="close">Cancelar</button><button class="btn primary" data-act="qfSalvar">Salvar ficha</button></div>`,true);qfItensHTML()}
+function qfItensHTML(){const f=S._qf;$('#qfItens').innerHTML=`<table class="small qf-t"><thead><tr><th>Seção</th><th>O que verificar *</th><th>Critério de aceitação</th><th>Método</th><th>Crítico</th><th></th></tr></thead><tbody>${f.itens.map((x,i)=>`<tr><td><input data-qfi="${i}|secao" value="${esc(x.secao||'')}"></td><td><input data-qfi="${i}|texto" value="${esc(x.texto||'')}"></td><td><input data-qfi="${i}|criterio" value="${esc(x.criterio||'')}"></td><td><input data-qfi="${i}|metodo" value="${esc(x.metodo||'')}"></td><td style="text-align:center"><input type="checkbox" data-qfi="${i}|critico" ${x.critico?'checked':''} style="width:auto"></td><td style="white-space:nowrap"><button class="btn sm" data-act="qfMov" data-i="${i}" data-d="-1" title="Subir">↑</button><button class="btn sm" data-act="qfMov" data-i="${i}" data-d="1" title="Descer">↓</button><button class="btn sm" data-act="qfDel" data-i="${i}" title="Remover">×</button></td></tr>`).join('')||'<tr><td colspan="6" class="muted">Nenhum item.</td></tr>'}</tbody></table>`}
+FIELD.push(ev=>{const t=ev.target;if(!t.dataset||!t.dataset.qfi)return false;const[i,k]=t.dataset.qfi.split('|');S._qf.itens[+i][k]=k==='critico'?t.checked:t.value;return true});
+Object.assign(ACT,{
+ qfPadrao:async()=>{const tem=new Set((QL.fichas||[]).map(f=>f.codigo));const rows=qualPadraoRows().filter(r=>!tem.has(r.codigo));if(!confirm(`Carregar ${rows.length} ficha(s) padrão? As tolerâncias são de referência: revise conforme os projetos e normas de cada obra.`))return;
+  await S.api.insert('qual_fichas',rows);await evento('Carregou fichas padrão da qualidade',rows.length+' fichas');toast(rows.length+' ficha(s) carregada(s).');reload()},
+ qfNova:()=>qfEditor(),qfEditar:t=>qfEditor(QL.fichas.find(f=>f.id===t.dataset.id)),
+ qfDuplicar:t=>{const f=JSON.parse(JSON.stringify(QL.fichas.find(x=>x.id===t.dataset.id)));delete f.id;f.codigo=f.codigo+'-B';f.nome=f.nome+' (cópia)';f.versao=1;qfEditor(f)},
+ qfBranco:t=>docPrint(qlFichaBranco(QL.fichas.find(f=>f.id===t.dataset.id))),
+ qfItem:()=>{S._qf.itens.push({id:'i'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),secao:(S._qf.itens.slice(-1)[0]||{}).secao||'',texto:'',criterio:'',metodo:'Visual',critico:false});qfItensHTML()},
+ qfDel:t=>{S._qf.itens.splice(+t.dataset.i,1);qfItensHTML()},
+ qfMov:t=>{const L=S._qf.itens,i=+t.dataset.i,j=i+ +t.dataset.d;if(j<0||j>=L.length)return;[L[i],L[j]]=[L[j],L[i]];qfItensHTML()},
+ qfSalvar:async()=>{const f=S._qf;const row={codigo:$('#qfC').value.trim().toUpperCase(),nome:$('#qfN').value.trim(),tipo:$('#qfT').value,descricao:$('#qfD').value.trim()||null,ativa:$('#qfA').checked,itens:f.itens.filter(x=>String(x.texto||'').trim()).map(x=>Object.assign({},x,{texto:x.texto.trim()}))};
+  if(!row.codigo||!row.nome){$('#err').textContent='Informe o código e o nome.';return}if(!row.itens.length){$('#err').textContent='A ficha precisa de pelo menos um item.';return}
+  if((QL.fichas||[]).some(x=>x.codigo===row.codigo&&x.id!==f.id)){$('#err').textContent='Já existe uma ficha com este código.';return}
+  if(f.id){const old=QL.fichas.find(x=>x.id===f.id);if(JSON.stringify(old.itens)!==JSON.stringify(row.itens))row.versao=(old.versao||1)+1;row.atualizado_em=new Date().toISOString();await S.api.update('qual_fichas',{id:f.id},row)}else await S.api.insert('qual_fichas',[Object.assign(row,{versao:1})]);
+  closeModal();toast('Ficha salva.');reload()}});
+
+// ---------------------------------------------------------------- METAS E TIPOS
+crud({id:'qualmetas',tabela:'qual_metas',mod:'qualidade',titulo:'Metas de inspeção',novo:'+ Nova meta',load:async()=>{await qlBase()},ordem:['inicio',false],filtroVeic:false,
+ sub:'Quantas inspeções cada obra deve receber por mês. Deixe a obra vazia para valer para todas as obras ativas, e o tipo vazio para contar qualquer inspeção.',
+ campos:[{c:'obra_id',l:'Obra (vazio = todas as ativas)',t:'obra'},{c:'tipo',l:'Tipo de inspeção (vazio = qualquer)',t:'sel',op:()=>(QL.tipos||[]).map(t=>t.nome)},{c:'quantidade',l:'Inspeções por mês',t:'num',req:1},{c:'inicio',l:'Vale a partir de',t:'date',req:1},{c:'fim',l:'Até (opcional)',t:'date'},{c:'ativa',l:'Meta ativa',t:'bool'},{c:'observacao',l:'Observação',w:3}],colsForm:3,
+ def:()=>({inicio:dk(T0).slice(0,7)+'-01',ativa:true,quantidade:4}),
+ cols:[['Obra',m=>m.obra_id?`<b>${esc(obraNome(m.obra_id))}</b>`:'<b>Todas as obras ativas</b>'],['Tipo',m=>esc(m.tipo||'Qualquer tipo')],['Por mês',m=>m.quantidade,1],['Vigência',m=>`${fD(m.inicio)}${m.fim?' a '+fD(m.fim):' em diante'}`],
+  ['Este mês',m=>{const k=dk(T0).slice(0,7);const I=(QL.insp||[]).filter(i=>qlConcl(i)&&qlNoMes(i.data,k)&&(!m.tipo||i.tipo===m.tipo));const obs=m.obra_id?[m.obra_id]:qlObrasAtivas().map(o=>o.id);const r=obs.map(o=>I.filter(i=>i.obra_id===o).length);const ok=r.filter(x=>x>=m.quantidade).length;return m.ativa===false?'—':`${ok} de ${obs.length} obra(s) atingiram`}],
+  ['Situação',m=>m.ativa===false?pill('Inativa',''):pill('Ativa','ok')]]});
+crud({id:'qualtipos',tabela:'qual_tipos',mod:'qualidade',titulo:'Tipos de inspeção',novo:'+ Novo tipo',ordem:['nome'],filtroVeic:false,sub:'Classificação das fichas e das metas (ex.: execução de serviço, recebimento de material, auditoria).',
+ campos:[{c:'nome',l:'Nome',req:1,w:2},{c:'ativa',l:'Em uso',t:'bool'},{c:'descricao',l:'Descrição',w:3}],colsForm:3,def:()=>({ativa:true}),
+ cols:[['Tipo',t=>`<b>${esc(t.nome)}</b>`],['Descrição',t=>`<span class="small">${esc(t.descricao||'')}</span>`],['Situação',t=>t.ativa===false?pill('Inativo',''):pill('Ativo','ok')]]});
+
+// ---------------------------------------------------------------- RELATÓRIO MENSAL
+ACT.qlRelMes=()=>{const d=D();const k=qlMes();const X=qlMetas(d,k);const I=(d.insp||[]).filter(i=>qlConcl(i)&&qlNoMes(i.data,k));const N2=(d.ncs||[]).filter(n=>qlNoMes(n.criado_em,k));const ab=(d.ncs||[]).filter(qlNcAtiva);const emp=S.ref.empresa||{};
+ docPrint(`<style>#printArea .qm{font:9pt Arial,sans-serif}#printArea .qm table{width:100%;border-collapse:collapse;margin:4pt 0 8pt}#printArea .qm td,#printArea .qm th{border:1px solid #888;padding:3pt 4pt;text-align:left}#printArea .qm th{background:#e7eef6!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}#printArea .qm .n{text-align:right}#printArea .qm h2{margin:0}#printArea .qm h3{margin:10pt 0 2pt}</style>
+ <div class="qm"><table><tr><td style="width:24%;border:1px solid #000"><img src="logo.png" style="max-height:34pt;max-width:100%"></td><td style="text-align:center;border:1px solid #000"><h2>RELATÓRIO MENSAL DA QUALIDADE</h2>${esc(mesLbl(k))} · ${esc(emp.razao_social||'Avante Engenharia')}</td></tr></table>
+ <h3>Inspeções por obra</h3><table><tr><th>Obra</th><th class="n">Meta</th><th class="n">Realizadas</th><th class="n">% da meta</th><th class="n">Conformidade</th><th class="n">NCs abertas</th></tr>${X.map(x=>`<tr><td>${esc(x.o.nome)}</td><td class="n">${x.meta||'—'}</td><td class="n">${x.real}</td><td class="n">${x.meta?Math.round(x.realMeta/x.meta*100)+'%':'—'}</td><td class="n">${x.conf==null?'—':pctF(x.conf)}</td><td class="n">${x.ncs}</td></tr>`).join('')}</table>
+ <h3>Inspeções concluídas (${I.length})</h3><table><tr><th>Nº</th><th>Data</th><th>Ficha</th><th>Obra · local</th><th>Resultado</th><th class="n">Conf.</th></tr>${I.map(i=>`<tr><td>${i.numero||''}</td><td>${fD(i.data)}</td><td>${esc((i.ficha||{}).codigo||'')} ${esc((i.ficha||{}).nome||'')}</td><td>${esc(obraNome(i.obra_id))}${i.local?' · '+esc(i.local):''}</td><td>${esc(i.status)}</td><td class="n">${i.conformidade!=null?pctF(+i.conformidade):'—'}</td></tr>`).join('')||'<tr><td colspan="6">Nenhuma.</td></tr>'}</table>
+ <h3>Não conformidades abertas no mês (${N2.length})</h3><table><tr><th>Nº</th><th>Obra</th><th>Descrição</th><th>Gravidade</th><th>Responsável</th><th>Prazo</th><th>Situação</th></tr>${N2.map(n=>`<tr><td>${n.numero||''}</td><td>${esc(obraNome(n.obra_id))}</td><td>${esc(n.descricao)}</td><td>${esc(n.gravidade)}</td><td>${esc(qlResp(n))}</td><td>${n.prazo?fD(n.prazo):'—'}</td><td>${esc(n.status)}</td></tr>`).join('')||'<tr><td colspan="7">Nenhuma.</td></tr>'}</table>
+ <h3>Pendências em aberto (todas as datas): ${ab.length} NC(s), ${ab.filter(n=>n.prazo&&pdk(n.prazo)<T0).length} com prazo vencido</h3><p style="font-size:7pt;color:#555">Gerado pelo Portal Avante em ${fDT(new Date())}.</p></div>`)};
+
+// ---------------------------------------------------------------- PÁGINA INICIAL
+INI_LOAD.push(async o=>{const[ncs]=await Promise.all([S.api.select('qual_ncs').catch(()=>null)]);o.qnc=ncs;if(perm('qualidade','ver')){try{const b=await qlBase();o.ql=b}catch(e){}}});
+INI_EXT.push((o,add,blocos)=>{if(o.qnc)o.qnc.filter(n=>qlNcAtiva(n)&&qlNcMinha(n)).forEach(n=>{const x=n.prazo?diasEntre(dk(T0),String(n.prazo).slice(0,10)):99;add('qual',x<0||n.gravidade==='Grave'?'bad':x<=3?'warn':'task',`NC ${n.numero||''} · ${obraNome(n.obra_id)}: ${n.descricao}${n.prazo?' · '+(x<0?'vencida desde '+fD(n.prazo):'prazo '+fD(n.prazo)):''}`,null,n.id,'ncAbrir')});
+ if(!o.ql||o.ql.tipos===null)return;const d=o.ql;const k=dk(T0).slice(0,7);const X=qlMetas(d,k);const I=d.insp.filter(i=>qlConcl(i)&&qlNoMes(i.data,k));const meta=X.reduce((s,x)=>s+x.meta,0),realM=X.reduce((s,x)=>s+x.realMeta,0);const C=I.reduce((s,i)=>s+qlCont(i).c,0),NCt=I.reduce((s,i)=>s+qlCont(i).nc,0);
+ const ab=d.ncs.filter(qlNcAtiva),venc=ab.filter(n=>n.prazo&&pdk(n.prazo)<T0),ver=d.ncs.filter(n=>n.status==='Aguardando verificação');
+ blocos.qual=[kc('Inspeções no mês',I.length+(meta?' de '+meta:''),meta?Math.round(realM/meta*100)+'% da meta':'sem meta',meta?(realM>=meta?'ok':'warn'):'','qualpainel'),kc('Conformidade',C+NCt?pctF(C/(C+NCt)*100):'—','itens inspecionados no mês',C+NCt?(C/(C+NCt)>=0.9?'ok':'warn'):''),kc('NCs abertas',ab.length,venc.length+' vencida(s)',venc.length?'bad':ab.length?'warn':'ok','qualnc'),kc('Aguardando verificação',ver.length,'eficácia da correção',ver.length?'warn':'','qualnc')];
+ if(perm('qualidade','editar')){ver.forEach(n=>add('qual','warn',`Verificar a correção da NC ${n.numero||''} · ${obraNome(n.obra_id)}: ${n.descricao}`,null,n.id,'ncAbrir'));
+  venc.filter(n=>!qlNcMinha(n)).length&&add('qual','warn',`${venc.filter(n=>!qlNcMinha(n)).length} NC(s) com prazo vencido nas obras`,'qualnc');
+  const dia=T0.getDate(),fimM=new Date(T0.getFullYear(),T0.getMonth()+1,0).getDate();X.filter(x=>x.meta&&dia>=10&&x.realMeta<Math.floor(x.meta*dia/fimM)).forEach(x=>add('qual',dia>fimM-7?'bad':'warn',`${x.o.nome}: ${x.real} de ${x.meta} inspeções no mês (meta atrasada)`,'qualpainel'));
+  qlObrasAtivas().filter(ob=>!d.insp.some(i=>i.obra_id===ob.id&&i.tipo===QF_MOB&&qlConcl(i))&&ob.criado_em&&new Date(ob.criado_em)>=addD(T0,-120)).forEach(ob=>add('qual','warn',`${ob.nome}: checklist de mobilização ainda não concluído`,'qualpainel'));
+  d.insp.filter(i=>i.status==='Em andamento'&&i.inspetor_id===S.user.id).forEach(i=>add('qual',diasEntre(String(i.data).slice(0,10),dk(T0))>2?'warn':'task',`Inspeção nº ${i.numero||''} (${(i.ficha||{}).codigo||''} · ${obraNome(i.obra_id)}) não concluída`,'qualinspdet',i.id))}});
 iniciar();

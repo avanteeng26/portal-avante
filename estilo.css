@@ -315,3 +315,11 @@ table.imp-nf input[data-ret]:disabled{background:#f3f5f8;color:#9aa3ad}
 .ini-set .ini-h{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 8px}
 .ini-set h2{font-size:16px;margin:0;color:var(--text)}
 .ini-pend .alert-item .tag{margin-right:4px}
+.qi-row{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;padding:10px 0;border-top:1px solid var(--line)}
+.qi-row:first-of-type{border-top:0}.qi-row.nc{background:linear-gradient(90deg,var(--bad-soft),transparent 60%)}.qi-row.c .qi-t b{color:inherit}
+.qi-t{flex:1;min-width:0}.qi-b{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;flex-shrink:0}
+.btn.qi-ok{background:var(--ok);border-color:var(--ok);color:#fff}.btn.qi-nc{background:var(--bad);border-color:var(--bad);color:#fff}
+.qi-fotos{display:flex;flex-wrap:wrap;gap:8px}.qi-fotos img{width:120px;height:90px;object-fit:cover;border-radius:6px;border:1px solid var(--line);background:#eee;cursor:pointer}
+.qf-t{width:100%}.qf-t td{padding:3px}.qf-t input{margin:0;padding:6px 8px}
+@media (max-width:700px){.qi-row{flex-direction:column}.qi-b{justify-content:flex-start}.qi-b .btn{flex:1;padding:10px}}
+@media (max-width:600px){.modal-actions{flex-wrap:wrap}.modal-actions .btn{flex:1 1 auto}}
