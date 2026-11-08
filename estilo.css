@@ -235,3 +235,24 @@ dl.ficha{display:grid;grid-template-columns:160px 1fr;gap:6px 12px;margin:0}dl.f
 .md-vars{display:flex;flex-direction:column;gap:4px;max-height:430px;overflow:auto}
 .md-var{text-align:left;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:5px 8px;font:12px ui-monospace,Consolas,monospace;cursor:pointer;color:var(--text)}.md-var span{display:block;font:11px Inter,system-ui,sans-serif;color:var(--muted)}.md-var:hover{border-color:var(--accent)}
 .ct-ed .ctdoc>h3:first-of-type{text-align:center;font-size:14px}
+/* ========== layout 2: barra superior cinza + menu lateral azul estreito */
+.app2{min-height:100vh;display:flex;flex-direction:column}
+.topbar{height:58px;flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 18px 0 12px;background:#eceef2;border-bottom:1px solid #d9dce3;position:sticky;top:0;z-index:30}
+.tb-l{display:flex;align-items:center;gap:16px;min-width:0}.tb-r{display:flex;align-items:center;gap:10px}
+.tb-logo{display:flex;align-items:center;cursor:pointer}.tb-logo img{height:38px;display:block}
+.topbar .crumbs{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-left:16px;border-left:1px solid #cfd3db}
+.topbar .btn{background:#fff}.tb-user{text-align:right;line-height:1.25}
+.app2-b{flex:1;display:flex;min-height:0}
+.side2{width:84px;flex:none;background:#1771b6;color:#fff;display:flex;flex-direction:column;justify-content:space-between;padding:8px 6px;position:sticky;top:58px;height:calc(100vh - 58px);overflow-y:auto;overflow-x:hidden}
+.snav{display:flex;flex-direction:column;align-items:center;gap:4px;padding:9px 2px;border-radius:8px;color:rgba(255,255,255,.88);text-decoration:none;cursor:pointer;font-size:11px;font-weight:500;text-align:center;line-height:1.15;margin-bottom:2px}
+.snav:hover{background:rgba(255,255,255,.12);color:#fff}.snav.cur{background:#0d4f84;color:#fff;box-shadow:inset 3px 0 0 #fff}
+.snav span{max-width:76px;overflow-wrap:anywhere}
+.side2 .nav-sep{height:1px;background:rgba(255,255,255,.22);margin:6px 8px}
+.app2 .content{flex:1;min-width:0;max-width:none;padding:22px 26px}
+@media (prefers-color-scheme:dark){.topbar{background:#23272d;border-bottom-color:#2d3239}.topbar .btn{background:var(--surface)}.tb-logo img{background:#fff;border-radius:6px;padding:3px 6px}.topbar .crumbs{border-left-color:#3a4048}}
+@media(max-width:860px){.side2{position:fixed;left:-100px;top:58px;z-index:40;transition:left .2s;box-shadow:0 0 30px rgba(0,0,0,.25)}.side2.open{left:0}.tb-user,.topbar .crumbs{display:none}.app2 .content{padding:16px}.tb-logo img{height:30px}.topbar{padding:0 10px}.topbar .btn[data-act="senha"]{display:none}}
+/* ---------- financeiro */
+.fn-mes{display:flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:8px;background:var(--surface);padding:3px}.fn-mes span{min-width:150px;text-align:center;font-weight:600;font-size:13px}.fn-mes .btn{border:0;padding:4px 10px}
+.fn-tab td{vertical-align:middle}.fn-tot{display:flex;gap:18px;align-items:center;justify-content:flex-end;flex-wrap:wrap;padding:12px 6px 2px;font-size:13px;border-top:1px solid var(--border);margin-top:6px}
+.sw{width:34px;height:18px;border-radius:10px;border:0;background:#c5cad3;position:relative;cursor:pointer;vertical-align:middle;padding:0}.sw i{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;transition:left .15s}.sw.on{background:var(--ok)}.sw.on i{left:18px}
+.bad-t{color:var(--bad)}
