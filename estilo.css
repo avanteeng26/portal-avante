@@ -277,3 +277,23 @@ dl.ficha{display:grid;grid-template-columns:160px 1fr;gap:6px 12px;margin:0}dl.f
 .btn.okbtn{background:#1f9d4c;border-color:#1f9d4c;color:#fff;font-weight:600}.btn.okbtn:hover{background:#18833f}
 .nf-rev td{vertical-align:top;padding:6px 4px}.nf-rev input,.nf-rev select{padding:5px 6px;font-size:12.5px}.nf-liq{white-space:nowrap;padding-top:12px!important}
 @media(max-width:700px){.drw-g.g4,.drw-g.g3{grid-template-columns:1fr 1fr}.drw-g .s3,.drw-g .s4{grid-column:span 2}}
+/* ---------- filtro de período */
+.fp{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.fp-m{display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--surface)}
+.fp-m button{border:0;background:none;padding:7px 12px;font:inherit;font-size:13px;cursor:pointer;color:var(--text);border-right:1px solid var(--border)}.fp-m button:last-child{border-right:0}
+.fp-m button.on{background:var(--accent);color:#fff;font-weight:600}.fp-m button:not(.on):hover{background:var(--surface2)}
+.fp-r{display:flex;gap:6px;align-items:center;font-size:13px}.fp-r input{width:auto;padding:6px 8px}
+.fn-mes .fp-dia{width:150px;border:0;padding:4px 6px;font-weight:600;text-align:center;background:transparent}
+/* ---------- gráfico do fluxo de caixa */
+:root{--fx-e:#2e9e5b;--fx-s:#d1495b;--fx-a:#0f5f95}
+@media (prefers-color-scheme:dark){:root{--fx-e:#4cc584;--fx-s:#ef7a8a;--fx-a:#6ea3ff}}
+.fx{width:100%;height:auto;display:block;margin-top:6px}
+.fx .g{stroke:var(--border);stroke-width:1}.fx .z{stroke:var(--muted);stroke-width:1.2}.fx .t{fill:var(--muted);font-size:12px;font-family:inherit}.fx .t.hj{fill:var(--accent);font-weight:700}
+.fx rect.e{fill:var(--fx-e)}.fx rect.s{fill:var(--fx-s)}.fx rect.pv{opacity:.45}
+.fx .hit{fill:transparent}.fx .fx-b:hover .hit{fill:var(--surface2)}
+.fx .ac{fill:none;stroke:var(--fx-a);stroke-width:2.5;stroke-linejoin:round}.fx .ac.dash{stroke-dasharray:6 5}
+.fx .acp{fill:var(--fx-a);stroke:var(--surface);stroke-width:2}.fx .acp.neg{fill:var(--bad)}
+.fx .hoje{stroke:var(--accent);stroke-dasharray:3 4}
+.fx-leg{display:flex;gap:18px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}.fx-leg span{display:flex;gap:6px;align-items:center}.fx-leg i{width:12px;height:12px;border-radius:3px;display:inline-block}
+.fx-leg i.ln{height:3px;width:18px;border-radius:2px;background:var(--fx-a)}.fx-leg i.ln.dash{background:repeating-linear-gradient(90deg,var(--fx-a) 0 5px,transparent 5px 9px)}
+.fx-wrap{overflow-x:auto}
