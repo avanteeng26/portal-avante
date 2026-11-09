@@ -424,3 +424,18 @@ table.imp-nf input[data-ret]:disabled{background:#f3f5f8;color:#9aa3ad}
 .mf-e.mf-ok{border-top-color:#1d7f46}.mf-e.mf-ok .mf-n{background:#1d7f46}.mf-e.mf-and{border-top-color:#d99a00}.mf-e.mf-and .mf-n{background:#d99a00}.mf-e.mf-bad{border-top-color:#c0392b}.mf-e.mf-bad .mf-n{background:#c0392b}
 @media(max-width:760px){.mf-farol{grid-template-columns:repeat(2,1fr)}}
 .st-mx td,.st-mx th{text-align:center;padding:5px 6px}.st-mx td:first-child,.st-mx th:first-child{text-align:left}.st-ok{background:var(--ok-soft);color:var(--ok);font-weight:700}.st-prog{background:var(--accent-soft);color:var(--accent)}.st-pend{background:var(--warn-soft);color:var(--warn)}.st-venc{background:var(--bad-soft);color:var(--bad)}.st-vence{outline:2px solid var(--warn);outline-offset:-2px}.st-na{color:var(--border)}
+/* visão executiva (painel da diretoria) */
+.dx{display:grid;gap:14px;margin-bottom:16px}.dx-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.dx-tile{cursor:pointer;padding:16px 18px;margin:0}.dx-tile:hover{border-color:var(--accent)}.dx-l{font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}.dx-v{font-size:28px;font-weight:700;margin:6px 0 8px;letter-spacing:-.01em}
+.dx-h{font-size:12.5px;font-weight:600;color:var(--muted)}.dx-h.ok{color:var(--ok)}.dx-h.warn{color:var(--warn)}.dx-h.bad{color:var(--bad)}
+.dx-row{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(0,1fr);gap:14px}.dx-box{margin:0;padding:16px 18px;min-width:0}
+.dx-bh{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:6px}.dx-lg{display:flex;gap:14px;font-size:12px;color:var(--muted)}.dx-lg i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.dx-dr{background:#2f7dd1}.dx-dp{background:#9cc3ea}.dx-svg{width:100%;height:auto;display:block;margin:4px 0}.dx-g{stroke:var(--border);stroke-width:1}.dx-z{stroke:var(--muted);stroke-width:1;stroke-dasharray:3 3}.dx-t{font-size:10px;fill:var(--muted)}
+.dx-p{fill:none;stroke:#9cc3ea;stroke-width:2}.dx-r{fill:none;stroke:#2f7dd1;stroke-width:2.6}.dx-c{fill:var(--surface);stroke:#2f7dd1;stroke-width:2}
+.dx-mv{cursor:pointer;color:var(--muted)}.dx-mv.on{color:var(--accent);font-weight:700}.dx-mv:hover{color:var(--accent)}
+.dx-pts{display:grid;gap:8px;margin-top:10px}.dx-pt{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:8px;background:var(--warn-soft);cursor:pointer;font-size:13px}.dx-pt i{flex:none;width:16px;height:16px;border-radius:50%;background:var(--warn);margin-top:1px}
+.dx-pt.bad{background:var(--bad-soft)}.dx-pt.bad i{background:var(--bad)}.dx-pt.info{background:var(--accent-soft)}.dx-pt.info i{background:var(--accent)}.dx-pt .small{color:var(--muted);margin-top:2px}
+.dx-t{font-size:13px}.dx-t th{font-size:11px;text-transform:uppercase;letter-spacing:.04em}.dx-warn{color:var(--warn)}.dx-bad{color:var(--bad)}.dx-sit{font-weight:600;white-space:nowrap}.dx-sit.ok{color:var(--ok)}.dx-sit.warn{color:var(--warn)}.dx-sit.bad{color:var(--bad)}
+.dx-sb{margin:12px 0}.dx-sl{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px}.dx-bar{height:8px;border-radius:5px;background:var(--surface2);overflow:hidden}.dx-bar div{height:100%;border-radius:5px}.dx-sb .small{margin-top:4px}
+@media(max-width:1000px){.dx-row{grid-template-columns:1fr}}
+.dx-sit.na{color:var(--muted);font-weight:500}

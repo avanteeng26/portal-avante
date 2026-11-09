@@ -1937,6 +1937,7 @@ PAGES.paineldir={async load(){const P=dirPer();const k=P.k;S.params.comp=k;const
   const t=[];if(perm('colab','ver'))t.push(PAGES.relatorios.load().then(x=>o.rh=x).catch(()=>{}));
   if(perm('logistica','ver'))t.push(PAGES.logpainel.load().then(x=>o.fr=x).catch(()=>{}));
   if(perm('sst','ver'))t.push(epiBase().then(x=>o.epi=x).catch(()=>{}));
+  t.push(dirExecLoad().then(x=>o.ex=x).catch(e=>{console.warn(e)}));
   await Promise.all(t);
   if(P.modo!=='mes'&&o.rh){const ate=P.fim<T0?P.fim:addD(T0,-1);
    if(o.rh.pt&&(P.fim-P.ini)/864e5<=400&&ate>=P.ini)o.rh.pt=await S.api.select('ponto',{gte:{data:dk(P.ini)},lte:{data:dk(ate)}}).catch(()=>o.rh.pt);else if(o.rh.pt)o.rh.pt=null;
@@ -1972,7 +1973,7 @@ PAGES.paineldir={async load(){const P=dirPer();const k=P.k;S.params.comp=k;const
   const ob=Object.entries(obras).map(([n,x])=>({n,folha:x.folha,frota:x.frota,fin:x.fin||0,tot:x.folha+x.frota+(x.fin||0)})).filter(x=>x.tot>0).sort((a,b)=>b.tot-a.tot);const totG=ob.reduce((s,x)=>s+x.tot,0);
   return `<h1>Painel da diretoria</h1><p class="sub">Resultados dos setores · ${PS.modo==='mes'?`pessoal pela competência ${compLabel(k)} (${perLabel(k)}); frota e financeiro pelo mês de ${P.lbl.toLowerCase()}`:`período: <b>${esc(PS.lbl)}</b>${PS.modo==='dia'?' (custo da folha só aparece nos filtros por mês, ano ou período)':''}`}.</p>
   <div class="toolbar">${dirPerHTML(PS)}<span class="sp"></span><button class="btn sm" data-act="dirPrint">Imprimir resumo</button></div>
-  <div class="card ${alert.length?'':'ok-card'}"><h3>Pontos de atenção (${alert.length})</h3>${alert.map(a=>`<div class="alert-item"><span>${pill(a[0]==='bad'?'Urgente':'Atenção',a[0])} ${esc(a[1])}</span><button class="btn sm" data-act="go" data-r="${a[2]}">Ver</button></div>`).join('')||'<p class="muted" style="margin:0">Nada urgente. Setores em dia.</p>'}</div>
+  ${dirExecHTML(d.ex,alert)||dirAlertCard(alert)}
   <div class="dir-g mt">${cards.join('')}</div>
   ${ob.length?`<div class="card mt"><h3>Custo por obra</h3><p class="small muted">Folha rateada pelas horas do ponto + frota (combustível, manutenção e locação) + demais despesas lançadas no financeiro com centro de custo (materiais, serviços…). Categorias de folha e frota do financeiro não são somadas de novo.</p>
    <div class="grid" style="grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:18px;align-items:start" id="dirObras"><div class="tablewrap"><table><thead><tr><th>Obra</th><th style="text-align:right">Folha</th><th style="text-align:right">Frota</th><th style="text-align:right">Outras despesas</th><th style="text-align:right">Total</th><th style="text-align:right">%</th></tr></thead><tbody>${ob.map(x=>`<tr><td>${esc(x.n)}</td><td style="text-align:right">${BRL(x.folha)}</td><td style="text-align:right">${BRL(x.frota)}</td><td style="text-align:right">${BRL(x.fin)}</td><td style="text-align:right"><b>${BRL(x.tot)}</b></td><td style="text-align:right">${pctF(x.tot/totG*100,0)}</td></tr>`).join('')}<tr style="font-weight:600"><td>Total</td><td style="text-align:right">${BRL(ob.reduce((s,x)=>s+x.folha,0))}</td><td style="text-align:right">${BRL(ob.reduce((s,x)=>s+x.frota,0))}</td><td style="text-align:right">${BRL(ob.reduce((s,x)=>s+x.fin,0))}</td><td style="text-align:right">${BRL(totG)}</td><td></td></tr></tbody></table></div><div>${hbars(ob.map(x=>({l:x.n,v:x.tot})),v=>BRL(v))}</div></div></div>`:''}
@@ -5683,4 +5684,94 @@ Object.assign(ACT,{
   try{docPrint(t.dataset.k==='c'?CERT_CSS+certHTML(tu,f):listaDoc(tu,[f]))}finally{SS.tr=sv}},
  trDocsOk:async t=>{const o=trDocsLer();try{await S.api.update('sst_treinamentos',{id:t.dataset.id},o);Object.assign(SS.tr.find(x=>x.id===t.dataset.id),o);closeModal();toast('Modelos do treinamento salvos.');reload()}catch(e){$('#err').textContent=/column|schema/i.test(e.message)?'Rode o ajuste 37 no Supabase.':e.message}}});
 function trDocsLer(){return {norma:$('#tdN').value.trim()||null,conteudo:$('#tdCo').value.trim()||null,cert:{modelo:$('#tdM').value,titulo:$('#tdT').value.trim(),frase:$('#tdF').value.trim(),colunas:+$('#tdC').value||1},lista:{titulo:$('#tdLT').value.trim(),texto:$('#tdLX').value.replace(/\s+$/,'')}}}
+// ================================================================ VISÃO EXECUTIVA (topo do Painel da diretoria)
+// Margem projetada por obra = (valor do contrato − custo projetado no término) ÷ contrato.
+// Custo projetado = custo lançado no financeiro ÷ % de avanço (a partir de 10% de avanço); antes disso, o custo direto do orçamento.
+const DX_META=()=>{const c=(S.ref.conf||{}).diretoria||{};return c.margem_meta!=null&&c.margem_meta!==''?+c.margem_meta:10};
+const dxBRL=v=>{const a=Math.abs(v),s=v<0?'-':'';if(a>=1e6)return s+'R$ '+N(a/1e6,2)+' mi';if(a>=1e3)return s+'R$ '+N(a/1e3,a>=1e5?0:1)+' mil';return s+'R$ '+N(a,0)};
+async function dirExecLoad(){const q=(t,o)=>S.api.select(t,o||{}).catch(()=>null);const x={};const T=[];
+ if(perm('financeiro','ver'))T.push(finBase().then(r=>x.fin=r).catch(()=>{}));
+ if(perm('engenharia','ver'))T.push(obBase().then(async r=>{x.ob=r;const ativas=dxObras();const ids=ativas.map(o=>(orcDaObra(o.id,r.orcs)||{}).id).filter(Boolean);
+  if(ids.length){const[it,ct]=await Promise.all([q('orc_itens',{cols:'orcamento_id,tipo,quantidade,custo_unit',in:{orcamento_id:ids}}),q('cron_tarefas',{cols:'id,orcamento_id,pai_id,peso,avanco,fim,base_fim',in:{orcamento_id:ids}})]);x.it=it||[];x.ct=ct||[]}}).catch(()=>{}));
+ if(perm('sst','ver'))T.push(sstBase().then(r=>x.ss=r).catch(()=>{}));
+ else if(perm('colab','ver'))T.push(q('funcionarios',{cols:'id,status,aso_vencimento,obra_referencia_id,funcao_id'}).then(r=>x.fs=r));
+ if(perm('qualidade','ver'))T.push(q('qual_ncs',{cols:'id,status,prazo,obra_id',in:{status:['Aberta','Em tratamento','Aguardando verificação']}}).then(r=>x.nc=r));
+ await Promise.all(T);return x}
+const dxObras=()=>obrasUser().filter(o=>o.nome!=='ESCRITÓRIO'&&o.ativa!==false&&!['Concluída','Cancelada'].includes(o.status));
+function dxObraCalc(x){const meta=DX_META();const L=(x.fin&&x.fin.L)||[];const custo={};
+ L.filter(l=>l.tipo==='P'&&!isTransf(l)&&!l._v&&pdk(l.competencia||l.vencimento)<=T0).forEach(l=>fnObras(l).forEach(o=>{if(o.obra)custo[o.obra]=(custo[o.obra]||0)+o.v}));
+ return dxObras().map(o=>{const orc=orcDaObra(o.id,(x.ob||{}).orcs);const val=+o.valor_contrato||0;
+  const meds=((x.ob||{}).meds||[]).filter(m=>m.obra_id===o.id);const medido=meds.filter(m=>['Aprovada','Faturada'].includes(m.status)).reduce((s,m)=>s+(+m.valor||0),0);
+  const it=orc?(x.it||[]).filter(i=>i.orcamento_id===orc.id&&i.tipo==='item'):[];const orcCusto=it.reduce((s,i)=>s+(+i.quantidade||0)*(+i.custo_unit||0),0);
+  const ct=orc?(x.ct||[]).filter(t=>t.orcamento_id===orc.id):[];const folhas=ct.filter(t=>!ct.some(c=>c.pai_id===t.id));let av=null;
+  if(folhas.length){const pw=folhas.reduce((s,t)=>s+(+t.peso||1),0);av=folhas.reduce((s,t)=>s+(+t.peso||1)*(+t.avanco||0),0)/pw}else if(val)av=Math.min(100,medido/val*100);
+  const atrT=folhas.filter(t=>t.fim&&pdk(t.fim)<T0&&(+t.avanco||0)<100).length;const vencida=o.data_prev_fim&&pdk(o.data_prev_fim)<T0;
+  const prazo=vencida?'Atrasada':atrT?'Atenção':'No prazo';
+  const cr=custo[o.id]||0;let eac=null;if(av!=null&&av>=10&&cr>0)eac=cr/(av/100);else if(orcCusto>0)eac=Math.max(orcCusto,cr);else if(cr>0&&av)eac=cr/(av/100);
+  const mg=val&&eac!=null?(val-eac)/val*100:null;
+  const sit=mg==null&&av==null&&prazo==='No prazo'?'Sem dados':(mg!=null&&mg<meta-5)||prazo==='Atrasada'?'Crítico':(mg!=null&&mg<meta)||prazo==='Atenção'?'Atenção':'Saudável';
+  return {o,val,medido,saldo:Math.max(0,val-medido),av,prazo,atrT,cr,eac,mg,sit,orc}})}
+function dxSemanas(d){const L=(d.L||[]).filter(l=>!l.data_pagamento&&!isTransf(l)&&!l._v);let s=fnSaldoAte(d,T0);const W=[];
+ for(let i=0;i<5;i++){const a=addD(T0,i*7),b=addD(T0,i*7+6);const ent=L.filter(l=>l.tipo==='R'&&(i===0?pdk(l.vencimento)<=b:pdk(l.vencimento)>=a&&pdk(l.vencimento)<=b)).reduce((t,l)=>t+(+l.valor),0);const sai=L.filter(l=>l.tipo==='P'&&(i===0?pdk(l.vencimento)<=b:pdk(l.vencimento)>=a&&pdk(l.vencimento)<=b)).reduce((t,l)=>t+(+l.valor),0);s+=ent-sai;W.push({a,b,ent,sai,saldo:s})}
+ return W}
+function dxSerie(d,modo){const y=T0.getFullYear();const L=(d.L||[]).filter(l=>!isTransf(l)&&!l._v);const ms=Array.from({length:12},(_,i)=>y+'-'+String(i+1).padStart(2,'0'));
+ const real=(tp,m)=>L.filter(l=>l.tipo===tp&&l.data_pagamento&&String(l.data_pagamento).slice(0,7)===m).reduce((s,l)=>s+fnVal(l),0);
+ const prev=(tp,m)=>L.filter(l=>l.tipo===tp&&String(l.vencimento).slice(0,7)===m).reduce((s,l)=>s+(+l.valor),0);
+ const mAt=dk(T0).slice(0,7);let R=[],P=[];
+ if(modo==='custos'){R=ms.map(m=>m<=mAt?real('P',m):null);P=ms.map(m=>prev('P',m))}
+ else if(modo==='margem'){R=ms.map(m=>m<=mAt?real('R',m)-real('P',m):null);P=ms.map(m=>prev('R',m)-prev('P',m))}
+ else if(modo==='fluxo'){let a=fnSaldoAte(d,new Date(y,0,0)),b=a;R=ms.map(m=>{if(m>mAt)return null;a+=real('R',m)-real('P',m);return a});P=ms.map(m=>{b+=prev('R',m)-prev('P',m);return b})}
+ else{R=ms.map(m=>m<=mAt?real('R',m):null);P=ms.map(m=>prev('R',m))}
+ if(modo!=='fluxo'){const i=ms.indexOf(mAt);if(i>=0&&!R[i])R[i]=null}
+ return {ms,R,P}}
+function dxChart(S_){const W=860,H=290,pl=44,pr=14,pt=14,pb=26;const all=S_.R.concat(S_.P).filter(v=>v!=null);let mx=Math.max(1,...all),mn=Math.min(0,...all);const step=(()=>{const r=(mx-mn)/4;const p=Math.pow(10,Math.floor(Math.log10(r||1)));return [1,2,2.5,5,10].map(k=>k*p).find(k=>k>=r)||r})();mx=Math.ceil(mx/step)*step;mn=Math.floor(mn/step)*step;
+ const X=i=>pl+i*(W-pl-pr)/11,Y=v=>pt+(mx-v)/(mx-mn||1)*(H-pt-pb);const grid=[];for(let v=mn;v<=mx+1e-6;v+=step)grid.push(`<line x1="${pl}" x2="${W-pr}" y1="${Y(v)}" y2="${Y(v)}" class="dx-g"/><text x="${pl-6}" y="${Y(v)+3}" text-anchor="end" class="dx-t">${N(v/1000,0)}</text>`);
+ const path=(A)=>A.map((v,i)=>v==null?null:[X(i),Y(v)]).filter(Boolean).map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+ const MS=['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
+ return `<svg viewBox="0 0 ${W} ${H}" class="dx-svg" role="img">${grid.join('')}${mn<0?`<line x1="${pl}" x2="${W-pr}" y1="${Y(0)}" y2="${Y(0)}" class="dx-z"/>`:''}
+  <path d="${path(S_.P)}" class="dx-p"/><path d="${path(S_.R)}" class="dx-r"/>${S_.R.map((v,i)=>v==null?'':`<circle cx="${X(i)}" cy="${Y(v)}" r="3.6" class="dx-c"><title>${MS[i]}: realizado ${BRL(v)} · previsto ${BRL(S_.P[i])}</title></circle>`).join('')}
+  ${MS.map((m,i)=>`<text x="${X(i)}" y="${H-8}" text-anchor="middle" class="dx-t">${m}</text>`).join('')}</svg>`}
+function dirExecHTML(x,alertas){if(!x)return '';const meta=DX_META();const y=T0.getFullYear();const tiles=[],pts=[];let ob=[];
+ if(x.ob)ob=dxObraCalc(x);
+ if(x.fin){const d=x.fin;const L=(d.L||[]).filter(l=>!isTransf(l)&&!l._v&&l.tipo==='R'&&l.data_pagamento);const ano=L.filter(l=>pdk(l.data_pagamento).getFullYear()===y).reduce((s,l)=>s+fnVal(l),0);
+  const lim=new Date(y-1,T0.getMonth(),T0.getDate());const ant=L.filter(l=>{const p=pdk(l.data_pagamento);return p.getFullYear()===y-1&&p<=lim}).reduce((s,l)=>s+fnVal(l),0);const vr=ant?(ano-ant)/ant*100:null;
+  tiles.push(['Receita no ano',dxBRL(ano),vr==null?'sem base no ano anterior':`${vr>=0?'↑':'↓'} ${N(Math.abs(vr),1)}% vs. mesmo período de ${y-1}`,vr==null?'':vr>=0?'ok':'bad','receber']);
+  const X_=finResumo(d);const Wk=dxSemanas(d);const neg=Wk.filter(w=>w.saldo<0).length,ap=Wk.filter(w=>w.sai>w.ent).length;
+  tiles.push(['Caixa projetado · 30 dias',dxBRL(X_.prev30),neg?`● ${neg} semana(s) com saldo negativo`:ap?`● Atenção: ${ap} semana(s) com saídas maiores que entradas`:'● Entradas cobrem as saídas',neg?'bad':ap?'warn':'ok','fluxo']);
+  const ab=(d.L||[]).filter(l=>!l.data_pagamento&&!isTransf(l));const rv=ab.filter(l=>l.tipo==='R'&&pdk(l.vencimento)<T0);if(rv.length)pts.push(['bad',`${rv.length} recebimento(s) vencido(s)`,`${BRL(rv.reduce((s,l)=>s+(+l.valor),0))} em aberto`,'receber']);
+  if(neg)pts.push(['bad',`Caixa negativo em ${neg} semana(s) nos próximos 30 dias`,Wk.filter(w=>w.saldo<0).map(w=>'semana de '+fD(w.a)+': '+BRL(w.saldo)).slice(0,2).join(' · '),'fluxo'])}
+ if(x.ob){const val=ob.reduce((s,r)=>s+r.saldo,0);const exe=ob.filter(r=>r.o.status==='Em andamento'||(r.av!=null&&r.av>0)).length;
+  tiles.push(['Carteira contratada',dxBRL(val),`${exe} obra(s) em execução · ${ob.length} ativa(s)`,'','obras']);
+  const cm=ob.filter(r=>r.mg!=null&&r.val);const tv=cm.reduce((s,r)=>s+r.val,0);const mg=tv?cm.reduce((s,r)=>s+r.mg*r.val,0)/tv:null;const abx=cm.filter(r=>r.mg<meta);
+  tiles.push(['Margem projetada',mg==null?'—':N(mg,1)+'%',mg==null?'cadastre valor do contrato e orçamento das obras':`Meta: ${N(meta,0)}%${abx.length?' · '+abx.length+' obra(s) abaixo':' · todas na meta'}`,mg==null?'':mg<meta||abx.length?'warn':'ok','obras']);
+  if(abx.length)pts.push(['warn',`${abx.length} obra(s) abaixo da margem-meta (${N(meta,0)}%)`,abx.slice(0,3).map(r=>r.o.nome+' '+N(r.mg,1)+'%').join(' · '),'obras']);
+  const atr=ob.filter(r=>r.prazo!=='No prazo');if(atr.length)pts.push([atr.some(r=>r.prazo==='Atrasada')?'bad':'warn',`${atr.length} obra(s) com prazo em risco`,atr.slice(0,3).map(r=>r.o.nome+' · '+(r.prazo==='Atrasada'?'prazo vencido':r.atrT+' tarefa(s) atrasada(s)')).join(' · '),'obras']);
+  const env=((x.ob.meds)||[]).filter(m=>m.status==='Enviada ao cliente');if(env.length){const old=Math.max(...env.map(m=>Math.round((T0-pdk(m.data))/864e5)));pts.push(['info',`${env.length} medição(ões) aguardando aprovação do cliente`,`${BRL(env.reduce((s,m)=>s+(+m.valor||0),0))} · mais antiga há ${old} dia(s)`,'medicoes'])}}
+ // pessoas, documentos, treinamentos
+ const fs=((x.ss&&x.ss.fs)||x.fs||[]).filter(f=>f.status!=='Desligado');const sau=[];
+ if(fs.length){const em15=addD(T0,15);const aso=fs.filter(f=>f.aso_vencimento&&pdk(f.aso_vencimento)>=T0&&pdk(f.aso_vencimento)<=em15).length;const asoV=fs.filter(f=>f.aso_vencimento&&pdk(f.aso_vencimento)<T0).length;let cv=0,req=0,ok=0;
+  if(x.ss){const vist={};(x.ss.pa||[]).forEach(p=>{if(!p.aprovado||!p.validade)return;const t=(x.ss.tu||[]).find(u=>u.id===p.turma_id);if(!t)return;const k=p.funcionario_id+'|'+t.treinamento_id;if(!vist[k]||p.validade>vist[k])vist[k]=p.validade});
+   Object.entries(vist).forEach(([k,v])=>{if(fs.some(f=>f.id===k.split('|')[0])&&pdk(v)>=T0&&pdk(v)<=em15)cv++});
+   fs.forEach(f=>sstReq(f.funcao_id).forEach(t=>{req++;if(sstSit(f.id,t.id).st==='ok')ok++}))}
+  if(aso+cv)pts.push(['warn',`${aso+cv} documento(s) vencem em 15 dias`,[aso?aso+' ASO(s)':'',cv?cv+' certificado(s) de treinamento':''].filter(Boolean).join(' · '),x.ss?'sstturmas':'colab']);
+  if(asoV)pts.push(['bad',`${asoV} funcionário(s) com ASO vencido`,'regularize antes de mobilizar','colab']);
+  const aloc=fs.filter(f=>f.obra_referencia_id&&obraNome(f.obra_referencia_id)!=='ESCRITÓRIO').length;
+  sau.push(['Efetivo ativo',`${fs.length} pessoas`,fs.length?aloc/fs.length*100:0,'var(--c1)',`${aloc} alocada(s) em obra`]);
+  const asoOk=fs.filter(f=>f.aso_vencimento&&pdk(f.aso_vencimento)>=T0).length;sau.push(['ASO em dia',N(asoOk/fs.length*100,0)+'%',asoOk/fs.length*100,'var(--ok)',`${fs.length-asoOk} sem ASO válido`]);
+  if(x.ss&&req)sau.push(['Treinamentos em dia',N(ok/req*100,0)+'%',ok/req*100,'#d9a03f',`${req-ok} pendência(s) na matriz de treinamentos`])}
+ if(x.nc){const venc=x.nc.filter(n=>n.prazo&&pdk(n.prazo)<T0);sau.push(['Ações corretivas vencidas (Qualidade)',String(venc.length),x.nc.length?venc.length/x.nc.length*100:0,'var(--bad)',`${x.nc.length} não conformidade(s) em aberto`,venc.length?'bad':'']);if(venc.length)pts.push(['warn',`${venc.length} ação(ões) corretiva(s) atrasada(s)`,'Qualidade · ver responsáveis','qualnc'])}
+ (alertas||[]).forEach(a=>pts.push([a[0]==='bad'?'bad':'warn',a[1],'',a[2]]));
+ if(!tiles.length&&!pts.length&&!sau.length)return '';
+ const modo=S.params.dxv||'receita';const MOD=[['receita','receita'],['custos','custos'],['margem','margem'],['fluxo','fluxo de caixa']];const SUB={receita:'Receita mensal · previsto x realizado',custos:'Custos e despesas por mês · previsto x realizado',margem:'Receita menos custos por mês · previsto x realizado',fluxo:'Saldo de caixa acumulado no ano · previsto x realizado'};
+ const ordem={bad:0,warn:1,info:2};pts.sort((a,b)=>ordem[a[0]]-ordem[b[0]]);
+ const top=ob.slice().sort((a,b)=>(({Crítico:0,Atenção:1,Saudável:2,'Sem dados':3})[a.sit]-({Crítico:0,Atenção:1,Saudável:2,'Sem dados':3})[b.sit])||b.val-a.val).slice(0,6);
+ const sitC={Crítico:'bad',Atenção:'warn',Saudável:'ok','Sem dados':'na'};
+ return `<div class="dx">${tiles.length?`<div class="dx-tiles">${tiles.map(([l,v,h,st,r])=>`<div class="card dx-tile" data-act="go" data-r="${r}"><div class="dx-l">${l}</div><div class="dx-v">${v}</div><div class="dx-h ${st}">${h}</div></div>`).join('')}</div>`:''}
+ <div class="dx-row">${x.fin?`<div class="card dx-box"><div class="dx-bh"><div><b>Desempenho financeiro</b><div class="small muted">${SUB[modo]} (R$ mil) · ${y}</div></div><div class="dx-lg"><span><i class="dx-dr"></i>Realizado</span><span><i class="dx-dp"></i>Previsto</span></div></div>${dxChart(dxSerie(x.fin,modo))}<div class="small muted">Visualizar: ${MOD.map(([v,l])=>`<a class="dx-mv ${v===modo?'on':''}" data-act="dxv" data-v="${v}">${l}</a>`).join(' · ')}</div></div>`:''}
+  <div class="card dx-box"><b>Pontos que exigem atenção</b>${pts.length?`<div class="dx-pts">${pts.slice(0,7).map(([st,t,h,r])=>`<div class="dx-pt ${st}" ${r?`data-act="go" data-r="${r}"`:''}><i></i><div><b>${esc(t)}</b>${h?`<div class="small">${esc(h)}</div>`:''}</div></div>`).join('')}${pts.length>7?`<div class="small muted">+ ${pts.length-7} ponto(s)</div>`:''}</div>`:'<p class="muted small">Nada pendente. Tudo em dia.</p>'}</div></div>
+ <div class="dx-row">${x.ob?`<div class="card dx-box"><div class="dx-bh"><div><b>Obras e contratos em destaque</b><div class="small muted">Avanço, prazo e margem projetada (meta ${N(meta,0)}%)</div></div><a class="lp-link small" data-act="go" data-r="obras">Ver todas →</a></div>
+  <div class="tablewrap"><table class="dx-t"><thead><tr><th>Obra / contrato</th><th class="num">Avanço</th><th>Prazo</th><th class="num">Margem</th><th>Situação</th></tr></thead><tbody>${top.map(r=>`<tr class="click" data-act="go" data-r="obradet" data-id="${r.o.id}"><td><b>${esc((r.o.codigo?r.o.codigo+' · ':'')+r.o.nome)}</b>${obCli(r.o.cliente_id)?`<div class="small muted">${esc(obCli(r.o.cliente_id))}</div>`:''}</td><td class="num">${r.av==null?'—':N(r.av,0)+'%'}</td><td class="${r.prazo==='No prazo'?'':r.prazo==='Atrasada'?'dx-bad':'dx-warn'}">${r.prazo}</td><td class="num ${r.mg==null?'':r.mg<meta-5?'dx-bad':r.mg<meta?'dx-warn':''}" title="${r.mg==null?'Sem valor de contrato, orçamento ou custo lançado':'Contrato '+BRL(r.val)+' · custo projetado '+BRL(r.eac)+' · custo lançado '+BRL(r.cr)}">${r.mg==null?'—':N(r.mg,1)+'%'}</td><td><span class="dx-sit ${sitC[r.sit]}">● ${r.sit}</span></td></tr>`).join('')||'<tr><td colspan="5" class="muted">Nenhuma obra ativa.</td></tr>'}</tbody></table></div></div>`:''}
+  ${sau.length?`<div class="card dx-box"><b>Saúde da operação</b><div class="small muted" style="margin-bottom:10px">Indicadores que pedem acompanhamento</div>${sau.map(([l,v,p,c,h,st])=>`<div class="dx-sb"><div class="dx-sl"><span>${l}</span><b class="${st==='bad'?'dx-bad':''}">${v}</b></div><div class="dx-bar"><div style="width:${Math.max(0,Math.min(100,p)).toFixed(1)}%;background:${c}"></div></div>${h?`<div class="small muted">${esc(h)}</div>`:''}</div>`).join('')}</div>`:''}</div></div>`}
+ACT.dxv=t=>{S.params.dxv=t.dataset.v;render()};
+function dirAlertCard(alert){return `<div class="card ${alert.length?'':'ok-card'}"><h3>Pontos de atenção (${alert.length})</h3>${alert.map(a=>`<div class="alert-item"><span>${pill(a[0]==='bad'?'Urgente':'Atenção',a[0])} ${esc(a[1])}</span><button class="btn sm" data-act="go" data-r="${a[2]}">Ver</button></div>`).join('')||'<p class="muted" style="margin:0">Nada urgente. Setores em dia.</p>'}</div>`}
 iniciar();
