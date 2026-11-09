@@ -853,7 +853,7 @@ PAGES.relatorios={async load(){const k=S.params.comp||LAST;S.params.comp=k;const
   ${!I.pt?`<div class="note mt">Seu perfil não tem acesso à folha de ponto; absenteísmo, horas extras e horas por obra não aparecem.</div>`:''}
   ${I.pt&&ob?`<div class="note mt">Filtro de obra aplicado às horas, efetivo e horas extras. Turnover, absenteísmo e cadastro consideram toda a empresa.</div>`:''}`}};
 
-function rhInd(d){const k=d.k,p=periodo(k);const ob=S.params.robra||'';const ate=p.fim<T0?p.fim:addD(T0,-1);const fs=d.fs||[];
+function rhInd(d){const k=d.k,p=d.per||periodo(k);const ob=S.params.robra||'';const ate=p.fim<T0?p.fim:addD(T0,-1);const fs=d.fs||[];
  const ativo=(f,dt)=>f.data_admissao&&pdk(f.data_admissao)<=dt&&(!f.data_desligamento||pdk(f.data_desligamento)>=dt);
  const noPer=(x,q)=>x&&pdk(x)>=q.ini&&pdk(x)<=q.fim;
  const fimRef=p.fim<T0?p.fim:T0;const at=fs.filter(f=>ativo(f,fimRef));const I={ativos:at.length};
@@ -1920,19 +1920,24 @@ Object.assign(ACT,{epFicha:()=>{const {f,ent}=D();evento('Imprimiu ficha de EPI'
  PAGES.inicio.html=function(){const h=H0.call(this);const o=D();if(!o.epi)return h;const fal=o.epi.fs.filter(f=>epiSit(f,o.epi).falta.length);const tr=o.epi.fs.filter(f=>epiSit(f,o.epi).troca.length);if(!fal.length&&!tr.length)return h;
   return h+`<div class="card mt"><h3>EPI</h3>${fal.length?`<div class="alert-item"><span>${pill('Atenção','warn')} ${fal.length} funcionário(s) aguardando entrega do kit de EPI${fal.length<=3?': '+fal.map(f=>esc(f.nome)).join(', '):''}</span><button class="btn sm" data-act="go" data-r="epi">Abrir</button></div>`:''}${tr.length?`<div class="alert-item"><span>${pill('Atenção','warn')} ${tr.length} funcionário(s) com troca de EPI vencida</span><button class="btn sm" data-act="go" data-r="epi">Abrir</button></div>`:''}</div>`}})();
 // ================================================================ PAINEL DA DIRETORIA
-PAGES.paineldir={async load(){const k=S.params.comp||LAST;S.params.comp=k;const o={k};
+PAGES.paineldir={async load(){const P=dirPer();const k=P.k;S.params.comp=k;const o={k,P};
   const t=[];if(perm('colab','ver'))t.push(PAGES.relatorios.load().then(x=>o.rh=x).catch(()=>{}));
   if(perm('logistica','ver'))t.push(PAGES.logpainel.load().then(x=>o.fr=x).catch(()=>{}));
   if(perm('sst','ver'))t.push(epiBase().then(x=>o.epi=x).catch(()=>{}));
-  await Promise.all(t);return o},
- html(){const d=D();const k=d.k;const P=perLog(k);const alert=[];const cards=[];const obras={};const addO=(id,campo,v)=>{if(!v)return;const n=obraNome(id)||'Sem obra';obras[n]=obras[n]||{folha:0,frota:0,fin:0};obras[n][campo]+=v};
+  await Promise.all(t);
+  if(P.modo!=='mes'&&o.rh){const ate=P.fim<T0?P.fim:addD(T0,-1);
+   if(o.rh.pt&&(P.fim-P.ini)/864e5<=400&&ate>=P.ini)o.rh.pt=await S.api.select('ponto',{gte:{data:dk(P.ini)},lte:{data:dk(ate)}}).catch(()=>o.rh.pt);else if(o.rh.pt)o.rh.pt=null;
+   o.rh.rd=null;if(P.modo!=='dia'&&perm('rateio','ver')&&perm('salarios','ver')){const ks=[];let kk=compOf(P.ini);while(kk<=P.k){const q=periodo(kk);if(q.ini>=P.ini&&q.fim<=P.fim)ks.push(kk);kk=kAdd(kk,1)}
+    if(ks.length){const rf=await S.api.select('rateio_fechamento',{in:{competencia_id:ks}}).catch(()=>null);if(rf&&rf.length){const po={};rf.forEach(s=>{const r=po[s.obra_id]=po[s.obra_id]||{obra:s.obra_id,total:0,he:0};r.total+=+s.total||0;r.he+=+s.horas_extras||0});const L=Object.values(po);o.rfx={fech:true,porObra:L,total:L.reduce((s,x)=>s+x.total,0),he:L.reduce((s,x)=>s+x.he,0),n:new Set(rf.map(s=>s.competencia_id)).size}}}}}
+  return o},
+ html(){const d=D();const k=d.k;const PS=d.P||dirPer();const P=PS.modo==='mes'?perLog(k):{ini:PS.ini,fim:PS.fim,lbl:PS.lbl};const PP=PS.modo==='mes'?periodo(k):PS;const perX=PS.modo==='mes'?null:PS;const alert=[];const cards=[];const obras={};const addO=(id,campo,v)=>{if(!v)return;const n=obraNome(id)||'Sem obra';obras[n]=obras[n]||{folha:0,frota:0,fin:0};obras[n][campo]+=v};
   const mini=(l,v,h,st)=>`<div class="mini ${st||''}"><div class="l">${l}</div><div class="v">${v}</div>${h?`<div class="h">${h}</div>`:''}</div>`;
   const card=(id,t,ic,body)=>`<div class="card dir-card"><div class="dir-h"><span>${ico(ic,20)}<b>${t}</b></span>${id?`<a class="lp-link small" data-act="sec" data-s="${id}">Abrir setor ›</a>`:''}</div><div class="dir-m">${body}</div></div>`;
   let evoEf=null,evoComb=null;
-  if(d.rh){const rd=Object.assign({},d.rh,{k});const I=rhInd(rd);evoEf=I.evo;
+  if(d.rh){const rd=Object.assign({},d.rh,{k,per:perX});const I=rhInd(rd);if(perX)I.custo=d.rfx||null;evoEf=I.evo;
    const ferV=(d.rh.fe&&rd.fs)?rd.fs.filter(f=>f.status!=='Desligado').filter(f=>periodosFerias(f,d.rh.fe).some(p=>p.completo&&p.saldo>0&&p.conc<T0)):[];
    const atr=(d.rh.dl||[]).filter(x=>deslAtivo(x)&&x.prazo_pagamento&&!x.data_pagamento&&pdk(x.prazo_pagamento)<T0);
-   cards.push(card('rh','Recursos Humanos','rh',mini('Efetivo ativo',N(I.ativos),`${I.adm} admissão(ões) · ${I.desl} desligamento(s)`)+mini('Turnover',pctF(I.turn),'no período',I.turn>5?'warn':'')+(I.pt?mini('Absenteísmo',pctF(I.abs),'faltas, atestados e atrasos',I.abs>4?'bad':I.abs>2?'warn':'ok')+mini('Horas extras',hrs(I.he50+I.he100),'50%: '+hrs(I.he50)+' · 100%: '+hrs(I.he100)):'')+(I.custo?mini('Custo da folha',BRL(I.custo.total),I.custo.fech?'competência fechada':'cálculo prévio'):'')+(I.admA!=null?mini('Admissões em andamento',N(I.admA),I.tMedio!=null?'média de '+I.tMedio+' dias até admitir':''):'')));
+   cards.push(card('rh','Recursos Humanos','rh',mini('Efetivo ativo',N(I.ativos),`${I.adm} admissão(ões) · ${I.desl} desligamento(s)`)+mini('Turnover',pctF(I.turn),'no período',I.turn>5?'warn':'')+(I.pt?mini('Absenteísmo',pctF(I.abs),'faltas, atestados e atrasos',I.abs>4?'bad':I.abs>2?'warn':'ok')+mini('Horas extras',hrs(I.he50+I.he100),'50%: '+hrs(I.he50)+' · 100%: '+hrs(I.he100)):'')+(I.custo?mini('Custo da folha',BRL(I.custo.total),perX?I.custo.n+' competência(s) fechada(s) no período':I.custo.fech?'competência fechada':'cálculo prévio'):'')+(I.admA!=null?mini('Admissões em andamento',N(I.admA),I.tMedio!=null?'média de '+I.tMedio+' dias até admitir':''):'')));
    if(I.custo)I.custo.porObra.forEach(o=>addO(o.obra,'folha',o.total));
    if(atr.length)alert.push(['bad',`${atr.length} rescisão(ões) com pagamento fora do prazo legal`,'deslig']);
    if(ferV.length)alert.push(['bad',`${ferV.length} funcionário(s) com férias vencidas (pagamento em dobro)`,'ferias']);
@@ -1940,8 +1945,8 @@ PAGES.paineldir={async load(){const k=S.params.comp||LAST;S.params.comp=k;const 
    const exp=expVencendo(rd.fs||[],10);if(exp.length)alert.push(['warn',`${exp.length} contrato(s) de experiência vencendo em até 10 dias`,'relatorios']);
    if(I.docP)alert.push(['warn',`${I.docP} funcionário(s) com documentação pendente`,'colab'])}
   if(d.epi||d.rh){const ep=d.epi?d.epi.fs.map(f=>epiSit(f,d.epi)):[];const kit=ep.filter(s=>!s.semKit);const okK=kit.filter(s=>s.ok).length;const pend=ep.filter(s=>s.falta.length).length;
-   const acRh=d.rh&&d.rh.at?d.rh.at.filter(a=>(a.acidente_trabalho||a.tipo==='Acidente de trabalho')&&a.situacao!=='Recusado'&&dentro(a.data_inicio,periodo(k))).length:null;const acFr=d.fr?(d.fr.oc||[]).filter(o=>o.tipo==='Acidente'&&dentro(o.data,P)).length:null;
-   const I=d.rh?rhInd(Object.assign({},d.rh,{k})):null;
+   const acRh=d.rh&&d.rh.at?d.rh.at.filter(a=>(a.acidente_trabalho||a.tipo==='Acidente de trabalho')&&a.situacao!=='Recusado'&&dentro(a.data_inicio,PP)).length:null;const acFr=d.fr?(d.fr.oc||[]).filter(o=>o.tipo==='Acidente'&&dentro(o.data,P)).length:null;
+   const I=d.rh?rhInd(Object.assign({},d.rh,{k,per:perX})):null;
    cards.push(card('sst','Saúde e Segurança','sst',(d.epi?mini('EPI em dia',kit.length?pctF(okK/kit.length*100,0):'—',`${okK} de ${kit.length} com kit completo e assinado`,kit.length&&okK<kit.length?'warn':'ok')+mini('Aguardando EPI',N(pend),'funcionários sem o kit completo',pend?'bad':'ok'):'')+(I?mini('ASO vencido',N(I.asoV),I.aso30+' vencem em 30 dias',I.asoV?'bad':'ok'):'')+(acRh!=null||acFr!=null?mini('Acidentes',N((acRh||0)+(acFr||0)),'de trabalho e de trânsito no período',(acRh||0)+(acFr||0)?'bad':'ok'):'')));
    if(pend)alert.push(['warn',`${pend} funcionário(s) aguardando entrega de EPI`,'epi'])}
   if(d.fr&&(d.fr.vs||[]).length){LG.vs=d.fr.vs;LG.fs=d.fr.fs;LG.ms=d.fr.ms;const R=frotaCalc(d.fr,P);const disp=R.ativos.length&&R.diasP>0?(1-R.parado/(R.ativos.length*R.diasP))*100:null;
@@ -1952,8 +1957,8 @@ PAGES.paineldir={async load(){const k=S.params.comp||LAST;S.params.comp=k;const 
   if(d.fin){FN.cat=d.fin.cat;(d.fin.L||[]).filter(l=>l.tipo==='P'&&dentro(l.competencia||l.vencimento,P)&&!fnCat(l.categoria_id).ja_apurado&&!isTransf(l)).forEach(l=>fnObras(l).forEach(o=>addO(o.obra,'fin',o.v)))}
   cards.push(card(null,'Engenharia e Suprimentos','eng',`<p class="small muted" style="margin:0">Os resultados desses setores entram neste painel quando os módulos forem implantados.</p>`));
   const ob=Object.entries(obras).map(([n,x])=>({n,folha:x.folha,frota:x.frota,fin:x.fin||0,tot:x.folha+x.frota+(x.fin||0)})).filter(x=>x.tot>0).sort((a,b)=>b.tot-a.tot);const totG=ob.reduce((s,x)=>s+x.tot,0);
-  return `<h1>Painel da diretoria</h1><p class="sub">Resultados dos setores. Pessoal pela competência ${compLabel(k)} (${perLabel(k)}); frota pelo mês de ${P.lbl.toLowerCase()}.</p>
-  <div class="toolbar"><select data-dir="comp">${[-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0].map(i=>kAdd(CUR,i)).reverse().map(x=>`<option value="${x}" ${x===k?'selected':''}>${compLabel(x)}${x===CUR?' · em apuração':''}</option>`).join('')}</select><span class="sp"></span><button class="btn sm" data-act="dirPrint">Imprimir resumo</button></div>
+  return `<h1>Painel da diretoria</h1><p class="sub">Resultados dos setores · ${PS.modo==='mes'?`pessoal pela competência ${compLabel(k)} (${perLabel(k)}); frota e financeiro pelo mês de ${P.lbl.toLowerCase()}`:`período: <b>${esc(PS.lbl)}</b>${PS.modo==='dia'?' (custo da folha só aparece nos filtros por mês, ano ou período)':''}`}.</p>
+  <div class="toolbar">${dirPerHTML(PS)}<span class="sp"></span><button class="btn sm" data-act="dirPrint">Imprimir resumo</button></div>
   <div class="card ${alert.length?'':'ok-card'}"><h3>Pontos de atenção (${alert.length})</h3>${alert.map(a=>`<div class="alert-item"><span>${pill(a[0]==='bad'?'Urgente':'Atenção',a[0])} ${esc(a[1])}</span><button class="btn sm" data-act="go" data-r="${a[2]}">Ver</button></div>`).join('')||'<p class="muted" style="margin:0">Nada urgente. Setores em dia.</p>'}</div>
   <div class="dir-g mt">${cards.join('')}</div>
   ${ob.length?`<div class="card mt"><h3>Custo por obra</h3><p class="small muted">Folha rateada pelas horas do ponto + frota (combustível, manutenção e locação) + demais despesas lançadas no financeiro com centro de custo (materiais, serviços…). Categorias de folha e frota do financeiro não são somadas de novo.</p>
@@ -1962,6 +1967,22 @@ PAGES.paineldir={async load(){const k=S.params.comp||LAST;S.params.comp=k;const 
 FIELD.push(ev=>{const t=ev.target;if(!t.dataset||!t.dataset.dir)return false;if(ev.type==='change'){S.params.comp=t.value;reload()}return true});
 ACT.dirPrint=()=>{const c=document.querySelector('#content').cloneNode(true);c.querySelectorAll('.toolbar,button,.btn').forEach(x=>x.remove());evento('Imprimiu painel da diretoria',compLabel(D().k));
  docPrint(`<style>@page{size:A4 landscape;margin:10mm}#printArea{font-family:Inter,Arial,sans-serif;font-size:9.5pt;color:#111}#printArea .card{border:1px solid #ccd;border-radius:6px;padding:8pt;margin-bottom:6pt;break-inside:avoid}#printArea .dir-g{display:grid;grid-template-columns:repeat(3,1fr);gap:6pt}#printArea .rel-g{display:grid;grid-template-columns:1fr 1fr;gap:6pt}#printArea .dir-m{display:grid;grid-template-columns:1fr 1fr;gap:4pt}#printArea .mini .l{font-size:7.5pt;color:#555}#printArea .mini .v{font-size:12pt;font-weight:700}#printArea .mini .h{font-size:7pt;color:#666}#printArea .dir-h{display:flex;justify-content:space-between;margin-bottom:4pt}#printArea .dir-h svg{display:none}#printArea .pill{font-size:7pt;padding:1px 5px;border-radius:9px;background:#eee}#printArea .alert-item{display:flex;justify-content:space-between;padding:2pt 0;border-bottom:1px solid #eee}#printArea table{width:100%;border-collapse:collapse}#printArea td,#printArea th{padding:2pt 4pt;border-bottom:1px solid #eee;font-size:8.5pt}#printArea h1{font-size:15pt;margin:0}#printArea h3{font-size:10pt;margin:0 0 3pt}#printArea .hb{display:grid;grid-template-columns:38% 1fr auto;gap:6pt;align-items:center;font-size:8pt}#printArea .hb-t{height:8pt}#printArea .hb-f{height:100%;background:#0f5f95!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}#printArea .vc{display:flex;align-items:flex-end;gap:4pt;height:90pt}#printArea .vc-c{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}#printArea .vc-b{width:70%;background:#0f5f95!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}#printArea .vc-l,#printArea .vc-v{font-size:6.5pt}#printArea .lp-link{display:none}</style><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6pt"><img src="logo.png" style="height:30pt"><span style="font-size:8pt;color:#555">Emitido em ${fDT(new Date().toISOString())}</span></div>`+c.innerHTML)};
+
+// ---------- filtro de período do painel da diretoria (dia, mês, ano, personalizado)
+function dirPer(){const f=S.dper||(S.dper={modo:'mes',ref:LAST+'-01'});const r=pdk(f.ref||dk(T0));const y=r.getFullYear(),m=r.getMonth();let o;
+ if(f.modo==='dia')o={modo:'dia',ini:r,fim:r,lbl:fD(r)+' · '+DOW[r.getDay()]};
+ else if(f.modo==='ano')o={modo:'ano',ini:new Date(y,0,1),fim:new Date(y,11,31),lbl:'Ano de '+y};
+ else if(f.modo==='per'){let a=pdk(f.ini||dk(T0)),b=pdk(f.fim||dk(T0));if(b<a)[a,b]=[b,a];o={modo:'per',ini:a,fim:b,lbl:fD(a)+' a '+fD(b)}}
+ else{const k=y+'-'+String(m+1).padStart(2,'0');return {modo:'mes',ini:new Date(y,m,1),fim:new Date(y,m+1,0),lbl:compLabel(k),k}}
+ const fimRef=o.fim>T0?T0:o.fim;o.k=compOf(fimRef);return o}
+function dirPerHTML(P){const md=[['dia','Dia'],['mes','Mês'],['ano','Ano'],['per','Período']];
+ return `<div class="fp"><div class="fp-m">${md.map(([v,l])=>`<button class="${P.modo===v?'on':''}" data-act="dpModo" data-m="${v}">${l}</button>`).join('')}</div>
+ ${P.modo==='per'?`<div class="fp-r"><input type="date" data-dp="ini" value="${dk(P.ini)}"><span>até</span><input type="date" data-dp="fim" value="${dk(P.fim)}"></div>`
+  :`<div class="fn-mes"><button class="btn sm" data-act="dpNav" data-n="-1" aria-label="Anterior">‹</button>${P.modo==='dia'?`<input type="date" data-dp="ref" value="${dk(P.ini)}" class="fp-dia">`:`<span>${esc(P.modo==='mes'?'Competência '+P.lbl:P.lbl)}</span>`}<button class="btn sm" data-act="dpNav" data-n="1" aria-label="Próximo">›</button></div>`}</div>`}
+Object.assign(ACT,{dpModo:t=>{const P=dirPer();const m=t.dataset.m;const ref=P.ini<=T0&&T0<=P.fim?T0:P.ini;S.dper=m==='per'?{modo:'per',ini:dk(P.ini),fim:dk(P.fim>T0?T0:P.fim)}:{modo:m,ref:dk(m==='dia'&&P.modo!=='dia'?(P.fim<T0?P.fim:T0):ref)};reload()},
+ dpNav:t=>{const P=dirPer();const n=+t.dataset.n;const r=pdk(S.dper.ref||dk(T0));let x;if(P.modo==='dia')x=addD(r,n);else if(P.modo==='ano')x=new Date(r.getFullYear()+n,0,1);else x=new Date(r.getFullYear(),r.getMonth()+n,1);S.dper={modo:P.modo,ref:dk(x)};reload()}});
+FIELD.push(ev=>{const t=ev.target;if(!t.dataset||!t.dataset.dp)return false;if(ev.type!=='change'||!t.value)return true;const P=dirPer();
+ if(t.dataset.dp==='ref')S.dper={modo:'dia',ref:t.value};else S.dper=Object.assign({modo:'per',ini:dk(P.ini),fim:dk(P.fim)},{[t.dataset.dp]:t.value});reload();return true});
 // ================================================================ COMERCIAL
 const ETAPAS_B2C=[
  {id:'credito',t:'Avaliação do crédito',c:[['valor_aprovado','Valor do financiamento aprovado','money'],['validade_aprov','Validade da aprovação de crédito','date'],['prazo_fin','Prazo do financiamento (meses)','num']],dica:'Documentos pessoais e de renda do cliente, simulação e aprovação de crédito no banco.'},
