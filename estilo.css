@@ -412,3 +412,4 @@ table.imp-nf input[data-ret]:disabled{background:#f3f5f8;color:#9aa3ad}
 .ex-t{width:100%;font-size:13px}.ex-t th{background:var(--surface2);text-align:center}.ex-t td{vertical-align:middle;text-align:center}.ex-t td.num,.ex-t th.num{text-align:right}.ex-cc{font-size:12.5px}.ex-cat{font-size:12px;color:var(--muted);margin-top:2px}.ex-t td:nth-child(4){text-align:left}
 @media(max-width:760px){.cb-row,.cb-cols{grid-template-columns:1fr}.cb-cols b:last-child{display:none}}
 .dn-exp{background:var(--warn-soft);border-left:4px solid var(--warn);border-radius:6px;padding:8px 10px;margin-bottom:6px;line-height:1.5}
+.fr-j{margin-top:8px}.fr-j td,.fr-j th{padding:3px 4px}.fr-j input[type=time]{margin:0;padding:3px 4px;width:96px}
