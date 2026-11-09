@@ -413,3 +413,7 @@ table.imp-nf input[data-ret]:disabled{background:#f3f5f8;color:#9aa3ad}
 @media(max-width:760px){.cb-row,.cb-cols{grid-template-columns:1fr}.cb-cols b:last-child{display:none}}
 .dn-exp{background:var(--warn-soft);border-left:4px solid var(--warn);border-radius:6px;padding:8px 10px;margin-bottom:6px;line-height:1.5}
 .fr-j{margin-top:8px}.fr-j td,.fr-j th{padding:3px 4px}.fr-j input[type=time]{margin:0;padding:3px 4px;width:96px}
+/* ---------- compras e ativos ---------- */
+.cp-steps{display:flex;gap:0;margin:6px 0 4px;flex-wrap:wrap}.cp-steps div{flex:1;min-width:110px;display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:3px solid var(--border);color:var(--muted);font-size:13px;font-weight:600}.cp-steps span{width:22px;height:22px;border-radius:50%;background:var(--surface2);display:grid;place-items:center;font-size:12px}.cp-steps div.ok{color:var(--ok);border-color:var(--ok)}.cp-steps div.ok span{background:var(--ok);color:#fff}
+.cp-cots{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-top:10px}.cp-cot{border:1px solid var(--border);border-radius:10px;padding:10px 12px}.cp-cot.on{border-color:var(--ok);box-shadow:0 0 0 1px var(--ok) inset}.cp-v{font-size:18px;font-weight:800;margin:4px 0}
+.at-mv{display:grid;grid-template-columns:86px 1fr;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px}.at-mv:last-child{border-bottom:0}
