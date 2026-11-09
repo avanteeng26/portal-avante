@@ -710,8 +710,8 @@ function pontoEspelho(){const {L,fs,st,rdo}=D();const f=fs.find(x=>x.id===S.para
  <p class="small mt"><b>Horas por obra:</b> ${Object.entries(H).sort((a,b)=>b[1]-a[1]).map(([o,m])=>pill(obraNome(o)+' · '+fmh(m),'info')).join(' ')||'—'}</p></div>
  ${ed?`<div class="toolbar mt"><span class="sp"></span><span class="small muted" id="pdirty"></span><button class="btn" data-act="pDescartar">Descartar</button><button class="btn primary" data-act="pSalvar">Salvar alterações do espelho</button></div>`:''}`}
 const hx=m=>{m=Math.round(m||0);return Math.floor(m/60)+':'+String(m%60).padStart(2,'0')};const hxs=m=>hx(m)+':00';const hh=s=>{const m=hm(s);return isNaN(m)?'':hx(m)};
-function espelhoExcel(f,k,pts){const p=periodo(k);let T={carga:0,atraso:0,falta:0,he50:0,he100:0};const get=d=>pts.find(x=>x.funcionario_id===f.id&&String(x.data).slice(0,10)===dk(d));
- const rows=diasPer(k).map(d=>{const r0=get(d);const r=r0?limpa(r0):null;const o=calcDia(r,d);const cinza=d.getDay()===0||d.getDay()===6||isFer(d);const fut=d>=T0||!ativoNoDia(f,d);
+function espelhoExcel(f,k,pts,ate){const p=periodo(k);if(ate&&pdk(ate)<p.fim)p.fim=pdk(ate);let T={carga:0,atraso:0,falta:0,he50:0,he100:0};const get=d=>pts.find(x=>x.funcionario_id===f.id&&String(x.data).slice(0,10)===dk(d));
+ const rows=diasPer(k).filter(d=>d<=p.fim).map(d=>{const r0=get(d);const r=r0?limpa(r0):null;const o=calcDia(r,d);const cinza=d.getDay()===0||d.getDay()===6||isFer(d);const fut=d>=T0||!ativoNoDia(f,d);
   if(!fut)T.carga+=o.carga;T.atraso+=o.atraso;T.falta+=o.falta;T.he50+=o.he50;T.he100+=o.he100;
   let m;if(r&&r.ocorrencia!=='TRABALHADO')m=`<td colspan="4" class="c">${esc(ocNome(r.ocorrencia).toUpperCase())}</td>`;else if(!r&&isFer(d)&&!fut)m='<td colspan="4" class="c">FERIADO</td>';else m=['entrada1','saida1','entrada2','saida2'].map(x=>`<td class="c">${r&&r[x]?hh(r[x]):''}</td>`).join('');
   return `<tr class="${cinza?'g':''}"><td class="l">${DOW[d.getDay()]}</td><td class="c">${d.getDate()}</td>${m}<td class="c">${fut?'':hx(o.trab)}</td><td class="c">${fut?'':hx(o.carga)}</td><td class="c">${o.atraso?hx(o.atraso):''}</td><td class="c">${o.falta?hx(o.falta):''}</td><td class="c">${o.he50?hx(o.he50):''}</td><td class="c">${o.he100?hx(o.he100):''}</td></tr>`}).join('');
@@ -1133,6 +1133,10 @@ function dnAtualiza(){const t=$('#dnT').value;const ex=$('#dnExtra');if(ex.datas
  if(c.dias_aviso)L.push(`<b>Aviso prévio proporcional:</b> ${c.dias_aviso} dias (${anosCasa(f.data_admissao,c.data_aviso)} ano(s) completo(s) de casa)${t==='trabalhado'&&c.dias_aviso>30?`. Os ${c.dias_aviso-30} dias além dos 30 trabalhados costumam ser indenizados (confirmar com a contabilidade)`:''}`);
  if(c.data_projetada)L.push(`<b>Projeção do aviso indenizado:</b> ${fD(c.data_projetada)}`);
  if(c.termino_previsto)L.push(`<b>Término previsto do contrato:</b> ${fD(c.termino_previsto)}${t==='antecipada'?` · indenização do art. 479 sobre ${Math.max(0,diasEntre(c.ultimo_dia,c.termino_previsto))} dia(s) restante(s) (metade da remuneração)`:''}`);
+ if(ei){const dc=pdk($('#dnD').value);const noExp=dc<=ei.fim;const prim=dc<=ei.f1;
+  if(noExp){const fimAuto=prim&&ei.b?ei.f1:ei.fim;L.unshift(`<div class="dn-exp"><b>⚠ ${esc(f.nome.split(' ')[0])} está no período de experiência</b> (${ei.a}${ei.b?' + '+ei.b:''} dias, admissão ${fD(f.data_admissao)}).<br>${prim&&ei.b?`1º período termina em <b>${fD(ei.f1)}</b>; se não houver prorrogação, o contrato <b>encerra automaticamente em ${fD(ei.f1)}</b>. Se prorrogado, termina em <b>${fD(ei.f2)}</b>.`:`O contrato <b>encerra automaticamente em ${fD(ei.fim)}</b>.`}
+   Faltam <b>${Math.max(0,diasEntre(dk(dc),dk(fimAuto)))} dia(s)</b>.${t!=='termino_exp'?`<div style="margin-top:6px"><button class="btn sm" data-act="dnUsarExp" data-d="${dk(fimAuto)}">Usar "Término da experiência" em ${fD(fimAuto)}</button> <span class="muted">sem aviso prévio e sem multa do FGTS</span></div>`:''}${['trabalhado','indenizado'].includes(t)?'<div style="color:var(--bad);margin-top:4px">Aviso prévio não se aplica a contrato de experiência: para encerrar antes do fim, use "Rescisão antecipada do contrato de experiência".</div>':''}</div>`)}
+  else L.unshift(`<span class="muted">Contrato de experiência já encerrado em ${fD(ei.fim)}: o vínculo é por prazo indeterminado.</span>`)}
  if(['antecipada','antecipada_emp','termino_exp'].includes(t)&&!ei)L.push('<span style="color:var(--bad)">Este funcionário não está com contrato de experiência no cadastro. Confira o tipo de contrato.</span>');
  L.push(`<b>Prazo para pagamento das verbas:</b> ${fD(c.prazo_pagamento)} (10 dias do término, art. 477 §6º da CLT)`);
  if(t==='acordo')L.push('Acordo: aviso indenizado pela metade, multa de 20% do FGTS, saque de até 80% do FGTS e sem seguro-desemprego.');
@@ -1141,7 +1145,8 @@ function dnAtualiza(){const t=$('#dnT').value;const ex=$('#dnExtra');if(ex.datas
 FIELD.push(ev=>{const t=ev.target;if(!t.id||!['dnF','dnT','dnD','dnX','dnTP'].includes(t.id))return false;if(ev.type==='change')dnAtualiza();return true});
 
 const dGet=()=>D().r;
-Object.assign(ACT,{dFilt:t=>{S.params.dq=t.dataset.q;render()},
+Object.assign(ACT,{dnUsarExp:t=>{$('#dnT').value='termino_exp';$('#dnD').value=t.dataset.d;dnAtualiza()},
+ dFilt:t=>{S.params.dq=t.dataset.q;render()},
  dNovo:async t=>{if(!D().fs){S.dados[S.route]=Object.assign(D(),{fs:await S.api.select('funcionarios',{order:['nome']})})}dNovoModal(t.dataset.id)},
  dCriar:async()=>{const fs=D().fs;const f=fs.find(x=>x.id===$('#dnF').value);const t=$('#dnT').value;const da=$('#dnD').value;if(!f||!da){$('#err').textContent='Escolha o funcionário e a data.';return}
   if(pdk(da)<pdk(f.data_admissao)){$('#err').textContent='A data não pode ser anterior à admissão.';return}
@@ -1165,7 +1170,7 @@ PAGES.desligdet={async load(){const id=S.params.id;const r=(await S.api.select('
   const arq=(c,l)=>`<div class="alert-item"><span>${l}: ${r[c]?pill('Anexado','ok'):pill('Pendente','warn')}</span><span style="display:flex;gap:6px">${r[c]?`<button class="btn sm" data-act="dVerArq" data-c="${c}">Ver</button>`:''}${ed&&perm('docs','incluir')?`<label class="btn sm" style="margin:0">${r[c]?'Substituir':'Anexar'}<input type="file" data-dup="${c}" accept=".pdf,.jpg,.jpeg,.png" style="display:none"></label>`:''}</span></div>`;
   // etapa 1
   const b1=`<div class="card mt"><h3>1. Aviso / comunicado</h3><p class="small muted">Imprima em duas vias, colha as assinaturas e anexe a via assinada.</p>
-   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">${temDoc?`<button class="btn" data-act="dAviso">Imprimir ${esc(avisoTitulo(r.tipo).toLowerCase())}</button><button class="btn" data-act="dAvisoW">Word</button>`:'<span class="small muted">Falecimento não tem aviso: anexe a certidão de óbito.</span>'}</div>
+   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">${temDoc?`<button class="btn" data-act="dAviso">Imprimir ${esc(avisoTitulo(r.tipo).toLowerCase())}</button><button class="btn" data-act="dAvisoW">Word</button><button class="btn" data-act="dEspelho">Espelho de ponto do período</button>`:'<span class="small muted">Falecimento não tem aviso: anexe a certidão de óbito.</span>'}</div>
    ${arq('arq_aviso',r.tipo==='falecimento'?'Certidão de óbito':'Aviso assinado')}${ed&&r.etapa==='aviso'?`<div class="toolbar mt" style="margin-bottom:0"><span class="sp"></span><button class="btn primary" data-act="dEtapa" data-e="checklist">Aviso entregue: abrir checklist de quitação</button></div>`:''}</div>`;
   // etapa 2
   const b2=ci<1&&r.etapa!=='cancelado'?'':`<div class="card mt"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:flex-start"><div><h3>2. Checklist de quitação demissional</h3><p class="small muted" style="margin:0">${okN} de ${CHK_IDS.length} itens resolvidos. Cada setor confere a sua parte e assina o termo impresso.</p></div><div style="display:flex;gap:6px"><button class="btn sm" data-act="dTermo">Imprimir termo de quitação</button><button class="btn sm" data-act="dTermoW">Word</button></div></div>
@@ -1203,9 +1208,10 @@ Object.assign(ACT,{
   await S.api.update('funcionarios',{id:f.id},{status:'Desligado',data_desligamento:r.ultimo_dia});await dUpd({etapa:'concluido',data_desligamento:r.ultimo_dia});await evento('Concluiu desligamento',f.nome);toast('Desligamento concluído. O funcionário saiu do quadro ativo a partir de '+fD(r.ultimo_dia)+'.');reload()},
  dCancelar:async()=>{const {r,f}=D();if(!confirm('Cancelar este desligamento? O funcionário volta a ficar ativo.'))return;await dUpd({etapa:'cancelado'});if(f.status==='Aviso prévio')await S.api.update('funcionarios',{id:f.id},{status:'Ativo'}).catch(()=>{});await evento('Cancelou desligamento',f.nome);reload()},
  dVerArq:async t=>{window.open(await S.api.signedUrl(dGet()[t.dataset.c]),'_blank')},
- dAviso:()=>{const {r,f}=D();evento('Imprimiu aviso de desligamento',f.nome);docPrint(AV_CSS+avisoHTML(r,f))},
+ dAviso:async()=>{const {r,f}=D();evento('Imprimiu aviso de desligamento',f.nome);docPrint(AV_CSS+avisoHTML(r,f)+await dEspelhoHTML(r,f))},
+ dEspelho:async()=>{const {r,f}=D();const h=await dEspelhoHTML(r,f);if(!h){toast('Sem permissão para ver o ponto.',true);return}evento('Imprimiu espelho do desligamento',f.nome);docPrint(h)},
  dAvisoW:()=>{const {r,f}=D();docWord(avisoTitulo(r.tipo)+' '+f.nome,AV_CSS.replace(/#printArea /g,'')+avisoHTML(r,f))},
- dTermo:()=>{const {r,f}=D();evento('Imprimiu termo de quitação',f.nome);docPrint(AV_CSS+termoHTML(r,f))},
+ dTermo:async()=>{const {r,f}=D();evento('Imprimiu termo de quitação',f.nome);docPrint(AV_CSS+termoHTML(r,f)+await dEspelhoHTML(r,f))},
  dTermoW:()=>{const {r,f}=D();docWord('Termo de quitação '+f.nome,AV_CSS.replace(/#printArea /g,'')+termoHTML(r,f))}});
 
 // ---------------------------------------------------------------- documentos (modelo Avante)
@@ -1250,6 +1256,11 @@ function termoHTML(r,f){const ck=r.checklist||{};const mk=(k,s)=>(ck[k]&&ck[k].s
  <div class="bx" style="margin-top:8pt"><b>DECLARAÇÃO DO EMPREGADO</b><p style="margin-top:4pt">Declaro que conferi os itens acima, que devolvi os bens, ferramentas, equipamentos e materiais da empresa que estavam sob minha responsabilidade e que recebi os documentos que me pertencem.</p>
  <table><tr><td class="ass" style="width:46%"><div class="ln"></div>${esc(f.nome.toUpperCase())}<br>Empregado</td><td style="width:8%"></td><td class="ass"><div class="ln"></div>Recursos Humanos<br>${esc(empresaNome())}</td></tr></table></div>
  <p class="muted">Documento gerado pelo Portal Avante em ${fDT(new Date().toISOString())}. Desligamento nº ${r.numero||''}.</p></div>`}
+
+// espelho de ponto da competência do desligamento (até o último dia), impresso junto do aviso/termo
+async function dEspelhoHTML(r,f){if(!perm('ponto','ver'))return '';const ult=String(r.data_desligamento||r.ultimo_dia||dk(T0)).slice(0,10);const k=compOf(pdk(ult));const p=periodo(k);
+ const pts=await S.api.select('ponto',{eq:{funcionario_id:f.id},gte:{data:dk(p.ini)},lte:{data:ult}}).catch(()=>[]);const f2=Object.assign({},f,{data_desligamento:ult});
+ return ESX_CSS+'<style>#printArea .av{padding:5mm 5mm 0}</style>'+espelhoExcel(f2,k,pts,ult)}
 // ================================================================ ATESTADOS MÉDICOS
 const TIPOS_AT=['Atestado médico','Atestado odontológico','Declaração de comparecimento (horas)','Acompanhamento de filho ou dependente','Acidente de trabalho','Licença-maternidade','Licença-paternidade','Doação de sangue','Outros'];
 const atOcorr=t=>t==='Licença-maternidade'?'AFASTADO':['Licença-paternidade','Doação de sangue','Acompanhamento de filho ou dependente'].includes(t)?'ABONADO':'ATESTADO';
@@ -4799,7 +4810,8 @@ PAGES.concilia.html=function(){const d=D();const ed=perm('financeiro','editar');
  const contas=(d.ct||[]).filter(x=>!x.virtual&&(x.ativa!==false||x.id===d.cid));
  return `<div class="cb-top"><div><div class="small muted">Financeiro › Contas bancárias</div><h1 style="margin:2px 0 0">Conta bancária</h1></div><div class="cb-tb"><select data-cnf="cc">${contas.map(x=>`<option value="${x.id}" ${x.id===d.cid?'selected':''}>${esc(x.nome)}</option>`).join('')}</select><button class="btn primary" data-act="go" data-r="extrato" data-p='{"conta":"${d.cid}"}'>Extrato</button>${perm('financeiro','editar')?`<button class="btn primary" data-act="cbEditConta">Editar conta</button>`:''}<button class="btn" data-act="go" data-r="fincontas" title="Voltar">←</button></div></div>
  <div class="card cb-head"><div class="cb-bk"><div class="cb-ic">${esc((c.banco||c.nome||'?').slice(0,2).toUpperCase())}</div><div><b style="font-size:16px">${esc(c.banco||c.nome)}</b><div class="small muted">${esc(c.nome)}</div></div>
-  <div class="cb-box"><div class="small muted">Saldo no portal</div><b style="color:${saldoPortal<0?'var(--bad)':'var(--ok)'}">${BRL2(saldoPortal)}</b></div>${ult&&ult.saldo_banco!=null?`<div class="cb-box"><div class="small muted">Saldo no banco (${fD(ult.saldo_data||ult.periodo_fim)})</div><b>${BRL2(+ult.saldo_banco)}</b>${dif!=null?`<div class="small" style="color:${dif===0?'var(--ok)':'var(--bad)'}">${dif===0?'bate com o portal':'diferença '+BRL2(dif)}</div>`:''}</div>`:''}<span class="sp"></span>${c.ativa===false?pill('Conta inativa',''):pill('Conta ativa','ok')}</div>
+  <div class="cb-box"><div class="small muted">Saldo da conta</div><b style="font-size:18px;color:${saldoPortal<0?'var(--bad)':'var(--ok)'}">${BRL2(saldoPortal)}</b>
+   ${ult&&ult.saldo_banco!=null&&dif!=null?(Math.abs(dif)<0.01?`<div class="small" style="color:var(--ok)">✓ igual ao banco em ${fD(ult.saldo_data||ult.periodo_fim)}</div>`:`<div class="small" style="color:var(--bad)">⚠ não bate com o banco em ${fD(ult.saldo_data||ult.periodo_fim)} · <a class="lp-link" data-act="cbDif">entender e resolver</a></div>`):'<div class="small muted">importe o OFX para conferir com o banco</div>'}</div><span class="sp"></span>${c.ativa===false?pill('Conta inativa',''):pill('Conta ativa','ok')}</div>
   <div class="cb-chips">${c.saldo_data?`<span>Data inicial: ${fD(c.saldo_data)}</span>`:''}<span>Saldo inicial: ${BRL2(+c.saldo_inicial||0)}</span>${c.tipo?`<span>${esc(c.tipo)}</span>`:''}${c.agencia?`<span>Ag. ${esc(c.agencia)}</span>`:''}${c.conta?`<span>Conta ${esc(c.conta)}</span>`:''}</div></div>
  <div class="card cb-ofx"><b>OFX selecionado</b>${ult?`<span class="cb-chips" style="margin:0"><span>Data início: ${fD(ult.periodo_ini)}</span><span>Data fim: ${fD(ult.periodo_fim)}</span><span>${ult.transacoes} movimentos</span></span>`:'<span class="small muted">nenhum extrato importado ainda</span>'}<span class="sp"></span>${ed&&nTar>1?`<a data-act="tarTodas">Lançar ${nTar} tarifas</a>`:''}${ed&&nSug>1?`<a data-act="cnAceitarTodas">Aceitar sugestões únicas</a>`:''}${ed?`<label class="cb-link">Selecionar novo OFX<input type="file" id="ofxF" accept=".ofx,.OFX,.qfx" style="display:none"></label>`:''}</div>
  <div class="card cb-main"><div class="cb-tabs"><a class="${aba==='pend'?'on':''}" data-act="cbAba" data-v="pend">Conciliações pendentes <span class="cb-n">${nPend}</span></a><a class="${aba==='ok'?'on':''}" data-act="cbAba" data-v="ok">Conciliados</a></div>
@@ -4810,6 +4822,23 @@ PAGES.concilia.html=function(){const d=D();const ed=perm('financeiro','editar');
   ${cards||`<div class="muted" style="padding:24px;text-align:center">${(d.ex||[]).length?(aba==='pend'?'Nenhuma conciliação pendente neste período. 👏':'Nada conciliado neste período.'):'Nenhum extrato importado para esta conta. Clique em "Selecionar novo OFX".'}</div>`}</div>`};
 Object.assign(ACT,{
  cbEditConta:()=>{const d=D();crudModal('fincontas',(d.ct||[]).find(c=>c.id===d.cid))},
+ cbDif:()=>{const d=D();const ult=(d.im||[])[0];const c=(d.ct||[]).find(x=>x.id===d.cid);const dt=String(ult.saldo_data||ult.periodo_fim).slice(0,10);const sb=fnSaldoAte(d,pdk(dt),d.cid);const dif=Math.round((ult.saldo_banco-sb)*100)/100;
+  const lk=new Set((d.cc||[]).map(x=>x.extrato_id));const lkL=new Set((d.cc||[]).map(x=>x.lancamento_id));
+  const pend=(d.ex||[]).filter(e=>!e.ignorado&&!lk.has(e.id)&&String(e.data).slice(0,10)<=dt);const sp=pend.reduce((a,e)=>a+(+e.valor),0);
+  const ini=(d.ex||[]).map(e=>String(e.data).slice(0,10)).sort()[0]||dt;
+  const so=(d.L||[]).filter(l=>l.conta_id===d.cid&&l.data_pagamento&&l.pagador!=='Cliente'&&!l._v&&String(l.data_pagamento)>=ini&&String(l.data_pagamento)<=dt&&!lkL.has(l.id));const ss=so.reduce((a,l)=>a+(l.tipo==='R'?1:-1)*(+(l.valor_pago??l.valor)),0);
+  const resto=Math.round((dif-sp+ss)*100)/100;S._cbAjuste={c,resto,dt};
+  openModal(`<h2>Por que o saldo não bate com o banco?</h2><p class="small">O saldo da conta é um só: o portal calcula a partir do <b>saldo inicial</b> + tudo que foi <b>baixado</b> nesta conta. Quando tudo está conciliado, ele fica igual ao do banco. Em <b>${fD(dt)}</b>: banco <b>${BRL2(+ult.saldo_banco)}</b> · portal <b>${BRL2(sb)}</b> · diferença <b style="color:var(--bad)">${BRL2(dif)}</b>.</p>
+   <table class="small"><tbody>
+   <tr><td>1. Movimentos do banco ainda <b>não conciliados</b> (${pend.length})</td><td class="num"><b>${BRL2(sp)}</b></td><td>${pend.length?'<a class="lp-link" data-act="cbIrPend">conciliar agora</a>':pill('ok','ok')}</td></tr>
+   <tr><td>2. Baixas no portal nesta conta <b>sem movimento no banco</b> (${so.length})<div class="muted">pagos por outra conta ou baixados por engano</div></td><td class="num"><b>${BRL2(-ss)}</b></td><td>${so.length?'<a class="lp-link" data-act="cbVerSo">ver</a>':pill('ok','ok')}</td></tr>
+   <tr><td>3. Diferença no <b>saldo inicial</b> da conta (${BRL2(+c.saldo_inicial)} em ${fD(c.saldo_data)})</td><td class="num"><b>${BRL2(resto)}</b></td><td>${Math.abs(resto)>=0.01&&perm('financeiro','editar')?'<a class="lp-link" data-act="cbAjIni">corrigir</a>':pill('ok','ok')}</td></tr>
+   </tbody></table><div id="cbSo" class="small mt"></div>
+   <p class="small muted mt">Resolva na ordem: concilie as pendências (1), confira as baixas sem banco (2) e, por último, corrija o saldo inicial (3), que costuma ser o valor informado na data errada.</p><div class="modal-actions"><button class="btn primary" data-act="close">Fechar</button></div>`,true);S._cbSo=so},
+ cbIrPend:()=>{closeModal();S.params.cab='pend';const d=D();const ult=(d.im||[])[0];if(ult)S.cper={modo:'per',ini:String((d.ex||[]).map(e=>String(e.data).slice(0,10)).sort()[0]||ult.periodo_ini).slice(0,10),fim:String(ult.saldo_data||ult.periodo_fim).slice(0,10)};render()},
+ cbVerSo:()=>{$('#cbSo').innerHTML=(S._cbSo||[]).map(l=>`<div class="alert-item"><span>${fD(l.data_pagamento)} · ${l.tipo==='P'?'pago':'recebido'} · ${esc(fnFav(l.favorecido_id)||l.descricao)} · <b>${BRL2(+(l.valor_pago??l.valor))}</b></span><button class="btn sm" data-act="fnEditar" data-id="${l.id}">Abrir</button></div>`).join('')},
+ cbAjIni:async()=>{const {c,resto}=S._cbAjuste;const nv=Math.round(((+c.saldo_inicial||0)+resto)*100)/100;if(!confirm(`Corrigir o saldo inicial de ${c.nome} de ${BRL2(+c.saldo_inicial)} para ${BRL2(nv)} (em ${fD(c.saldo_data)})? Faça isso só depois de conciliar as pendências.`))return;
+  await S.api.update('fin_contas',{id:c.id},{saldo_inicial:nv});await evento('Corrigiu saldo inicial pela conciliação',c.nome+' · '+BRL2(+c.saldo_inicial)+' → '+BRL2(nv));closeModal();toast('Saldo inicial corrigido.');reload()},
  cbAba:t=>{S.params.cab=t.dataset.v;render()},
  cbNav:t=>{const d=D();const P=cbPer(d);const n=+t.dataset.n;const r=new Date(P.ini.getFullYear(),P.ini.getMonth()+n,1);S.cper={modo:'mes',ref:dk(r)};S._cbPerEd=false;render()},
  cbPerEd:()=>{S._cbPerEd=!S._cbPerEd;render()},
