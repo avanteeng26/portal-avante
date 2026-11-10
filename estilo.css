@@ -448,3 +448,5 @@ table.imp-nf input[data-ret]:disabled{background:#f3f5f8;color:#9aa3ad}
 .pf-res{border:1px solid var(--border);border-radius:8px;padding:10px 12px}.pf-r{display:grid;grid-template-columns:1fr 70px 120px;gap:8px;font-size:13px;padding:3px 0;border-bottom:1px dashed var(--border)}.pf-r span:nth-child(2),.pf-r b{text-align:right}
 .ab-pn{border:1px solid var(--accent);background:var(--accent-soft);border-radius:8px;padding:10px 12px;margin:6px 0 4px}.ab-pn label{margin-top:6px}
 .resc-in{border-top:1px solid var(--border);padding-top:14px}.resc-in h3{margin-top:0}
+.fr-pes{display:flex;gap:18px;align-items:flex-start}.fr-pes-c{flex:1;min-width:0}.fr-pes-c h3{margin-top:0}.fr-foto{flex:none;padding-top:4px}.fr-foto .foto34{width:112px;height:150px}
+@media(max-width:700px){.fr-pes{flex-direction:column}}
