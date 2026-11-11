@@ -452,3 +452,15 @@ table.imp-nf input[data-ret]:disabled{background:#f3f5f8;color:#9aa3ad}
 @media(max-width:700px){.fr-pes{flex-direction:column}}
 /* ISO etapa 1 */
 .fq-cr{display:grid;gap:2px;margin-bottom:6px}.fvm-box{border:1px solid var(--border);border-radius:8px;padding:10px 12px}.fvm-t td{padding:5px 6px;vertical-align:middle}.fvm-op{display:inline-flex;gap:4px;align-items:center;margin:0 10px 0 0;color:var(--text);font-size:12.5px;cursor:pointer}.fvm-op input{width:auto;margin:0}
+/* RM / RSL · alçadas */
+.req-tot{background:var(--soft,#f4f6f9);border-radius:10px;padding:10px 14px}
+.req-niv{display:inline-block;padding:2px 8px;border-radius:999px;background:#fff;border:1px solid var(--line,#dde2ea);margin:2px 0}
+.req-pend{border-left:4px solid var(--warn)}
+.req-ch{display:flex;align-items:stretch;gap:8px;flex-wrap:wrap}
+.req-st{flex:1 1 180px;display:flex;flex-direction:column;gap:2px;padding:10px 12px;border:1px solid var(--line,#dde2ea);border-radius:10px;background:#fff}
+.req-st.ok{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 8%,#fff)}
+.req-st.bad{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 8%,#fff)}
+.req-st.cur{border-color:var(--warn);box-shadow:0 0 0 2px color-mix(in srgb,var(--warn) 25%,transparent)}
+.req-seta{align-self:center;color:var(--muted,#8a94a6)}
+.alc-us{display:flex;flex-wrap:wrap;gap:2px 14px}.alc-us .check{margin:0;font-size:13px}
+@media(max-width:640px){.req-seta{display:none}}
