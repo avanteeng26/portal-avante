@@ -450,3 +450,5 @@ table.imp-nf input[data-ret]:disabled{background:#f3f5f8;color:#9aa3ad}
 .resc-in{border-top:1px solid var(--border);padding-top:14px}.resc-in h3{margin-top:0}
 .fr-pes{display:flex;gap:18px;align-items:flex-start}.fr-pes-c{flex:1;min-width:0}.fr-pes-c h3{margin-top:0}.fr-foto{flex:none;padding-top:4px}.fr-foto .foto34{width:112px;height:150px}
 @media(max-width:700px){.fr-pes{flex-direction:column}}
+/* ISO etapa 1 */
+.fq-cr{display:grid;gap:2px;margin-bottom:6px}.fvm-box{border:1px solid var(--border);border-radius:8px;padding:10px 12px}.fvm-t td{padding:5px 6px;vertical-align:middle}.fvm-op{display:inline-flex;gap:4px;align-items:center;margin:0 10px 0 0;color:var(--text);font-size:12.5px;cursor:pointer}.fvm-op input{width:auto;margin:0}
