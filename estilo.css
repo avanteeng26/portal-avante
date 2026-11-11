@@ -492,3 +492,15 @@ table.imp-nf input[data-ret]:disabled{background:#f3f5f8;color:#9aa3ad}
 @media(max-width:700px){.rq-steps{flex-direction:column}.rq-steps>i{display:none}.drawer{max-width:100%}}
 .pill.cinza{background:var(--surface2);color:var(--muted)}
 .rq-it{table-layout:fixed;min-width:900px}.rq-it td{overflow-wrap:anywhere}
+/* OC · assinatura · painel de suprimentos */
+.ass-cv{width:100%;max-width:640px;aspect-ratio:16/5;border:1px dashed var(--border);border-radius:8px;background:#fff;touch-action:none;cursor:crosshair;display:block}
+.ass-atual{background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px;display:inline-block}.ass-atual img{max-height:70px;display:block}
+.ass-linha{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:-4px 0 10px}.ass-linha img{height:34px;background:#fff;border:1px solid var(--border);border-radius:6px;padding:2px 6px}
+.oc-g{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;align-items:end}.oc-g>select[data-ocf="oco"]{grid-column:span 2}.oc-g input,.oc-g select{margin:0}.oc-dt{display:flex;flex-direction:column;gap:2px;margin:0}.oc-dt span{font-size:11px;color:var(--muted)}
+.oc-t td{vertical-align:middle}.oc-t tfoot td{border-top:2px solid var(--border)}.oc-t .r,.r{text-align:right}
+.sp-g2{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin-top:14px}.sp-g2>.card{margin:0;min-width:0}
+.sp-svg{width:100%;height:auto;display:block}.sp-svg .g{stroke:var(--border);stroke-width:1}.sp-svg .ax{font-size:11px;fill:var(--muted)}.sp-svg .bar{fill:var(--accent);opacity:.85}.sp-svg .bar.cur{opacity:1}.sp-svg .hit{fill:transparent}.sp-svg .sp-b:hover .hit{fill:var(--surface2)}.sp-svg .sp-b:hover .bar{opacity:1}
+.sp-kv{display:grid;gap:2px}.sp-kv div{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:14px}.sp-kv div:last-child{border:0}.sp-kv span{color:var(--muted)}
+.sp-hb{display:grid;gap:8px}.sp-r{display:grid;grid-template-columns:minmax(90px,38%) 1fr auto;gap:10px;align-items:center;font-size:13px}.sp-r .l{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sp-r .t{height:10px;background:var(--surface2);border-radius:5px;overflow:hidden}.sp-r .t i{display:block;height:100%;background:var(--accent);border-radius:0 4px 4px 0}.sp-r .v{font-variant-numeric:tabular-nums;white-space:nowrap}.sp-r:hover .t i{filter:brightness(1.12)}
+@media(max-width:900px){.sp-g2{grid-template-columns:1fr}.oc-g{grid-template-columns:1fr}}
