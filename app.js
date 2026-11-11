@@ -102,7 +102,10 @@ async function evento(acao,det){try{await S.api.rpc('registrar_evento',{p_acao:a
 const DOC_CSS='body{font-family:Arial,Helvetica,sans-serif;font-size:11pt;line-height:1.5;color:#000}h1{font-size:13pt;text-align:center;margin:0 0 14pt}h2{font-size:11pt;margin:12pt 0 4pt}p{margin:0 0 6pt}.sig{width:100%;margin:34pt 0 6pt;border-collapse:collapse}.sig td{width:50%;padding:0 18pt;text-align:center;vertical-align:top;font-size:10pt}.sl{border-top:1px solid #000;margin-bottom:4pt}';
 function docPrint(html){let p=$('#printArea');if(!p){p=document.createElement('div');p.id='printArea';document.body.appendChild(p)}
  p.innerHTML=`<style>${DOC_CSS.replace(/(^|\})([^{}@]+)\{/g,(m,a,b)=>a+b.split(',').map(s=>'#printArea '+s.trim().replace(/^body$/,'')).join(',')+'{')}</style>`+html;
- document.body.classList.add('pdoc');setTimeout(()=>{window.print();setTimeout(()=>document.body.classList.remove('pdoc'),400)},150)}
+ document.body.classList.add('pdoc');
+ // espera as imagens (foto, logo, assinaturas) carregarem antes de abrir a impressão
+ const imgs=[...p.querySelectorAll('img')].filter(i=>!i.complete);const pronto=Promise.race([Promise.all(imgs.map(i=>new Promise(r=>{i.addEventListener('load',r,{once:true});i.addEventListener('error',r,{once:true})}))),new Promise(r=>setTimeout(r,6000))]);
+ pronto.then(()=>setTimeout(()=>{window.print();setTimeout(()=>document.body.classList.remove('pdoc'),400)},150))}
 function docWord(nome,html){const full=`<html><head><meta charset="utf-8"><title>${esc(nome)}</title><style>@page{margin:2cm}${DOC_CSS}</style></head><body>${html}</body></html>`;const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+full],{type:'application/msword'}));a.download=nome.replace(/[^\wÀ-ú\- ]/g,'').replace(/\s+/g,'_')+'.doc';document.body.appendChild(a);a.click();a.remove()}
 const LOGO=()=>`<img src="logo.png" alt="Avante Engenharia" class="logo-img logo-sm">`;
 // ---------------------------------------------------------------- menu
@@ -4943,7 +4946,7 @@ Object.assign(ACT,{
  frHcDel:async t=>{const {f}=D();const H=frHistCargos(f);H.splice(+t.dataset.i,1);await frSalvarJ(f,{hist_cargos:H});render()},
  frHsAdd:async()=>{const {f,rem}=D();const H=frHistSal(f,rem);H.push({mes:frMes(T0),valor:+rem.salario||null});rem.hist_salarios=H;await S.api.update('funcionarios_remuneracao',{funcionario_id:f.id},{hist_salarios:H});render()},
  frHsDel:async t=>{const {f,rem}=D();const H=frHistSal(f,rem);H.splice(+t.dataset.i,1);rem.hist_salarios=H;await S.api.update('funcionarios_remuneracao',{funcionario_id:f.id},{hist_salarios:H});render()},
- frPrint:async()=>{const {f,rem,docs}=D();const fo=(docs||[]).find(x=>x.tipo==='foto'&&x.arquivo_path);let foto='';if(fo){try{foto=await S.api.signedUrl(fo.arquivo_path)}catch(e){}}
+ frPrint:async()=>{const {f,rem,docs}=D();const fo=(docs||[]).find(x=>x.tipo==='foto'&&x.arquivo_path);let foto='';if(fo){try{foto=await S.api.signedUrl(fo.arquivo_path);try{const bl=await (await fetch(foto)).blob();foto=await new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(fr.result);fr.onerror=()=>r(foto);fr.readAsDataURL(bl)})}catch(e){}}catch(e){toast('Não foi possível carregar a foto para a impressão.',true)}}
   await evento('Imprimiu ficha de registro',f.nome);docPrint(FR_CSS+fichaRegHTML(f,perm('salarios','ver')?rem:null,foto))}});
 const FR_CSS=`<style>@page{size:A4 portrait;margin:8mm}#printArea .fr{font:7.6pt Arial,Helvetica,sans-serif;color:#000;border:1px solid #000;height:279mm;width:calc(100% - 2px);box-sizing:border-box;overflow:hidden;display:flex;flex-direction:column}
 #printArea .fr .fr-tt{position:relative;text-align:center;font-weight:bold;font-size:15pt;padding:6pt 0 4pt;border-bottom:1px solid #000}#printArea .fr .fr-tt span{position:absolute;right:6pt;bottom:3pt;font-size:7pt;font-weight:normal}
