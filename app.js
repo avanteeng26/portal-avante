@@ -1,3 +1,4 @@
+'use strict';const APP_VERSAO='20261116184353';
 'use strict';
 // =====================================================================
 //  PORTAL AVANTE · versão 1 (fase RH) · HTML + JavaScript + Supabase
@@ -4317,7 +4318,7 @@ function ctModal(c){c=JSON.parse(JSON.stringify(c||{status:'Ativo',retencao_pct:
   <div><label>Retenção técnica / caução (%)</label><input id="ctR" inputmode="decimal" value="${String(c.retencao_pct??0).replace('.',',')}"></div><div class="grid" style="grid-template-columns:1fr 1fr 1fr;gap:0 8px"><div><label>Início</label><input type="date" id="ctI" value="${c.inicio||''}"></div><div><label>Fim</label><input type="date" id="ctFi" value="${c.fim||''}"></div><div><label>Situação</label><select id="ctS">${['Ativo','Encerrado','Cancelado'].map(s=>`<option ${s===c.status?'selected':''}>${s}</option>`).join('')}</select></div></div></div>
  <h3 class="mt" style="margin-bottom:4px">Itens do contrato</h3><div id="ctItens"></div><button class="btn sm mt" data-act="ctItem">+ Adicionar item</button>
  <label class="mt">Observação</label><input id="ctObs" value="${esc(c.observacao||'')}"><div id="err" class="err"></div>
- <div class="modal-actions"><button class="btn" data-act="close">Cancelar</button><button class="btn primary" data-act="ctSalvar">Salvar contrato</button></div>`,true);ctItensHTML()}
+ <div class="modal-actions"><button class="btn" data-act="close">Cancelar</button><button class="btn primary" data-act="ctoSalvar">Salvar contrato</button></div>`,true);ctItensHTML()}
 function ctItensHTML(){const c=S._ct;$('#ctItens').innerHTML=`<table class="small qf-t"><thead><tr><th>Serviço</th><th style="width:70px">Und</th><th style="width:100px">Qtde</th><th style="width:110px">Preço unit.</th><th class="num" style="width:110px">Total</th><th></th></tr></thead><tbody>${c.itens.map((x,i)=>`<tr><td><input data-cti="${i}|descricao" value="${esc(x.descricao||'')}"></td><td><input data-cti="${i}|unidade" value="${esc(x.unidade||'')}"></td><td><input data-cti="${i}|quantidade" inputmode="decimal" value="${x.quantidade!=null?fQi(x.quantidade):''}"></td><td><input data-cti="${i}|preco" inputmode="decimal" value="${x.preco!=null?fQi(x.preco):''}"></td><td class="num">${BRL2((+x.quantidade||0)*(+x.preco||0))}</td><td><button class="btn sm" data-act="ctItemDel" data-i="${i}">×</button></td></tr>`).join('')}</tbody><tfoot><tr><td colspan="4">Total do contrato</td><td class="num"><b>${BRL2(ctTotal(c))}</b></td><td></td></tr></tfoot></table>`}
 FIELD.push(ev=>{const t=ev.target;if(!t.dataset||!t.dataset.cti)return false;if(ev.type!=='change')return true;const[i,k]=t.dataset.cti.split('|');S._ct.itens[+i][k]=['quantidade','preco'].includes(k)?numBR(t.value):t.value;if(['quantidade','preco'].includes(k))ctItensHTML();return true});
 Object.assign(ACT,{
@@ -4326,7 +4327,7 @@ Object.assign(ACT,{
  ctItem:()=>{S._ct.itens.push({id:uuidv(),descricao:'',unidade:'',quantidade:null,preco:null});ctItensHTML()},
  ctItemDel:t=>{S._ct.itens.splice(+t.dataset.i,1);ctItensHTML()},
  ctFavNovo:async()=>{const n=prompt('Nome do empreiteiro:');if(!n||!n.trim())return;const doc=prompt('CPF ou CNPJ (opcional):')||null;const f=(await S.api.insert('fin_favorecidos',[{nome:n.trim().toUpperCase(),cpf_cnpj:doc,tipo:'Prestador de serviço'}]))[0];FN.fav=(FN.fav||[]).concat([f]);$('#ctF').insertAdjacentHTML('beforeend',`<option value="${f.id}">${esc(f.nome)}</option>`);$('#ctF').value=f.id},
- ctSalvar:async()=>{const c=S._ct;const v=q=>$(q).value.trim();const its=c.itens.filter(x=>String(x.descricao||'').trim()&&+x.quantidade>0&&+x.preco>=0);if(!v('#ctO')||!v('#ctF')||!v('#ctOb')){$('#err').textContent='Preencha obra, empreiteiro e objeto.';return}if(!its.length){$('#err').textContent='Inclua ao menos um item com quantidade e preço.';return}
+ ctoSalvar:async()=>{const c=S._ct;const v=q=>$(q).value.trim();const its=c.itens.filter(x=>String(x.descricao||'').trim()&&+x.quantidade>0&&+x.preco>=0);if(!v('#ctO')||!v('#ctF')||!v('#ctOb')){$('#err').textContent='Preencha obra, empreiteiro e objeto.';return}if(!its.length){$('#err').textContent='Inclua ao menos um item com quantidade e preço.';return}
   const row={obra_id:v('#ctO'),favorecido_id:v('#ctF'),objeto:v('#ctOb'),retencao_pct:numBR(v('#ctR'))||0,inicio:v('#ctI')||null,fim:v('#ctFi')||null,status:v('#ctS'),observacao:v('#ctObs')||null,itens:its};
   let id=c.id;if(id)await S.api.update('obra_contratos',{id},row);else id=(await S.api.insert('obra_contratos',[Object.assign(row,{criado_por:S.user.id})]))[0].id;closeModal();toast('Contrato salvo.');if(c.id)reload();else go('contratoobradet',{id})}});
 
@@ -5140,7 +5141,7 @@ PAGES.ativos={async load(){return atBase()},
    <select data-atf="atloc"><option value="_todos">Todos os locais</option><option value="_sede" ${fl==='_sede'?'selected':''}>Sede / almoxarifado</option>${obrasUser().filter(o=>o.nome!=='ESCRITÓRIO').map(o=>`<option value="${o.id}" ${o.id===fl?'selected':''}>${esc(o.nome)}</option>`).join('')}</select>
    <select data-atf="atst">${[['ativos','Ativos (sem baixados)'],['todos','Todos'],...Object.keys(AT_ST).map(s=>[s,s])].map(([v,l])=>`<option value="${v}" ${v===fs?'selected':''}>${l}</option>`).join('')}</select>
    <select data-atf="atr"><option value="">Todos os responsáveis</option>${(d.fs||[]).filter(f=>d.a.some(a=>a.responsavel_id===f.id)).map(f=>`<option value="${f.id}" ${f.id===fr?'selected':''}>${esc(f.nome)}</option>`).join('')}</select>
-   <span class="sp"></span>${perm('ativos','exportar')?'<button class="btn sm" data-act="atCsv">Exportar</button> <button class="btn sm" data-act="atEtiq">Etiquetas</button>':''}${perm('ativos','incluir')?' <button class="btn primary" data-act="atNovo">+ Cadastrar bem</button>':''}</div>
+   <span class="sp"></span>${perm('ativos','exportar')?'<button class="btn sm" data-act="bemCsv">Exportar</button> <button class="btn sm" data-act="atEtiq">Etiquetas</button>':''}${perm('ativos','incluir')?' <button class="btn primary" data-act="bemNovo">+ Cadastrar bem</button>':''}</div>
   ${fcp?`<div class="note">Mostrando os bens da compra selecionada. <a class="lp-link" data-act="atLimpaC">ver todos</a></div>`:''}
   <div class="card tablewrap"><table><thead><tr><th>Nº</th><th>Bem</th><th>Categoria</th><th>Local atual</th><th>Responsável</th><th>Situação</th><th class="num">Aquisição</th><th class="num">Valor contábil</th><th>Último RDO</th></tr></thead><tbody>
   ${L.map(a=>{const dp=atDep(a);return `<tr style="cursor:pointer" data-act="go" data-r="ativodet" data-id="${a.id}"><td><b>${patN(a.numero)}</b></td><td>${esc(a.descricao)}<div class="small muted">${esc([a.marca,a.modelo,a.numero_serie&&'série '+a.numero_serie].filter(Boolean).join(' · '))}</div></td><td class="small">${esc(a.categoria)}</td><td class="small">${esc(atLocal(a.obra_id))}</td><td class="small">${esc(atFunc(a.responsavel_id)||'—')}</td><td>${pill(a.status,AT_ST[a.status])}</td><td class="num">${BRL2(+a.valor_aquisicao||0)}<div class="small muted">${a.data_aquisicao?fD(a.data_aquisicao):''}</div></td><td class="num">${BRL2(dp.contabil)}</td><td class="small">${a.ultimo_rdo?fD(a.ultimo_rdo):'—'}</td></tr>`}).join('')||'<tr><td colspan="9" class="muted">Nenhum bem.</td></tr>'}</tbody>
@@ -5156,11 +5157,11 @@ function atForm(a){a=a||{};return `<div class="grid" style="grid-template-column
 const atLerForm=()=>({descricao:$('#afD').value.trim(),categoria:$('#afC').value,marca:$('#afMa').value.trim()||null,modelo:$('#afMo').value.trim()||null,numero_serie:$('#afS').value.trim()||null,valor_aquisicao:numBR($('#afV').value)||0,data_aquisicao:$('#afDt').value||null,nf_numero:$('#afNf').value.trim()||null,vida_util_meses:parseInt($('#afVu').value)||null,valor_residual_pct:numBR($('#afR').value)||0,conservacao:$('#afCo').value,observacao:$('#afO').value.trim()||null});
 Object.assign(ACT,{
  atLimpaC:()=>{delete S.params.atc;render()},
- atNovo:()=>{openModal(`<h2>Cadastrar bem</h2><p class="small muted">Use para bens que a Avante já tem (inventário inicial). Compras novas entram sozinhas pelo recebimento em Suprimentos › Compras.</p>${atForm()}<div id="err" class="err"></div><div class="modal-actions"><button class="btn" data-act="close">Cancelar</button><button class="btn primary" data-act="atNovoOk">Cadastrar</button></div>`,true)},
+ bemNovo:()=>{openModal(`<h2>Cadastrar bem</h2><p class="small muted">Use para bens que a Avante já tem (inventário inicial). Compras novas entram sozinhas pelo recebimento em Suprimentos › Compras.</p>${atForm()}<div id="err" class="err"></div><div class="modal-actions"><button class="btn" data-act="close">Cancelar</button><button class="btn primary" data-act="atNovoOk">Cadastrar</button></div>`,true)},
  atNovoOk:async t=>{const o=atLerForm();if(!o.descricao){$('#err').textContent='Informe a descrição.';return}const q=Math.max(1,Math.min(200,parseInt($('#afQ').value)||1));const loc=$('#afL').value||null;t.disabled=true;
   try{const rows=await S.api.insert('ativos',Array.from({length:q},()=>Object.assign({},o,{obra_id:loc,status:'Disponível'})));await S.api.insert('ativo_movimentos',rows.map(a=>({ativo_id:a.id,tipo:'Cadastro',data:dk(T0),destino_obra:loc,obs:'Cadastro manual'})));
    await evento('Cadastrou bem patrimonial',o.descricao+' · '+q+' un');closeModal();toast(q>1?`${q} bens cadastrados (${patN(rows[0].numero)} a ${patN(rows[rows.length-1].numero)}).`:'Bem '+patN(rows[0].numero)+' cadastrado.');if(q===1)go('ativodet',{id:rows[0].id});else reload()}catch(e){t.disabled=false;$('#err').textContent=e.message}},
- atCsv:()=>{csv('patrimonio.csv',[['Número','Descrição','Categoria','Marca','Modelo','Série','Local','Responsável','Situação','Conservação','Aquisição','Valor aquisição','Depreciação acumulada','Valor contábil','NF','Último RDO'],...(S._atVis||[]).map(a=>{const dp=atDep(a);return [patN(a.numero),a.descricao,a.categoria,a.marca||'',a.modelo||'',a.numero_serie||'',atLocal(a.obra_id),atFunc(a.responsavel_id),a.status,a.conservacao||'',a.data_aquisicao?fD(a.data_aquisicao):'',N(+a.valor_aquisicao||0,2),N(dp.acum,2),N(dp.contabil,2),a.nf_numero||'',a.ultimo_rdo?fD(a.ultimo_rdo):'']})])},
+ bemCsv:()=>{csv('patrimonio.csv',[['Número','Descrição','Categoria','Marca','Modelo','Série','Local','Responsável','Situação','Conservação','Aquisição','Valor aquisição','Depreciação acumulada','Valor contábil','NF','Último RDO'],...(S._atVis||[]).map(a=>{const dp=atDep(a);return [patN(a.numero),a.descricao,a.categoria,a.marca||'',a.modelo||'',a.numero_serie||'',atLocal(a.obra_id),atFunc(a.responsavel_id),a.status,a.conservacao||'',a.data_aquisicao?fD(a.data_aquisicao):'',N(+a.valor_aquisicao||0,2),N(dp.acum,2),N(dp.contabil,2),a.nf_numero||'',a.ultimo_rdo?fD(a.ultimo_rdo):'']})])},
  atEtiq:()=>{const L=S._atVis||[];docPrint(`<style>@page{size:A4 portrait;margin:8mm}#printArea .et{display:grid;grid-template-columns:repeat(3,1fr);gap:3mm}#printArea .et div{border:1px dashed #999;border-radius:4px;padding:3mm;height:24mm;font:8pt Arial;display:flex;flex-direction:column;justify-content:space-between;break-inside:avoid}#printArea .et b{font-size:15pt;letter-spacing:1px}#printArea .et img{height:9mm}</style><div class="et">${L.map(a=>`<div><div style="display:flex;justify-content:space-between;align-items:center"><img src="logo.png"><span>PATRIMÔNIO</span></div><b>${patN(a.numero)}</b><span>${esc(String(a.descricao).slice(0,40))}</span></div>`).join('')}</div>`)}});
 
 // ---------------------------------------------------------------- FICHA DO BEM
@@ -6811,4 +6812,40 @@ ACT.cpAvulsaOk=async t=>{const A=S._avu;const oc=A.m==='oc';const o=$('#cpO').va
 // botões nas listas
 const _supcotH=PAGES.supcot.html;PAGES.supcot.html=function(){const h=_supcotH.apply(this,arguments);if(!perm('suprimentos','editar'))return h;return h.replace(/<h1>([^<]*)<\/h1>/,'<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1 style="margin:0">$1</h1><button class="btn primary" data-act="cpAvulsa" data-m="cot">+ Nova cotação (sem solicitação)</button></div>')};
 const _supocH=PAGES.supoc.html;PAGES.supoc.html=function(){const h=_supocH.apply(this,arguments);if(!perm('suprimentos','editar'))return h;return h.replace('<div style="display:flex;gap:6px">','<div style="display:flex;gap:6px"><button class="btn primary" data-act="cpAvulsa" data-m="oc">+ OC direta (sem solicitação)</button>')};
+// ================================================================ SESSÃO: saída automática após 30 min sem atividade + aviso de nova versão do portal
+const SESS={lim:30*60e3,aviso:2*60e3,k:'avante_ult_atividade',mem:0,t:0,cron:null};
+const sessGet=()=>{try{return +localStorage.getItem(SESS.k)||SESS.mem||0}catch(e){return SESS.mem||0}};
+const sessSet=t=>{SESS.mem=t;try{localStorage.setItem(SESS.k,String(t))}catch(e){}};
+// qualquer uso do portal (em qualquer aba) conta como atividade
+function sessAtiv(){const n=Date.now();if(n-SESS.t<10000)return;SESS.t=n;if(!S.user)return;sessSet(n);sessAvisoFechar()}
+['pointerdown','keydown','wheel','touchstart','scroll','mousemove','input'].forEach(e=>document.addEventListener(e,sessAtiv,{passive:true,capture:true}));
+// o login conta como atividade
+const _doLogin=doLogin;doLogin=async function(){sessSet(Date.now());SESS.t=Date.now();return _doLogin.apply(this,arguments)};
+async function sessSair(){if(SESS.saindo)return;SESS.saindo=true;clearInterval(SESS.cron);try{await evento('Logout por inatividade','30 minutos sem atividade')}catch(e){}try{await S.api.signOut()}catch(e){}
+ try{localStorage.removeItem(SESS.k)}catch(e){}location.replace(location.pathname+'?saiu=inatividade')}   // recarrega a página inteira: o portal volta na versão mais nova
+function sessCheck(){if(!S.user||SESS.saindo)return;let ult=sessGet();if(!ult){ult=Date.now();sessSet(ult)}const ocio=Date.now()-ult;
+ if(ocio>=SESS.lim){sessSair();return}if(ocio>=SESS.lim-SESS.aviso)sessAviso(ult);else sessAvisoFechar()}
+function sessAviso(ult){let b=$('#sessAv');if(!b){b=document.createElement('div');b.id='sessAv';b.className='sess-av';b.setAttribute('role','alertdialog');b.innerHTML='<span id="sessAvT"></span><button class="btn sm primary" data-act="sessFica">Continuar conectado</button>';document.body.appendChild(b)}
+ const upd=()=>{const r=Math.max(0,SESS.lim-(Date.now()-sessGet()));const m=Math.floor(r/60000),s=Math.floor(r%60000/1000);const el=$('#sessAvT');if(el)el.innerHTML=`Por falta de atividade, você será desconectado em <b>${m}:${String(s).padStart(2,'0')}</b>.`;if(r<=0)sessCheck()};
+ upd();clearInterval(SESS.tic);SESS.tic=setInterval(upd,1000)}
+function sessAvisoFechar(){const b=$('#sessAv');if(b)b.remove();clearInterval(SESS.tic)}
+ACT.sessFica=()=>{sessSet(Date.now());SESS.t=Date.now();sessAvisoFechar();toast('Sessão mantida.')};
+SESS.cron=setInterval(sessCheck,15000);
+// computador que dormiu / aba que voltou: confere na hora
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){sessCheck();verCheck()}});window.addEventListener('focus',()=>{sessCheck();verCheck()});
+// aba restaurada com sessão antiga: confere logo depois de abrir
+setTimeout(sessCheck,2500);
+// tela de login: avisa o motivo da saída
+const _loginHTML=loginHTML;loginHTML=function(){let h=_loginHTML.apply(this,arguments);if(/saiu=inatividade/.test(location.search))h=h.replace('<label for="em">E-mail</label>','<div class="note" style="margin:-10px 0 16px">Você foi desconectado após <b>30 minutos sem atividade</b>. Entre novamente: o portal já está na versão mais recente.</div><label for="em">E-mail</label>');return h};
+const _doLogin2=doLogin;doLogin=async function(){const r=await _doLogin2.apply(this,arguments);if(S.user&&/saiu=/.test(location.search)){try{history.replaceState(null,'',location.pathname+location.hash)}catch(e){}}return r};
+
+// ---------------------------------------------------------------- NOVA VERSÃO PUBLICADA
+// o build grava versao.txt; o portal confere a cada 5 min (e ao voltar para a aba) e atualiza sozinho na próxima troca de tela
+async function verCheck(){if(typeof APP_VERSAO==='undefined'||SESS.novaVer)return;const n=Date.now();if(n-(SESS.verT||0)<60000)return;SESS.verT=n;
+ try{const r=await fetch('versao.txt?'+n,{cache:'no-store'});if(!r.ok)return;const v=(await r.text()).trim();if(/^\d{8,}$/.test(v)&&v!==APP_VERSAO){SESS.novaVer=v;verAviso()}}catch(e){}}
+function verAviso(){if($('#verAv'))return;const b=document.createElement('div');b.id='verAv';b.className='ver-av';b.innerHTML='<span>Há uma <b>nova versão</b> do portal. Ela será aplicada ao trocar de tela.</span><button class="btn sm" data-act="verAtualizar">Atualizar agora</button>';document.body.appendChild(b)}
+ACT.verAtualizar=()=>location.reload();
+setInterval(verCheck,5*60e3);setTimeout(verCheck,20000);
+// troca de tela com versão nova pendente: recarrega a página já na tela de destino (a sessão continua)
+const _go=go;go=async function(r,params,semHist){if(SESS.novaVer&&S.user&&!document.querySelector('#modal')){S.route=r;S.params=params||{};S._rotaOk=true;try{marcarHash(true)}catch(e){}location.reload();return}return _go.apply(this,arguments)};
 iniciar();
