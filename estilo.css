@@ -509,3 +509,9 @@ table.imp-nf input[data-ret]:disabled{background:#f3f5f8;color:#9aa3ad}
 .sess-av{bottom:20px;background:var(--warn-soft);color:var(--text);border:1px solid var(--warn)}
 .ver-av{top:12px;background:var(--accent-soft);color:var(--text);border:1px solid var(--accent)}
 @media print{.sess-av,.ver-av{display:none!important}}
+/* onda 1: convites, mapa de cotação, NF-e, indicadores */
+.cv-lista{max-height:46vh;overflow:auto;border:1px solid var(--border);border-radius:8px;padding:6px 10px}.cv-lista .check{display:block;margin:4px 0}
+.cv-url{word-break:break-all}
+.cv-mapa td,.cv-mapa th{vertical-align:top}.cv-mapa .cv-min{background:var(--ok-soft)}.cv-mapa tfoot td{border-top:1px solid var(--border)}
+.nx-box{background:var(--surface2);border-radius:10px;padding:10px 12px;margin:-4px 0 10px}.nx-res{margin-top:10px;padding:10px;border-radius:8px;background:var(--surface);border:1px solid var(--border)}.nx-res.div{border-color:var(--warn)}.nx-res.ok{border-color:var(--ok)}
+.qi-t td{vertical-align:middle}.qi-sp{width:132px;height:30px;display:block}.qi-sp .qi-b{fill:var(--accent);opacity:.45}.qi-sp .qi-b.at{opacity:1}.qi-sp .qi-meta{stroke:var(--muted);stroke-width:1;stroke-dasharray:3 2}

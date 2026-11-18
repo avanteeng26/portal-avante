@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cotação · Avante Engenharia</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="logo-marca.png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<style>
+:root{--azul:#1771b6;--azul2:#0f5a93;--txt:#1d2733;--mut:#5f6b78;--lin:#dde3ea;--bg:#eef1f5;--ok:#1f8a4c;--bad:#c0392b}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+header{background:#fff;border-bottom:1px solid var(--lin);padding:12px 16px;display:flex;align-items:center;gap:12px}header img{height:30px}header span{font-size:13px;color:var(--mut)}
+main{max-width:900px;margin:0 auto;padding:16px}
+.card{background:#fff;border:1px solid var(--lin);border-radius:12px;padding:18px;margin-bottom:14px}
+h1{font-size:20px;margin:0 0 6px}p{margin:6px 0}.mut{color:var(--mut);font-size:14px}
+label{display:block;font-size:14px;font-weight:600;margin:12px 0 6px}
+input,textarea,select{width:100%;font:inherit;font-size:16px;padding:10px 12px;border:1px solid #c7d0da;border-radius:10px;background:#fff;color:var(--txt)}
+textarea{min-height:80px}
+button{font:inherit;font-weight:600;border:0;border-radius:10px;padding:14px 18px;width:100%;cursor:pointer;margin-top:12px}
+.pri{background:var(--azul);color:#fff}.pri:active{background:var(--azul2)}button:disabled{opacity:.5}
+.err{color:var(--bad);font-size:14px;margin-top:10px;min-height:18px}
+.ok{background:#e8f6ee;border-color:#bfe3cd}.ok h1{color:var(--ok)}
+.it{border-top:1px solid var(--lin);padding:12px 0;display:grid;grid-template-columns:1fr 150px 120px;gap:10px;align-items:center}
+.it:first-of-type{border-top:0}.it b{display:block}.it .q{font-size:14px;color:var(--mut)}.it .t{text-align:right;font-variant-numeric:tabular-nums}
+.it input{text-align:right}
+.tot{display:flex;justify-content:space-between;font-size:18px;font-weight:700;border-top:2px solid var(--lin);padding-top:12px;margin-top:6px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+@media(max-width:620px){.it{grid-template-columns:1fr 1fr}.it>div:first-child{grid-column:span 2}.g2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><img src="logo.png" alt="Avante Engenharia"><span>Cotação de preços · fornecedor</span></header>
+<main id="m"><div class="card"><p class="mut">Carregando…</p></div></main>
+<script>
+(function(){
+var cfg=window.PORTAL_CONFIG||{};var sb=window.supabase.createClient(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY,{auth:{persistSession:false}});
+var tk=new URLSearchParams(location.search).get('t')||'';var m=document.getElementById('m');var D=null;
+function e(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function dd(x){if(!x)return '';var p=String(x).slice(0,10).split('-');return p[2]+'/'+p[1]+'/'+p[0]}
+function num(s){s=String(s||'').trim();if(!s)return null;s=s.replace(/[^\d,.-]/g,'');if(s.indexOf(',')>=0)s=s.replace(/\./g,'').replace(',','.');var n=parseFloat(s);return isNaN(n)?null:n}
+function brl(v){return (v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}
+function qf(v){return (+v||0).toLocaleString('pt-BR',{maximumFractionDigits:4})}
+function erro(t){m.innerHTML='<div class="card"><h1>Não foi possível abrir</h1><p>'+e(t)+'</p></div>'}
+function tot(){var s=0;(D.itens||[]).forEach(function(i){var v=num((document.getElementById('p_'+i.id)||{}).value);var c=document.getElementById('t_'+i.id);if(v!=null){s+=v*i.quantidade;if(c)c.textContent=brl(v*i.quantidade)}else if(c)c.textContent='—'});var f=num(document.getElementById('fr').value)||0;document.getElementById('tt').textContent=brl(s+f)}
+function tela(){var r=D.resposta||{};var pr=r.itens||{};
+ var cab='<div class="card"><h1>'+e(D.empresa)+' · '+e(D.numero)+'</h1><p class="mut">Para: <b>'+e(D.fornecedor)+'</b>'+(D.prazo?' · responder até <b>'+dd(D.prazo)+'</b>':'')+'</p>'+(D.descricao?'<p>'+e(D.descricao)+'</p>':'')+'<p class="mut">'+(D.local?'Local de entrega: '+e(D.local):'')+(D.necessidade?' · precisa até '+dd(D.necessidade):'')+'</p></div>';
+ if(!D.aberta){m.innerHTML=cab+'<div class="card"><h1>Cotação encerrada</h1><p>'+(D.status==='Respondido'?'Sua proposta foi recebida. Obrigado!':'Esta cotação não está mais recebendo propostas.')+'</p></div>';return}
+ var h=cab+(D.status==='Respondido'?'<div class="card ok"><h1>Proposta já enviada</h1><p>Você pode corrigir os valores e enviar de novo até o prazo. A última proposta enviada é a que vale.</p></div>':'')+
+ '<div class="card"><h1>Itens</h1><p class="mut">Informe o <b>preço unitário</b> de cada item que você fornece. Deixe em branco o que não tiver.</p>'+
+ (D.itens||[]).map(function(i){return '<div class="it"><div><b>'+e(i.descricao)+'</b><span class="q">'+qf(i.quantidade)+' '+e(i.unidade||'')+(i.especificacao?' · '+e(i.especificacao):'')+'</span></div><div><input id="p_'+i.id+'" inputmode="decimal" placeholder="R$ unitário" value="'+(pr[i.id]!=null?String(pr[i.id]).replace('.',','):'')+'"></div><div class="t" id="t_'+i.id+'">—</div></div>'}).join('')+
+ '<div class="g2"><div><label>Frete (R$)</label><input id="fr" inputmode="decimal" value="'+(r.frete!=null?String(r.frete).replace('.',','):'')+'" placeholder="0,00"></div><div><label>Prazo de entrega (dias)</label><input id="pz" inputmode="numeric" value="'+e(r.prazo_dias||'')+'"></div>'+
+ '<div><label>Condição de pagamento</label><input id="cd" value="'+e(r.condicao||'')+'" placeholder="Ex.: boleto 28 dias"></div><div><label>Validade da proposta</label><input id="vl" type="date" value="'+e(r.validade||'')+'"></div></div>'+
+ '<label>Observações</label><textarea id="ob" placeholder="Marca, prazo de cada item, condições…">'+e(r.obs||'')+'</textarea>'+
+ '<div class="tot"><span>Total com frete</span><span id="tt">R$ 0,00</span></div></div>'+
+ '<div class="card"><div class="g2"><div><label>Seu nome *</label><input id="nm" value="'+e(r.nome||'')+'" autocomplete="name"></div><div><label>Telefone</label><input id="tl" value="'+e(r.telefone||'')+'" inputmode="tel" autocomplete="tel"></div></div>'+
+ '<button class="pri" id="env">Enviar proposta</button><div class="err" id="er"></div><p class="mut">Ao enviar, sua proposta vai direto para o comprador da '+e(D.empresa)+'.</p></div>';
+ m.innerHTML=h;m.addEventListener('input',tot);tot();
+ document.getElementById('env').onclick=async function(){var b=this;var er=document.getElementById('er');er.textContent='';var it={};var n=0;
+  (D.itens||[]).forEach(function(i){var v=num(document.getElementById('p_'+i.id).value);if(v!=null){it[i.id]=v;n++}});
+  if(!n){er.textContent='Informe o preço de pelo menos um item.';return}var nm=document.getElementById('nm').value.trim();if(nm.length<3){er.textContent='Informe seu nome.';return}
+  b.disabled=true;b.textContent='Enviando…';
+  var p={itens:it,frete:num(document.getElementById('fr').value),prazo_dias:document.getElementById('pz').value.replace(/\D/g,'')||null,condicao:document.getElementById('cd').value.trim(),validade:document.getElementById('vl').value||null,obs:document.getElementById('ob').value.trim(),nome:nm,telefone:document.getElementById('tl').value.trim()};
+  var r=await sb.rpc('cot_responder',{p_token:tk,p:p});
+  if(r.error||(r.data&&r.data.erro)){b.disabled=false;b.textContent='Enviar proposta';er.textContent=r.error?'Não foi possível enviar. Tente de novo.':r.data.erro;return}
+  m.innerHTML='<div class="card ok"><h1>Proposta enviada</h1><p>Total: <b>'+brl(r.data.total)+'</b>. Obrigado! O comprador da '+e(D.empresa)+' já foi avisado.</p><p class="mut">Se precisar corrigir, abra o mesmo link de novo até o prazo.</p></div>'};
+}
+if(!tk){erro('Link incompleto. Peça um novo link à Avante Engenharia.');return}
+sb.rpc('cot_abrir',{p_token:tk}).then(function(r){if(r.error){erro('Não foi possível carregar a cotação. Tente de novo em instantes.');return}if(r.data&&r.data.erro){erro(r.data.erro);return}D=r.data;tela()});
+})();
+</script>
+</body>
+</html>
