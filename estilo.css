@@ -515,3 +515,10 @@ table.imp-nf input[data-ret]:disabled{background:#f3f5f8;color:#9aa3ad}
 .cv-mapa td,.cv-mapa th{vertical-align:top}.cv-mapa .cv-min{background:var(--ok-soft)}.cv-mapa tfoot td{border-top:1px solid var(--border)}
 .nx-box{background:var(--surface2);border-radius:10px;padding:10px 12px;margin:-4px 0 10px}.nx-res{margin-top:10px;padding:10px;border-radius:8px;background:var(--surface);border:1px solid var(--border)}.nx-res.div{border-color:var(--warn)}.nx-res.ok{border-color:var(--ok)}
 .qi-t td{vertical-align:middle}.qi-sp{width:132px;height:30px;display:block}.qi-sp .qi-b{fill:var(--accent);opacity:.45}.qi-sp .qi-b.at{opacity:1}.qi-sp .qi-meta{stroke:var(--muted);stroke-width:1;stroke-dasharray:3 2}
+/* apropriação de etapa + insumos */
+.ap-tree{max-height:50vh;overflow:auto;border:1px solid var(--border);border-radius:8px;padding:4px 0}
+.ap-n{display:flex;align-items:center;gap:10px;margin:0;padding:7px 10px;cursor:pointer;font-size:13.5px;font-weight:400}.ap-n:hover{background:var(--surface2)}.ap-n input{width:auto;margin:0}.ap-n.etapa{font-size:14px}
+.ap-f{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px}.ap-f input,.ap-f select{margin:0}
+.ap-lst{max-height:46vh;overflow:auto;margin-top:8px}
+.rq-in{width:92px;margin:0;text-align:right;padding:4px 6px}
+@media(max-width:700px){.ap-f{grid-template-columns:1fr}}
