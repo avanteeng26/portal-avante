@@ -554,3 +554,12 @@ table.imp-nf input[data-ret]:disabled{background:#f3f5f8;color:#9aa3ad}
 .mc-grp>summary{list-style:none;display:flex;align-items:center;gap:8px;font-size:13px}.mc-grp>summary::-webkit-details-marker{display:none}
 .mc-grp>summary::after{content:'⌃';margin-left:auto;font-size:16px;color:var(--muted);transform:rotate(0)}.mc-grp:not([open])>summary::after{transform:rotate(180deg)}
 .mc-it th{font-weight:600;color:var(--text);font-size:12px}.mc-it td{font-size:12.5px}.mc-insu{font-size:10.5px;color:#1565c0}.mc-vinc{font-size:11px;color:#1565c0;cursor:pointer}.mc-dots{color:var(--muted);font-weight:700}
+/* cotação e OC no modelo Mais Controle */
+.mc-tabs{margin-top:14px}
+.mc-faixa{display:flex;flex-wrap:wrap;gap:12px 28px;align-items:flex-start;font-size:14px}.mc-faixa>div>span{display:block;font-size:11px;color:var(--muted);margin-bottom:2px}.mc-faixa .mc-acao{margin-left:auto;align-self:center}
+.mc-tot{display:flex;flex-wrap:wrap;gap:8px 28px;justify-content:flex-end;font-size:13.5px}.mc-tot span{display:block;font-size:11px;color:var(--muted)}.mc-tot .t{font-size:17px;font-weight:700}
+.mc-inf{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:4px 24px}.mc-inf p{margin:0 0 8px;font-size:13.5px}
+.mc-sec{margin:14px 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}.mc-inf .mc-sec{margin-top:4px}
+.mc-mapa td,.mc-mapa th{vertical-align:top}.mc-mapa .cv-min{background:#e3f2fd}.mc-mapa .mc-best{background:var(--surface2);min-width:130px}.mc-mapa tfoot td{border-top:1px solid var(--border)}.mc-mapa .mc-tt td{border-top:2px solid var(--border)}
+.mc-rd{display:inline-flex;align-items:center;gap:4px;margin:0;font-weight:400;cursor:pointer}.mc-rd input{width:auto;margin:0}
+.mc-sub{font-size:14px;font-weight:500;color:var(--muted)}
