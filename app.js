@@ -1,4 +1,4 @@
-'use strict';const APP_VERSAO='20261121001641';
+'use strict';const APP_VERSAO='20261121014736';
 'use strict';
 // =====================================================================
 //  PORTAL AVANTE · versão 1 (fase RH) · HTML + JavaScript + Supabase
@@ -3173,7 +3173,8 @@ function iniHtml(o,pend,ord,nome,tfL,dele,blocos,h,urg,lim){
  const ab=(r,id)=>`data-act="go" data-r="${r}"${id?` data-id="${id}"`:''}`;const sic=(set,n)=>`<span class="ini-ic" style="--ic:${INI_COR[set]||'var(--muted)'}" title="${esc(nome[set]||'')}">${ico(set==='tf'?'check':set,n||15)}</span>`;
  // números-chave (faixa superior)
  const K=[];ord.forEach(s=>(blocos[s[0]]||[]).forEach(a=>{if(Array.isArray(a))K.push({set:s[0],l:a[0],v:a[1],h:a[2],st:a[3],r:a[4]})}));
- const top=INI_CHAVE.map(l=>K.find(k=>k.l===l)).filter(Boolean).slice(0,3);
+ const vDin=S.perfil.master||iniPode('paineldir')||perm('financeiro','aprovar');const DIN=['Medido no mês','Valor em negociação'];
+ const top=INI_CHAVE.filter(l=>vDin||!DIN.includes(l)).map(l=>K.find(k=>k.l===l)).filter(Boolean).slice(0,3);
  const tile=(set,l,v,hh,st,r)=>`<div class="ini-tile ${st||''}" ${r?ab(r):''}>${sic(set,18)}<div><div class="ini-tv">${v}</div><div class="ini-tl">${esc(l)}</div>${hh?`<div class="ini-th">${hh}</div>`:''}</div></div>`;
  const nTf=pend.filter(p=>p.sev==='task').length;
  const tiles=[`<div class="ini-tile ${urg?'bad':'ok'} ini-tile-p" data-act="iniVer"><span class="ini-ic" style="--ic:${urg?'var(--bad)':'var(--ok)'}">${ico('check',18)}</span><div><div class="ini-tv">${urg||pend.length?pend.length:'0'}</div><div class="ini-tl">Pendências com você</div><div class="ini-th">${urg?`<b>${urg} urgente(s)</b>`:pend.length?'nenhuma urgente':'tudo em dia'}</div></div></div>`,...top.map(k=>tile(k.set,k.l,k.v,k.h,k.st,k.r))];
