@@ -1,4 +1,4 @@
-'use strict';const APP_VERSAO='20261118195104';
+'use strict';const APP_VERSAO='20261121001641';
 'use strict';
 // =====================================================================
 //  PORTAL AVANTE · versão 1 (fase RH) · HTML + JavaScript + Supabase
@@ -1499,13 +1499,7 @@ function relFerias(d){const fs=(d.fs||[]).filter(f=>f.status!=='Desligado');cons
   if(perm('ferias','ver'))t.push(S.api.select('ferias').then(x=>o.fe=x).catch(()=>{}));
   if(perm('atestados','ver'))t.push(S.api.select('atestados',{gte:{data_inicio:dk(addD(T0,-75))}}).then(x=>o.at=x).catch(()=>{}));
   await Promise.allSettled(t);return o};
- PAGES.inicio.html=function(){const h=H0.call(this);const o=D();const fs=o.fs||[];const fN=id=>(fs.find(f=>f.id===id)||{nome:'?'}).nome;const it=[];
-  if(o.dl){o.dl.filter(deslAtivo).forEach(x=>{if(x.prazo_pagamento&&!x.data_pagamento){const n=diasEntre(dk(T0),x.prazo_pagamento);if(n<0)it.push(['bad',`Rescisão de ${fN(x.funcionario_id)}: pagamento atrasado desde ${fD(x.prazo_pagamento)}`,'desligdet',x.id]);else if(n<=3)it.push(['warn',`Rescisão de ${fN(x.funcionario_id)}: pagar até ${fD(x.prazo_pagamento)}`,'desligdet',x.id])}})}
-  if(fs.length&&fs[0].tipo_contrato!==undefined)expVencendo(fs,10).forEach(x=>it.push(['warn',`${x.f.nome}: ${x.fase.toLowerCase()} em ${fD(x.alvo)}`,'ficha',x.f.id]));
-  if(o.fe&&fs.length)fs.filter(f=>f.status!=='Desligado').forEach(f=>periodosFerias(f,o.fe).forEach(p=>{if(p.completo&&p.saldo>0&&p.conc<=addD(T0,45))it.push([p.conc<T0?'bad':'warn',`Férias de ${f.nome}: ${p.conc<T0?'vencidas desde '+fD(p.conc):'gozar até '+fD(addD(p.conc,-1))}`,'ferias'])}));
-  if(o.at)o.at.filter(a=>a.situacao!=='Recusado'&&!atHoras(a)&&!a.encaminhado_inss&&atInss(a,o.at)>15&&atFim(a)>=addD(T0,-15)).forEach(a=>it.push(['warn',`Atestados de ${fN(a.funcionario_id)} somam mais de 15 dias: encaminhar ao INSS`,'atestados']));
-  if(!it.length)return h;
-  return h+`<div class="card mt"><h3>Prazos do RH (${it.length})</h3>${it.map(p=>`<div class="alert-item"><span>${pill(p[0]==='bad'?'Urgente':'Atenção',p[0])} ${esc(p[1])}</span><button class="btn sm" data-act="go" data-r="${p[2]}"${p[3]?` data-id="${p[3]}"`:''}>Abrir</button></div>`).join('')}</div>`}})();
+ /* cartões de prazos agora ficam na caixa "O que depende de você" (30-inicio) */})();
 // ================================================================ LOGÍSTICA: cadastros e lançamentos
 const numBR=v=>{if(v==null||v==='')return null;let s=String(v).trim().replace(/\s|R\$/g,'');if(s.includes(','))s=s.replace(/\./g,'').replace(',','.');const n=+s;return isFinite(n)?n:null};
 const fN1=(v,c)=>v==null||!isFinite(v)?'—':v.toLocaleString('pt-BR',{minimumFractionDigits:c??0,maximumFractionDigits:c??0});
@@ -1946,8 +1940,7 @@ Object.assign(ACT,{epFicha:()=>{const {f,ent}=D();evento('Imprimiu ficha de EPI'
 // Início: avisa o SESMT sobre kits pendentes
 (function(){const L0=PAGES.inicio.load,H0=PAGES.inicio.html;
  PAGES.inicio.load=async function(){const o=await L0.call(this);if(perm('sst','ver')){try{o.epi=await epiBase()}catch(e){}}return o};
- PAGES.inicio.html=function(){const h=H0.call(this);const o=D();if(!o.epi)return h;const fal=o.epi.fs.filter(f=>epiSit(f,o.epi).falta.length);const tr=o.epi.fs.filter(f=>epiSit(f,o.epi).troca.length);if(!fal.length&&!tr.length)return h;
-  return h+`<div class="card mt"><h3>EPI</h3>${fal.length?`<div class="alert-item"><span>${pill('Atenção','warn')} ${fal.length} funcionário(s) aguardando entrega do kit de EPI${fal.length<=3?': '+fal.map(f=>esc(f.nome)).join(', '):''}</span><button class="btn sm" data-act="go" data-r="epi">Abrir</button></div>`:''}${tr.length?`<div class="alert-item"><span>${pill('Atenção','warn')} ${tr.length} funcionário(s) com troca de EPI vencida</span><button class="btn sm" data-act="go" data-r="epi">Abrir</button></div>`:''}</div>`}})();
+ /* cartões de prazos agora ficam na caixa "O que depende de você" (30-inicio) */})();
 // ================================================================ PAINEL DA DIRETORIA
 PAGES.paineldir={async load(){const P=dirPer();const k=P.k;S.params.comp=k;const o={k,P};
   const t=[];if(perm('colab','ver'))t.push(PAGES.relatorios.load().then(x=>o.rh=x).catch(()=>{}));
@@ -3118,7 +3111,8 @@ PAGES.inicio={async load(){const o={};const ont=(()=>{let d=addD(T0,-1);while(ca
  P(perm('comercial','ver'),async()=>{o.ng=await S.api.select('negocios',{cols:'id,numero,segmento,titulo,etapa,etapa_desde,situacao,valor,validade_proposta,previsao_fechamento,responsavel_id,cliente_id'})});
  INI_LOAD.forEach(f=>t.push(Promise.resolve().then(()=>f(o)).catch(()=>{})));
  await Promise.allSettled(t);return o},
- html(){const o=D();const h=new Date().getHours();const pend=[];const blocos={};const ab=(r,id)=>`data-act="go" data-r="${r}"${id?` data-id="${id}"`:''}`;
+ html(){const KC=[];const kc0=kc;kc=(...a)=>a;try{return iniMontar.call(this,KC)}finally{kc=kc0}}};
+function iniMontar(KC){{const o=D();const h=new Date().getHours();const pend=[];const blocos={};const ab=(r,id)=>`data-act="go" data-r="${r}"${id?` data-id="${id}"`:''}`;
   const add=(set,sev,txt,r,id,act)=>pend.push({set,sev,txt,r,id,act});const fs=o.fs||[];const fN=id=>(fs.find(f=>f.id===id)||{nome:'?'}).nome;const at=fs.filter(f=>f.status!=='Desligado');
   // ---------- RH
   {const K=[];if(fs.length&&perm('colab','ver')){const asoV=at.filter(f=>f.aso_vencimento&&pdk(f.aso_vencimento)<T0).length;K.push(kc('Funcionários ativos',at.length,asoV?asoV+' com ASO vencido':'no cadastro',asoV?'warn':'','colab'))}
@@ -3167,13 +3161,44 @@ PAGES.inicio={async load(){const o={};const ont=(()=>{let d=addD(T0,-1);while(ca
   const tfL=o.tf||S._iniTf;let dele=null;if(tfL){tfL.filter(tfParaMim).forEach(t=>{const sv=tfSev(t);pend.push({set:'tf',sev:sv==='info'?'task':sv,txt:`${t.titulo} · ${tfPrazoTxt(t)}${t.criado_por&&t.criado_por!==S.user.id?' · de '+(tfNome(t.criado_por)||'—'):''}${!t.responsavel_id?' · para a equipe':''}`,act:'tfAbrir',id:t.id})});const D0=tfL.filter(t=>t.criado_por===S.user.id&&!tfParaMim(t));dele={n:D0.length,atr:D0.filter(t=>t.prazo&&pdk(t.prazo)<T0).length}}
   const ord=iniOrdem().filter(s=>blocos[s[0]]&&blocos[s[0]].length);const nome=Object.assign(Object.fromEntries(INI_SET.map(s=>[s[0],s[1]])),{tf:'Tarefa'});const rk={bad:0,warn:1,task:2};
   pend.sort((a,b)=>rk[a.sev]-rk[b.sev]||ord.findIndex(s=>s[0]===a.set)-ord.findIndex(s=>s[0]===b.set));const urg=pend.filter(p=>p.sev==='bad').length;const lim=S._iniTodas?pend.length:12;
-  return `<h1>${h<12?'Bom dia':h<18?'Boa tarde':'Boa noite'}, ${esc(S.user.nome.split(' ')[0])}</h1><p class="sub">${DOW[T0.getDay()]}, ${T0.getDate()} de ${MESESL[T0.getMonth()]} de ${T0.getFullYear()} · ${esc(S.perfil.nome||'')}</p>
-  <div class="card ini-pend"><div class="ini-h" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px"><h3 style="margin:0">O que depende de você ${pend.length?`<span class="small muted" style="font-weight:400">· ${pend.length} pendência(s)${urg?', '+urg+' urgente(s)':''}</span>`:''}</h3><span class="sp" style="flex:1"></span>${tfL?`${dele&&dele.n?`<a class="lp-link small" data-act="go" data-r="tarefas" data-p='{"tt":"dele"}'>Você delegou ${dele.n} tarefa(s) em aberto${dele.atr?`, ${dele.atr} atrasada(s)`:''}</a>`:''}<button class="btn sm" data-act="go" data-r="tarefas">Tarefas</button><button class="btn sm primary" data-act="tfNova">+ Delegar tarefa</button>`:''}</div>
-  ${pend.slice(0,lim).map(p=>`<div class="alert-item"><span>${p.sev==='task'?pill('A fazer','info'):pill(p.sev==='bad'?'Urgente':'Atenção',p.sev)} ${ord.length>1||p.set==='tf'?`<span class="tag">${esc(nome[p.set])}</span> `:''}${esc(p.txt)}</span><button class="btn sm" ${p.act?`data-act="${p.act}" data-id="${p.id}"`:ab(p.r,p.id)}>Abrir</button></div>`).join('')||'<p class="muted" style="margin:6px 0 0">Nada pendente com você. Tudo em dia por aqui.</p>'}
-  ${pend.length>lim?`<div style="text-align:center;margin-top:8px"><button class="btn sm" data-act="iniTodas">Ver todas as ${pend.length} pendências</button></div>`:''}</div>
-  ${ord.map(s=>`<div class="ini-set mt"><div class="ini-h"><h2>${esc(s[1])}</h2><button class="btn sm" data-act="sec" data-s="${s[0]==='rh'?'rh':s[0]}">Abrir o setor</button></div><div class="grid kpis" style="grid-template-columns:repeat(auto-fill,minmax(210px,1fr))">${blocos[s[0]].join('')}</div></div>`).join('')}
-  ${S.perfil.master&&(!S.ref.empresa.razao_social||S.ref.funcoes.some(f=>!f.salario_base))?`<div class="note mt"><b>Primeiros passos:</b> complete os <a class="lp-link" data-act="go" data-r="cadastros">dados da empresa e os salários-base das funções</a>, cadastre a equipe atual em <a class="lp-link" data-act="go" data-r="colab">Funcionários</a> (há importação por planilha) e libere os usuários em <a class="lp-link" data-act="go" data-r="usuarios">Usuários</a>.</div>`:''}`}};
+  return iniHtml(o,pend,ord,nome,tfL,dele,blocos,h,urg,lim)}};
 ACT.iniTodas=()=>{S._iniTodas=1;render()};
+// ---------- layout da página inicial (atualização 73): destaque + números-chave + caixa por prioridade
+const INI_ATALHOS=[['rqNova','','Nova solicitação','supsol',()=>perm('suprimentos','incluir')],['go','ponto','Lançar ponto','ponto',()=>perm('ponto','editar')],['go','diario','Diário de obra','diario',()=>perm('engenharia','incluir')||perm('engenharia','editar')],['go','pagar','Contas a pagar','pagar',()=>perm('financeiro','editar')],['go','atestados','Atestados','atestados',()=>perm('atestados','editar')]];
+if(typeof ICON!=='undefined'&&!ICON.check)ICON.check='<path d="M20 6 9 17l-5-5"/>';
+const INI_CHAVE=['Obras em andamento','Medido no mês','Saldo em contas','A pagar vencido','Funcionários ativos','Negócios em andamento','Valor em negociação','Veículos ativos','Inspeções no mês','Admissões em andamento'];
+const INI_COR={eng:'var(--c1)',rh:'var(--c3)',sst:'var(--c5)',log:'var(--c2)',fin:'var(--ok)',com:'var(--c4)',qual:'var(--c6)',tf:'var(--accent)'};
+function iniPode(r){try{return can(r)}catch(e){return !ROUTE_MOD[r]||perm(ROUTE_MOD[r],'ver')}}
+function iniHtml(o,pend,ord,nome,tfL,dele,blocos,h,urg,lim){
+ const ab=(r,id)=>`data-act="go" data-r="${r}"${id?` data-id="${id}"`:''}`;const sic=(set,n)=>`<span class="ini-ic" style="--ic:${INI_COR[set]||'var(--muted)'}" title="${esc(nome[set]||'')}">${ico(set==='tf'?'check':set,n||15)}</span>`;
+ // números-chave (faixa superior)
+ const K=[];ord.forEach(s=>(blocos[s[0]]||[]).forEach(a=>{if(Array.isArray(a))K.push({set:s[0],l:a[0],v:a[1],h:a[2],st:a[3],r:a[4]})}));
+ const top=INI_CHAVE.map(l=>K.find(k=>k.l===l)).filter(Boolean).slice(0,3);
+ const tile=(set,l,v,hh,st,r)=>`<div class="ini-tile ${st||''}" ${r?ab(r):''}>${sic(set,18)}<div><div class="ini-tv">${v}</div><div class="ini-tl">${esc(l)}</div>${hh?`<div class="ini-th">${hh}</div>`:''}</div></div>`;
+ const nTf=pend.filter(p=>p.sev==='task').length;
+ const tiles=[`<div class="ini-tile ${urg?'bad':'ok'} ini-tile-p" data-act="iniVer"><span class="ini-ic" style="--ic:${urg?'var(--bad)':'var(--ok)'}">${ico('check',18)}</span><div><div class="ini-tv">${urg||pend.length?pend.length:'0'}</div><div class="ini-tl">Pendências com você</div><div class="ini-th">${urg?`<b>${urg} urgente(s)</b>`:pend.length?'nenhuma urgente':'tudo em dia'}</div></div></div>`,...top.map(k=>tile(k.set,k.l,k.v,k.h,k.st,k.r))];
+ // caixa por prioridade, agrupando repetidas
+ const lin=p=>`<div class="ini-row" ${p.act?`data-act="${p.act}" data-id="${p.id}"`:ab(p.r,p.id)}>${sic(p.set)}<span class="ini-tx">${esc(p.txt)}</span><span class="ini-go">›</span></div>`;
+ const bloco=(sev,tt)=>{const L=pend.filter(p=>p.sev===sev);if(!L.length)return'';const G=[],ix={};L.forEach(p=>{const k=p.act?null:p.set+'|'+p.r;if(k&&ix[k]!=null)G[ix[k]].push(p);else{if(k)ix[k]=G.length;G.push([p])}});
+  const lm=S._iniTodas?G.length:(sev==='bad'?8:5);
+  return `<div class="ini-sec ${sev}"><div class="ini-sh"><span>${tt}</span><b>${L.length}</b></div>${G.slice(0,lm).map(g=>g.length<3?g.map(lin).join(''):`<details class="ini-grp"><summary class="ini-row">${sic(g[0].set)}<span class="ini-tx"><b>${g.length}× ${esc(TITLES[g[0].r]||nome[g[0].set]||'')}</b><span class="muted"> · ${esc(g.map(p=>p.txt.split(':')[0]).slice(0,3).join(', '))}${g.length>3?' e outros':''}</span></span><span class="ini-go ini-mais">▾</span></summary>${g.map(lin).join('')}</details>`).join('')}${G.length>lm?`<button class="ini-vt" data-act="iniTodas">Ver mais ${G.slice(lm).reduce((s,g)=>s+g.length,0)}</button>`:''}</div>`};
+ const caixa=bloco('bad','Urgente')+bloco('warn','Para acompanhar')+bloco('task','Tarefas');
+ // alertas dos setores que não repetem a caixa nem a faixa
+ const rotas=new Set(pend.map(p=>p.r));const att=K.filter(k=>(k.st==='bad'||k.st==='warn')&&!top.includes(k)&&!rotas.has(k.r)&&!pend.some(p=>p.set===k.set&&p.sev===k.st)).slice(0,4);
+ const paineis=[...ord.map(s=>[s[3],s[1].replace('Saúde e Segurança','SESMT').replace('Recursos Humanos','RH'),s[0]]),...(iniPode('suppainel')?[['suppainel','Compras','cart']]:[]),...(iniPode('paineldir')?[['paineldir','Diretoria','relatorios']]:[])].filter((x,i,a)=>a.findIndex(y=>y[0]===x[0])===i);
+ const atal=INI_ATALHOS.filter(a=>iniPode(a[3])&&(()=>{try{return a[4]()}catch(e){return false}})()).slice(0,4);
+ const frase=urg?`Você tem <b>${urg} pendência(s) urgente(s)</b>${pend.length>urg?` e mais ${pend.length-urg} para acompanhar`:''}.`:pend.length?`Nada urgente hoje. ${pend.length} item(ns) para acompanhar.`:'Tudo em dia por aqui.';
+ return `<section class="ini-hero"><div><div class="ini-hd">${DOW[T0.getDay()]}, ${T0.getDate()} de ${MESESL[T0.getMonth()]} · ${esc(S.perfil.nome||'')}</div><h1>${h<12?'Bom dia':h<18?'Boa tarde':'Boa noite'}, ${esc(S.user.nome.split(' ')[0])}</h1><p>${frase}</p></div>
+  ${atal.length||tfL?`<div class="ini-atal">${atal.map(a=>`<button class="ini-ab" data-act="${a[0]}"${a[1]?` data-r="${a[1]}"`:''}>${esc(a[2])}</button>`).join('')}${tfL?'<button class="ini-ab pri" data-act="tfNova">+ Delegar tarefa</button>':''}</div>`:''}</section>
+ <div class="ini-tiles">${tiles.join('')}</div>
+ <div class="ini-grid"><div class="card ini-caixa" id="iniCaixa"><div class="ini-h"><h3>O que depende de você</h3><span style="flex:1"></span>${tfL?`${dele&&dele.n?`<a class="lp-link small" data-act="go" data-r="tarefas" data-p='{"tt":"dele"}'>Você delegou ${dele.n}${dele.atr?` (${dele.atr} atrasada)`:''}</a>`:''}<button class="btn sm" data-act="go" data-r="tarefas">Minhas tarefas</button>`:''}</div>
+  ${caixa||`<div class="ini-vazio">${ico('check',28)}<b>Nada pendente com você.</b><span class="muted">Quando algo depender de você, aparece aqui.</span></div>`}</div>
+ <aside class="ini-side">
+  ${att.length?`<div class="card"><div class="ini-h"><h3>Alertas dos setores</h3></div>${att.map(k=>`<div class="ini-al ${k.st}" ${k.r?ab(k.r):''}>${sic(k.set)}<div><div class="ini-tl">${esc(k.l)}</div><div><b>${k.v}</b> <span class="muted small">${k.h||''}</span></div></div></div>`).join('')}</div>`:''}
+  ${paineis.length?`<div class="card"><div class="ini-h"><h3>Painéis</h3></div><div class="ini-pns">${paineis.map(p=>`<button class="ini-pn" data-act="go" data-r="${p[0]}">${sic(p[2],20)}<span>${esc(p[1])}</span></button>`).join('')}</div></div>`:''}
+  ${S.perfil.master&&(!S.ref.empresa.razao_social||S.ref.funcoes.some(f=>!f.salario_base))?`<div class="note"><b>Primeiros passos:</b> complete os <a class="lp-link" data-act="go" data-r="cadastros">dados da empresa e salários-base</a>, cadastre a equipe em <a class="lp-link" data-act="go" data-r="colab">Funcionários</a> e libere os <a class="lp-link" data-act="go" data-r="usuarios">Usuários</a>.</div>`:''}
+ </aside></div>`}
+ACT.iniVer=()=>{const e=document.getElementById('iniCaixa');if(e)e.scrollIntoView({behavior:'smooth',block:'start'})};
 // ================================================================ TAREFAS DELEGADAS (aparecem no "O que depende de você")
 const TF_PRIO=['Baixa','Normal','Alta','Urgente'];const TF_REC=[['','Não se repete'],['diaria','Todo dia útil'],['semanal','Toda semana'],['quinzenal','A cada 15 dias'],['mensal','Todo mês']];
 const TF={eq:null};
